@@ -1,0 +1,2 @@
+border_factor,min_margin,max_margin,reference_width,reference_height,tool_width,small_tool_width,tree_width,small_tree_width,tool_list_width,divider,icon_size,icon_gap,row_height,tab_height,font_size,panel_padding,scroll_step,hold_q,beam_range,blend_seconds,move_threshold,run_threshold
+0.1,25,256,1024,768,460,300,192,100,130,6,64,8,22,28,13,4,44,true,100,0.12,0.009525,2.8575

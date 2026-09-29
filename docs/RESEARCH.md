@@ -2,6 +2,14 @@
 
 Research date: 2026-09-29 UTC. Citation IDs are maintained in `sheets/sources.csv`.
 
+## Reference-driven presentation repair, 2026-09-29
+
+Drew's play feedback identified incorrect walking/jumping, missing beam and nonmatching menu layout. Read Facepunch's public `gamemodes/base/gamemode/animations.lua`, Sandbox `spawnmenu/spawnmenu.lua`, `creationmenu.lua`, `toolpanel.lua`, `creationmenu/content/content.lua`, `lua/vgui/spawnicon.lua`, and the `GM:DrawPhysgunBeam` wiki page. Exact URLs, observed rules, approximation labels and remaining work are in `sheets/presentation_references.csv`. The implementation plan is [PRESENTATION_PLAN.md](PRESENTATION_PLAN.md).
+
+Reused existing Bevy `RelativeCursorPosition`, `ScrollPosition`, flex layout and `StandardMaterial`, Rapier's ray query and actual controller displacement, and the project's original-asset skeleton/clip decoder. No additional packages were introduced and no Valve/Facepunch implementation source was copied. Clip identifiers were taken from the previously inspected local animation metadata. The new runtime sheets are `source_layout.csv` and `source_animation_states.csv`.
+
+The old animation path selected forward clips from global elapsed time regardless of airborne state. The old effects path required a valid held entity before drawing any beam. The old menu used unrelated 3%/5%/94%/82% placement and a 145px card grid. These code-level findings explain specific reported mismatches, but the corrected version remains subject to Drew's visual testing. Source activity layers, pose parameters and original skin rendering are still incomplete.
+
 ## Observed local baseline
 
 - Steam app 4000 installation found through `libraryfolders.vdf` at `D:\SteamLibrary\steamapps\common\GarrysMod`.

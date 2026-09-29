@@ -6,6 +6,7 @@ pub mod source_catalog;
 pub mod source_models;
 pub mod source_play;
 pub mod source_player;
+mod source_pose;
 use bevy_rapier3d::prelude::*;
 use sandbox_catalog::{
     content::Content,

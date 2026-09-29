@@ -17,6 +17,8 @@ use bevy::{
 use bevy_rapier3d::prelude::*;
 use sandbox_catalog::{play::PlayConfig, Result};
 use std::collections::BTreeMap;
+#[path = "source_menu.rs"]
+mod menu;
 
 #[derive(Component)]
 pub struct SourceCamera;
@@ -31,6 +33,8 @@ pub struct SpawnedProp {
 #[derive(Component, Clone)]
 enum UiAction {
     Tab(u8),
+    Search,
+    Unavailable(String),
     Category(String),
     Page(i32),
     Spawn(String),
@@ -45,6 +49,12 @@ struct MenuRoot;
 #[derive(Resource)]
 pub struct PlayState {
     pub config: PlayConfig,
+    pub layout: sandbox_catalog::presentation::LayoutConfig,
+    pub search_focus: bool,
+    pub menu_size: Vec2,
+    pub menu_scroll: [f32; 4],
+    pub held_anchor: Vec3,
+    pub beam_active: bool,
     pub models: Vec<ModelEntry>,
     pub menu_open: bool,
     pub tab: u8,
@@ -99,6 +109,12 @@ impl PlayState {
         let distance = config.spawn_distance;
         let mut out = Self {
             config,
+            layout: crate::compiled_layout_config(),
+            search_focus: false,
+            menu_size: Vec2::ZERO,
+            menu_scroll: [0.; 4],
+            held_anchor: Vec3::ZERO,
+            beam_active: false,
             models,
             menu_open: false,
             tab: 0,
@@ -150,7 +166,14 @@ impl Plugin for SourcePlayPlugin {
         .add_plugins(RapierPhysicsPlugin::<NoUserData>::default().in_fixed_schedule())
         .add_systems(
             Update,
-            (search_input, update_play, adjust_hold_distance).chain(),
+            (
+                search_input,
+                update_play,
+                adjust_hold_distance,
+                menu::scroll,
+                menu::hover,
+            )
+                .chain(),
         );
     }
 }
@@ -332,8 +355,62 @@ fn ray_box(origin: Vec3, direction: Vec3, center: Vec3, half: Vec3) -> Option<f3
     }
     (far >= near).then_some(near)
 }
+pub(crate) fn world_ray(
+    world: &mut World,
+    eye: Transform,
+    max_distance: f32,
+) -> Option<(Entity, f32)> {
+    let player = world
+        .get_resource::<crate::source_player::PlayerState>()
+        .map(|p| p.entity);
+    let mut query = world.query::<(
+        &RapierContextSimulation,
+        &RapierContextColliders,
+        &RapierRigidBodySet,
+        &RapierContextJoints,
+        &RapierQueryPipeline,
+    )>();
+    let (simulation, colliders, bodies, joints, pipeline) = query.single(world).ok()?;
+    let context = bevy_rapier3d::plugin::RapierContext {
+        simulation,
+        colliders,
+        rigidbody_set: bodies,
+        joints,
+        query_pipeline: pipeline,
+    };
+    let mut filter = QueryFilter::default();
+    if let Some(entity) = player {
+        filter = filter.exclude_collider(entity);
+    }
+    context.cast_ray(eye.translation, *eye.forward(), max_distance, true, filter)
+}
+pub(crate) fn beam_target(world: &mut World) -> Option<Vec3> {
+    let state = world.resource::<PlayState>();
+    if let Some(t) = state.held.and_then(|e| world.get::<Transform>(e)) {
+        return Some(t.translation + t.rotation * state.held_anchor);
+    }
+    if !state.beam_active {
+        return None;
+    }
+    let range = state.layout.beam_range;
+    let eye = camera(world)?;
+    let distance = world_ray(world, eye, range)
+        .map(|(_, d)| d)
+        .unwrap_or(range);
+    Some(eye.translation + *eye.forward() * distance)
+}
 pub fn aimed_prop(world: &mut World) -> Option<(Entity, f32)> {
     let camera = camera(world)?;
+    let range = world.resource::<PlayState>().layout.beam_range;
+    let hit = world_ray(world, camera, range);
+    if let Some((entity, distance)) = hit {
+        if world.get::<SpawnedProp>(entity).is_some() {
+            return Some((entity, distance));
+        }
+    }
+    // Newly spawned bodies may not have reached Rapier's next fixed sync yet.
+    // Keep the bounds fallback, but never select through a nearer world surface.
+    let limit = hit.map(|(_, d)| d).unwrap_or(range);
     world
         .query::<(Entity, &SpawnedProp, &Transform)>()
         .iter(world)
@@ -345,6 +422,7 @@ pub fn aimed_prop(world: &mut World) -> Option<(Entity, f32)> {
                 p.center,
                 p.half,
             )
+            .filter(|d| *d <= limit)
             .map(|d| (e, d))
         })
         .min_by(|a, b| a.1.total_cmp(&b.1))
@@ -424,7 +502,7 @@ fn save_preferences(world: &World) -> Result<()> {
 }
 
 fn search_input(mut events: EventReader<KeyboardInput>, mut state: ResMut<PlayState>) {
-    if !state.menu_open || state.tab != 0 {
+    if !state.menu_open || !state.search_focus {
         events.clear();
         return;
     }
@@ -434,11 +512,15 @@ fn search_input(mut events: EventReader<KeyboardInput>, mut state: ResMut<PlaySt
         }
         match &e.logical_key {
             Key::Character(c) => {
-                if c.as_str() != "q" && c.as_str() != "Q" {
+                if state.search.len() + c.len() <= 256 {
                     state.search.push_str(c);
                     state.page = 0;
                     state.dirty = true;
                 }
+            }
+            Key::Enter => {
+                state.search_focus = false;
+                state.dirty = true;
             }
             Key::Backspace => {
                 state.search.pop();
@@ -464,26 +546,52 @@ pub fn update_play(world: &mut World) {
         .filter(|(i, _)| **i == Interaction::Pressed)
         .map(|(_, a)| a.clone())
         .collect();
-    if keys.just_pressed(KeyCode::KeyQ) {
+    let (focused, size) = world
+        .query_filtered::<&Window, With<PrimaryWindow>>()
+        .iter(world)
+        .next()
+        .map(|w| (w.focused, Vec2::new(w.width(), w.height())))
+        .unwrap_or((true, Vec2::new(1280., 800.)));
+    {
         let mut s = world.resource_mut::<PlayState>();
-        s.menu_open = !s.menu_open;
+        if s.menu_size != size {
+            s.menu_size = size;
+            s.dirty = true;
+        }
+        if !focused {
+            s.held = None;
+            s.beam_active = false;
+        }
+    }
+    if keys.just_pressed(KeyCode::KeyQ) && !world.resource::<PlayState>().search_focus {
+        let mut s = world.resource_mut::<PlayState>();
+        s.menu_open = s.layout.hold_q || !s.menu_open;
         s.dirty = true;
         s.held = None;
     }
+    if keys.just_released(KeyCode::KeyQ) {
+        let mut s = world.resource_mut::<PlayState>();
+        if s.layout.hold_q && !s.search_focus {
+            s.menu_open = false;
+            s.dirty = true;
+        }
+    }
     if keys.just_pressed(KeyCode::Escape) {
         let mut s = world.resource_mut::<PlayState>();
-        s.menu_open = true;
-        s.tab = 2;
+        s.menu_open = !s.menu_open;
+        s.search_focus = false;
+        s.tab = 1;
         s.dirty = true;
         s.held = None;
     }
     for (key, physgun) in [(KeyCode::Digit1, true), (KeyCode::Digit2, false)] {
         if keys.just_pressed(key) && !world.resource::<PlayState>().menu_open {
             world.resource_mut::<PlayState>().physgun = physgun;
+            world.resource_mut::<PlayState>().held = None;
             set_weapon(world);
         }
     }
-    if world.resource::<PlayState>().menu_open {
+    if world.resource::<PlayState>().menu_open || !focused {
         for mut w in world
             .query_filtered::<&mut Window, With<PrimaryWindow>>()
             .iter_mut(world)
@@ -519,8 +627,12 @@ pub fn update_play(world: &mut World) {
             if let Some(e) = focus {
                 if world.resource::<PlayState>().physgun {
                     remember(world);
-                    let distance = aimed_prop(world).map(|p| p.1).unwrap_or(5.).clamp(1., 50.);
+                    let distance = aimed_prop(world).map(|p| p.1).unwrap_or(5.).clamp(0.1, 50.);
+                    let eye = camera(world).unwrap();
+                    let hit = eye.translation + *eye.forward() * distance;
+                    let transform = *world.get::<Transform>(e).unwrap();
                     let mut s = world.resource_mut::<PlayState>();
+                    s.held_anchor = transform.rotation.inverse() * (hit - transform.translation);
                     s.held = Some(e);
                     s.distance = distance;
                     world.entity_mut(e).insert(RigidBody::Dynamic);
@@ -577,7 +689,10 @@ pub fn update_play(world: &mut World) {
                     (s.distance, s.config.hold_gain, s.config.hold_max_speed)
                 };
                 let target = cam.translation + *cam.forward() * distance;
-                let pos = world.get::<Transform>(e).map(|t| t.translation);
+                let anchor = world.resource::<PlayState>().held_anchor;
+                let pos = world
+                    .get::<Transform>(e)
+                    .map(|t| t.translation + t.rotation * anchor);
                 if let Some(pos) = pos {
                     if let Some(mut v) = world.get_mut::<Velocity>(e) {
                         v.linvel = ((target - pos) * gain).clamp_length_max(speed);
@@ -591,6 +706,17 @@ pub fn update_play(world: &mut World) {
                     world.resource_mut::<PlayState>().held = None;
                 }
             }
+        }
+    }
+    {
+        let mut s = world.resource_mut::<PlayState>();
+        s.beam_active = focused
+            && !s.menu_open
+            && s.physgun
+            && mouse.pressed(MouseButton::Left)
+            && !mouse.pressed(MouseButton::Right);
+        if !focused || s.menu_open || !s.physgun || !mouse.pressed(MouseButton::Left) {
+            s.held = None;
         }
     }
     for action in actions {
@@ -627,7 +753,18 @@ pub fn update_play(world: &mut World) {
     }
 }
 fn perform(world: &mut World, action: UiAction) {
+    if !matches!(action, UiAction::Search) {
+        world.resource_mut::<PlayState>().search_focus = false;
+    }
     match action {
+        UiAction::Search => {
+            let mut s = world.resource_mut::<PlayState>();
+            s.search_focus = true;
+            s.dirty = true;
+        }
+        UiAction::Unavailable(label) => {
+            world.resource_mut::<PlayState>().status = format!("{label}: not implemented yet");
+        }
         UiAction::Tab(tab) => {
             let mut s = world.resource_mut::<PlayState>();
             s.tab = tab;
@@ -647,6 +784,7 @@ fn perform(world: &mut World, action: UiAction) {
         UiAction::Close => {
             let mut s = world.resource_mut::<PlayState>();
             s.menu_open = false;
+            s.search_focus = false;
             s.dirty = true;
         }
         UiAction::Spawn(path) => {
@@ -751,7 +889,7 @@ fn perform(world: &mut World, action: UiAction) {
 }
 fn adjust_hold_distance(mut state: ResMut<PlayState>, mut wheel: EventReader<MouseWheel>) {
     for e in wheel.read() {
-        if state.held.is_some() {
+        if state.held.is_some() && !state.menu_open {
             state.distance = (state.distance + e.y * 0.5).clamp(1., 50.);
         }
     }
@@ -782,7 +920,8 @@ fn button(world: &mut World, parent: Entity, label: impl Into<String>, action: U
             ChildOf(parent),
         ))
         .id();
-    text(world, id, label, 15.);
+    let size = world.resource::<PlayState>().layout.font_size;
+    text(world, id, label, size);
     id
 }
 fn container(world: &mut World, parent: Entity, node: Node) -> Entity {
@@ -810,208 +949,5 @@ fn thumbnail(world: &mut World, path: &str) -> Option<Handle<Image>> {
     handle
 }
 fn rebuild_menu(world: &mut World) {
-    let old: Vec<_> = world
-        .query_filtered::<Entity, With<MenuRoot>>()
-        .iter(world)
-        .collect();
-    for e in old {
-        world.despawn(e);
-    }
-    world.resource_mut::<PlayState>().dirty = false;
-    if !world.resource::<PlayState>().menu_open {
-        return;
-    }
-    let root = world
-        .spawn((
-            MenuRoot,
-            Node {
-                position_type: PositionType::Absolute,
-                left: Val::Percent(3.),
-                top: Val::Percent(5.),
-                width: Val::Percent(94.),
-                height: Val::Percent(82.),
-                padding: UiRect::all(Val::Px(12.)),
-                flex_direction: FlexDirection::Column,
-                row_gap: Val::Px(8.),
-                ..default()
-            },
-            BackgroundColor(Color::srgba(0.9, 0.92, 0.94, 0.98)),
-            GlobalZIndex(20),
-        ))
-        .id();
-    let bar = container(
-        world,
-        root,
-        Node {
-            flex_direction: FlexDirection::Row,
-            ..default()
-        },
-    );
-    for (i, name) in [(0, "Props"), (1, "Tools"), (2, "Settings")] {
-        button(world, bar, name, UiAction::Tab(i));
-    }
-    button(world, bar, "Save scene", UiAction::Save);
-    button(world, bar, "Load scene", UiAction::Load);
-    button(world, bar, "Resume [Q]", UiAction::Close);
-    let tab = world.resource::<PlayState>().tab;
-    if tab == 0 {
-        let (search, category, page, page_size, models) = {
-            let s = world.resource::<PlayState>();
-            (
-                s.search.clone(),
-                s.category.clone(),
-                s.page,
-                s.config.page_size,
-                s.models.clone(),
-            )
-        };
-        text(world,root,format!("Search: {search}_   Type to filter, Backspace to erase. {} indexed original models.",models.len()),17.);
-        let categories: Vec<_> = models
-            .iter()
-            .map(|m| m.category.clone())
-            .collect::<std::collections::BTreeSet<_>>()
-            .into_iter()
-            .collect();
-        let cats = container(
-            world,
-            root,
-            Node {
-                flex_direction: FlexDirection::Row,
-                flex_wrap: FlexWrap::Wrap,
-                max_height: Val::Px(105.),
-                overflow: Overflow::clip(),
-                ..default()
-            },
-        );
-        button(world, cats, "All models", UiAction::Category(String::new()));
-        for c in categories {
-            button(world, cats, &c, UiAction::Category(c.clone()));
-        }
-        let matches: Vec<_> = models
-            .into_iter()
-            .filter(|m| {
-                (category.is_empty() || m.category == category)
-                    && m.model.contains(&search.to_lowercase())
-            })
-            .collect();
-        let pages = matches.len().div_ceil(page_size).max(1);
-        let page = page.min(pages - 1);
-        world.resource_mut::<PlayState>().page = page;
-        let pager = container(
-            world,
-            root,
-            Node {
-                flex_direction: FlexDirection::Row,
-                ..default()
-            },
-        );
-        button(world, pager, "<", UiAction::Page(-1));
-        text(
-            world,
-            pager,
-            format!(
-                "{} matches | Page {} / {} | {}",
-                matches.len(),
-                page + 1,
-                pages,
-                if category.is_empty() {
-                    "all"
-                } else {
-                    &category
-                }
-            ),
-            16.,
-        );
-        button(world, pager, ">", UiAction::Page(1));
-        let grid = container(
-            world,
-            root,
-            Node {
-                display: Display::Grid,
-                grid_template_columns: RepeatedGridTrack::flex(6, 1.),
-                column_gap: Val::Px(6.),
-                row_gap: Val::Px(6.),
-                ..default()
-            },
-        );
-        for model in matches.into_iter().skip(page * page_size).take(page_size) {
-            let icon = thumbnail(world, &model.model);
-            let id = button(world, grid, "", UiAction::Spawn(model.model.clone()));
-            world.entity_mut(id).insert(Node {
-                flex_direction: FlexDirection::Column,
-                width: Val::Percent(100.),
-                height: Val::Px(145.),
-                padding: UiRect::all(Val::Px(5.)),
-                overflow: Overflow::clip(),
-                ..default()
-            });
-            if let Some(icon) = icon {
-                world.spawn((
-                    ImageNode::new(icon),
-                    Node {
-                        width: Val::Px(90.),
-                        height: Val::Px(90.),
-                        ..default()
-                    },
-                    ChildOf(id),
-                ));
-            }
-            text(world, id, model.model.trim_start_matches("models/"), 13.);
-        }
-    } else if tab == 1 {
-        text(world,root,"Toolgun: select an implemented tool. Catalog entries below are NOT advertised as working.",18.);
-        let row = container(
-            world,
-            root,
-            Node {
-                flex_direction: FlexDirection::Row,
-                ..default()
-            },
-        );
-        for (tool, label) in [
-            ("remover", "Remover"),
-            ("duplicator", "Duplicate one prop"),
-            ("freeze", "Freeze"),
-        ] {
-            button(world, row, label, UiAction::Tool(tool.into()));
-        }
-        let specs = crate::compiled_behaviors();
-        let labels = specs
-            .iter()
-            .filter(|s| s.id.starts_with("tool_"))
-            .map(|s| s.id.trim_start_matches("tool_"))
-            .collect::<Vec<_>>()
-            .join("   |   ");
-        text(world,root,format!("Installed tool research catalog:\n{labels}\n\nRemaining tools require implementation. Selecting a label is not tool functionality."),16.);
-    } else {
-        let (fov, speed, sens, visible) = {
-            let s = world.resource::<PlayState>();
-            (s.fov, s.speed, s.sensitivity, s.weapon_visible)
-        };
-        for (label, key, value, delta) in [
-            ("Field of view", "fov", fov, 5.),
-            ("Noclip speed", "speed", speed, 1.),
-            ("Mouse sensitivity", "sensitivity", sens, 0.0005),
-        ] {
-            let row = container(
-                world,
-                root,
-                Node {
-                    flex_direction: FlexDirection::Row,
-                    align_items: AlignItems::Center,
-                    ..default()
-                },
-            );
-            text(world, row, format!("{label}: {value:.4}"), 18.);
-            button(world, row, "-", UiAction::Setting(key, -delta));
-            button(world, row, "+", UiAction::Setting(key, delta));
-        }
-        button(
-            world,
-            root,
-            format!("Viewmodel: {}", if visible { "ON" } else { "OFF" }),
-            UiAction::Setting("weapon", 0.),
-        );
-        text(world,root,"Preferences persist locally. Engine audio/video/game settings beyond these controls are not implemented.\nOriginal assets are local only. Physics uses generated convex hulls, not Source PHY collision.\nGrounded walking and F4 third person. V toggles noclip. No NPC AI, ragdolls, Lua addons or multiplayer yet.",16.);
-    }
+    menu::rebuild(world);
 }

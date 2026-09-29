@@ -38,7 +38,7 @@ pub fn load(path: &Path) -> Result<PlayConfig> {
             return Err("invalid model reference".into());
         }
     }
-    if !(1..=1000).contains(&c.max_props) || !(1..=24).contains(&c.page_size) {
+    if !(1..=1000).contains(&c.max_props) || !(1..=256).contains(&c.page_size) {
         return Err("invalid prop/page limits".into());
     }
     for (v, min, max) in [

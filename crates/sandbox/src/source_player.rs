@@ -28,6 +28,7 @@ pub struct PlayerState {
     pub eye: Transform,
     pub muzzle: Vec3,
     pub glow_points: Vec<(Vec3, bool)>,
+    pub local_velocity: Vec3,
     pub third_person: bool,
     pub noclip: bool,
     pub moving: bool,
@@ -79,6 +80,7 @@ pub fn spawn(commands: &mut Commands, eye: Vec3, forward: Vec3) {
         eye: t,
         muzzle: eye,
         glow_points: Vec::new(),
+        local_velocity: Vec3::ZERO,
         third_person: false,
         noclip: false,
         moving: false,
@@ -168,6 +170,10 @@ fn walk(
     };
     let dt = time.delta_secs();
     s.grounded = output.is_some_and(|o| o.grounded);
+    s.local_velocity = Quat::from_rotation_y(-s.yaw)
+        * output
+            .map(|o| o.effective_translation / dt)
+            .unwrap_or(Vec3::ZERO);
     let rotation = Quat::from_euler(
         EulerRot::YXZ,
         s.yaw,
@@ -187,6 +193,7 @@ fn walk(
         controller.translation = None;
         t.translation += direction * speed * dt;
         s.vertical = 0.;
+        s.local_velocity = s.direction * speed;
     } else {
         if s.grounded && s.vertical < 0. {
             s.vertical = 0.;
@@ -300,18 +307,27 @@ struct Scene {
     held: Actor,
     view_camera: Entity,
     physgun: bool,
+    playback: crate::source_pose::PosePlayback,
+    animation_states: Vec<sandbox_catalog::presentation::AnimationState>,
+    layout: sandbox_catalog::presentation::LayoutConfig,
 }
 fn create_scene(world: &mut World) -> Result<Scene> {
     let c = world.resource::<PlayerState>().config.clone();
     let physgun = world.resource::<PlayState>().physgun;
     let mut body = actor(world, &c.model, 0, None)?;
-    for hold in ["physgun", "pistol"] {
-        for name in [
-            format!("@idle_{hold}"),
-            format!("a_walking_walk_{hold}_N"),
-            format!("a_running_run_{hold}_N"),
-        ] {
-            add_clip(world, &mut body, &c.animations, &name)?;
+    let animation_states = crate::compiled_animation_states();
+    for mapping in &animation_states {
+        add_clip(world, &mut body, &c.animations, &mapping.idle)?;
+        add_clip(world, &mut body, &c.animations, &mapping.jump)?;
+        for direction in crate::source_pose::DIRECTIONS {
+            for template in [&mapping.walk, &mapping.run] {
+                add_clip(
+                    world,
+                    &mut body,
+                    &c.animations,
+                    &template.replace("{direction}", direction),
+                )?;
+            }
         }
     }
     let view_camera = world
@@ -341,6 +357,9 @@ fn create_scene(world: &mut World) -> Result<Scene> {
         held,
         view_camera,
         physgun,
+        playback: crate::source_pose::PosePlayback::default(),
+        animation_states,
+        layout: crate::compiled_layout_config(),
     })
 }
 fn create_weapons(
@@ -424,8 +443,9 @@ pub(crate) fn visuals(world: &mut World) {
         let eye = Transform::from_translation(feet + Vec3::Y * c.eye_height)
             .with_rotation(Quat::from_euler(EulerRot::YXZ, s.yaw, s.pitch, 0.));
         let third = s.third_person;
-        let moving = s.moving;
-        let running = s.running;
+        let local_velocity = s.local_velocity;
+        let airborne = !s.grounded || s.vertical > 0.1;
+        let noclip = s.noclip;
         let yaw = s.yaw;
         let player_entity = s.entity;
         let mut camera = eye;
@@ -485,17 +505,24 @@ pub(crate) fn visuals(world: &mut World) {
         *world.get_mut::<Transform>(scene.body.root).unwrap() = body_transform;
         let time = world.resource::<Time>().elapsed_secs();
         let hold = if physgun { "physgun" } else { "pistol" };
-        let name = if moving {
-            format!(
-                "a_{}_{}_{}_N",
-                if running { "running" } else { "walking" },
-                if running { "run" } else { "walk" },
-                hold
+        let dt = world.resource::<Time>().delta_secs();
+        let pose = {
+            let scene = &mut *scene;
+            let mapping = scene
+                .animation_states
+                .iter()
+                .find(|m| m.hold == hold)
+                .unwrap();
+            scene.playback.sample(
+                &scene.body.clips,
+                mapping,
+                &scene.layout,
+                local_velocity,
+                airborne,
+                noclip,
+                dt,
             )
-        } else {
-            format!("@idle_{hold}")
         };
-        let pose = scene.body.clips[&name].sample(time);
         let globals = scene.body.skeleton.globals(&pose);
         if third {
             skin(world, &scene.body, &globals);

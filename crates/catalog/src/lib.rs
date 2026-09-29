@@ -1,6 +1,7 @@
 pub mod behavior;
 pub mod content;
 pub mod effects;
+pub mod presentation;
 pub mod inventory;
 pub mod play;
 pub mod player;

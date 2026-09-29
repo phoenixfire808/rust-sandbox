@@ -10,6 +10,13 @@
 
 All files are UTF-8 CSV with a required header row. IDs are stable references, not display names. Do not use formulas. The parser handles quoted commas and escapes via the `csv` crate. Typed gameplay rows reject unknown columns, missing values, malformed booleans/numbers, NaN/infinity, duplicate prop IDs and invalid references.
 
+## Presentation authoring
+
+- `source_layout.csv` has one typed row for stock-derived margin reference sizes/factors, browser/tool widths, icon size, dividers, typography, scroll step, hold-Q mode, beam range, blend duration and movement thresholds. Pixel dimensions use Bevy logical UI pixels. Numeric inputs must be finite, positive and bounded. Minimum margin cannot exceed maximum, movement thresholds are ordered, and the tool list/divider must fit inside the narrow tool panel. Font/skin, scroll step, blend duration and beam range remain independently authored approximations as recorded in the reference ledger.
+- `source_animation_states.csv` has one row for each supported `physgun` and `pistol` hold. Idle/jump clip identifiers and walk/run `{direction}` templates select mounted original animations. All eight cardinal/diagonal directions are decoded. Nominal clip speeds are meters/second. Both holds are required, duplicate/unknown holds and invalid speeds are rejected.
+- These two sheets are registered with Cargo, validated by build.rs and the CLI, and emitted into compiled configuration. `presentation_references.csv` is non-executable evidence metadata with explicit provenance and remaining work. It does not prove pixel or physics equivalence.
+- `source_play.csv` now permits 1..256 icons per batch, with 120 authored by default for the scrollable browser. Paging remains a bounded implementation detail, not an exact stock spawnlist implementation.
+
 ## Runtime tables
 
 - **source_player.csv -> PlayerConfig:** exactly one row. Mounted `models/*.mdl` references select the player, hands, animation source and held world weapons. Idle clip names select authored weapon poses. Movement speeds are meters/second, hull/eye/step/camera dimensions are meters and viewmodel FOV is degrees. Paths reject traversal, numeric values must be finite and bounded, capsule diameter must be smaller than height, eye height cannot exceed height and run speed cannot be below walk speed. These are approximation settings, not measured Source parity values.

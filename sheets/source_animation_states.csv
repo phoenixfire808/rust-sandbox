@@ -1,0 +1,3 @@
+hold,idle,walk,run,jump,walk_speed,run_speed
+physgun,@idle_physgun,a_walking_walk_physgun_{direction},a_running_run_physgun_{direction},@jump_physgun,3.81,7.62
+pistol,@idle_pistol,a_walking_walk_pistol_{direction},a_running_run_pistol_{direction},@jump_pistol,3.81,7.62

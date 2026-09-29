@@ -145,8 +145,18 @@ pub struct Clip {
 }
 impl Clip {
     pub fn sample(&self, seconds: f32) -> Vec<Transform> {
-        let f =
-            (seconds * self.fps).rem_euclid((self.frames.len().saturating_sub(1)).max(1) as f32);
+        self.sample_mode(seconds, true)
+    }
+    pub fn duration(&self) -> f32 {
+        self.frames.len().saturating_sub(1).max(1) as f32 / self.fps
+    }
+    pub fn sample_mode(&self, seconds: f32, looping: bool) -> Vec<Transform> {
+        let last = self.frames.len().saturating_sub(1) as f32;
+        let f = if looping {
+            (seconds * self.fps).rem_euclid(last.max(1.))
+        } else {
+            (seconds * self.fps).clamp(0., last)
+        };
         let a = f.floor() as usize;
         let b = (a + 1).min(self.frames.len() - 1);
         let t = f.fract();

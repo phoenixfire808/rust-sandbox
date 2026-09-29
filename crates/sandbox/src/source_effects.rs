@@ -196,6 +196,7 @@ fn update(world: &mut World) {
         for &entity in fx.glows.iter().chain([&fx.endpoint, &fx.beam]) {
             *world.get_mut::<Visibility>(entity).unwrap() = Visibility::Hidden;
         }
+        let target = crate::source_play::beam_target(world);
         let play = world.resource::<PlayState>();
         let player = world.resource::<PlayerState>();
         if !play.physgun || (!player.third_person && !play.weapon_visible) {
@@ -206,10 +207,6 @@ fn update(world: &mut World) {
         let muzzle = player.muzzle;
         let points = player.glow_points.clone();
         let view_fov = player.config.view_fov.to_radians();
-        let target = play
-            .held
-            .and_then(|e| world.get::<Transform>(e))
-            .map(|t| t.translation);
         let Some((camera, fov)) = world
             .query_filtered::<(&Transform, &Projection), With<SourceCamera>>()
             .iter(world)

@@ -6,13 +6,17 @@ Independent **Bevy 0.16.1 + Rapier 0.30** sandbox foundation, with spreadsheet-a
 
 ## Continue development
 
-- **[Download the complete review workbook](spreadsheets/rust-sandbox-catalog-20260929-effects.xlsx)**: 19 tabs and 94,635 data rows. Use GitHub's **Download raw file** button for Excel/LibreOffice.
+- **[Download the complete review workbook](spreadsheets/rust-sandbox-catalog-20260929-presentation.xlsx)**: includes the reference placement ledger, animation mappings and layout parameters. Use GitHub's **Download raw file** button for Excel/LibreOffice.
 - **[Spreadsheet contributor guide](spreadsheets/README.md)**: where to edit, validate, rebuild and regenerate the workbook.
 - **[Remaining feature inventory](sheets/parity_gaps.csv)**: 169 missing/partial/unverified entries covering every cataloged system and tool, with priorities and acceptance checks. Includes nonmatching menus and remaining physgun fidelity gaps.
 - **[Ordered implementation queue](sheets/work_queue.csv)**: dependency-ordered work packages assign every known gap exactly once. The first effects slice is implemented, not reference-equivalent.
 - **[Authored CSV sheets](sheets/)** and **[public metadata catalogs](catalogs/stock-20260929/)**: all workbook inputs are tracked. No private local files or original game payloads are needed to inspect or export the data.
 
 The gap inventory covers the current stock-game discovery catalog, not every possible native option or community addon. A reference row is not proof of implemented behavior or one-to-one parity.
+
+### Current presentation repair
+
+[Detailed plan](docs/PRESENTATION_PLAN.md), [source/reference ledger](sheets/presentation_references.csv), [layout dimensions](sheets/source_layout.csv), and [animation state mappings](sheets/source_animation_states.csv). The current build adds eight-direction velocity-driven movement clips, non-looping jump poses and crossfades, a physgun firing beam even without a grabbed prop, and reference-sized simultaneous browser/icon/tool panels. These changes are built and launched for Drew, not claimed visually verified or one-to-one.
 
 ## Start
 
@@ -34,7 +38,7 @@ Click to capture the mouse. **WASD walks**, **Space jumps**, **Shift runs**, **F
 
 The physgun now has mounted additive attachment glows and a scrolling textured beam with a release/switch-cleaned endpoint flare. Color and presentation parameters come from `sheets/source_effects.csv`. These are approximations, not matched stock lighting, claw animation or sound.
 
-**Q** opens the original-model build menu, **1/2** selects physgun/toolgun, **Z** undoes, and **F5/F6** saves/loads local prop scenes. `play-prototype.cmd` preserves the earlier physics sandbox separately. The detailed fidelity checklist and unimplemented one-to-one requirements are in [PLAYER_PARITY.md](docs/PLAYER_PARITY.md). Run `cargo run -p rust-sandbox --bin source-player-check` to validate locally installed player/weapon assets, or `call play.cmd --smoke` to capture both views and an interior-wall check.
+**Hold Q** to open the original-model build menu and release it to close. Click the search field to retain keyboard focus (Enter ends editing, Esc closes). The left browser and icon area stay alongside the right tool/options panels. **1/2** selects physgun/toolgun. Left mouse fires the physgun beam with or without a grabbed prop. **Z** undoes, and **F5/F6** saves/loads local prop scenes. `play-prototype.cmd` preserves the earlier physics sandbox separately. The detailed fidelity checklist and unimplemented one-to-one requirements are in [PLAYER_PARITY.md](docs/PLAYER_PARITY.md). Run `cargo run -p rust-sandbox --bin source-player-check` to validate locally installed player/weapon assets, or `call play.cmd --smoke` to capture both views and an interior-wall check.
 
 ## Delivered files
 

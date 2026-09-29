@@ -2,6 +2,14 @@
 
 Date: 2026-09-29 UTC. Windows x86_64, Rust 1.97.1. Build artifacts isolated in `D:\jcode-build\rust-sandbox-20260929`. No remote compilation or remote asset upload.
 
+## Presentation corrections awaiting Drew's testing
+
+After Drew reported incorrect leg motion/jumps, missing physgun beam and nonmatching Q layout, the implementation was updated from public-source rules recorded in `presentation_references.csv`. `source_pose` adds measured directional gait, takeoff-reset non-looping jump clips and crossfades. `source_play` separates beam firing from held targets, preserves local grab anchors and uses Rapier world traces. `source_menu` consumes compiled dimensions for the browser, 64px icons and tool regions, with hold-Q and focused search.
+
+`cargo build --locked -p rust-sandbox --bin source-map` completed successfully. The first compile exposed private UI system parameter types, which were corrected before the successful build. Log: `local/presentation-build.log`. **No automated tests, Clippy, smoke harness, screenshots or input automation were run for this change**, as requested. Previous test counts below describe earlier commits, not this change. Runtime appearance, complete state transitions and reference equivalence are left to Drew. Full stock UI, animation layers/IK, original physics and the remaining backlog are not claimed complete.
+
+The normal `play.cmd` was launched for Drew, without `--smoke`. Startup output reported the window ready, all 36 body clips loaded (including both 56-frame jump clips and all eight walk/run directions per hold), and both effect textures loaded. Log: `local/presentation-launch.log`. This is startup evidence only, not an automated gameplay or visual test.
+
 ## Testing handoff, 2026-09-29
 
 Drew requested to perform all further testing. Automated testing was stopped and no additional test runs should be started without his request.
