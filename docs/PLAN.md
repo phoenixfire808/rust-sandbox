@@ -1,5 +1,7 @@
 # Independent Bevy sandbox: parity plan
 
+Active implementation order and current acceptance checklist: [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md). The milestone table below is the original architecture roadmap, not a current completion report. Consult `sheets/parity_gaps.csv` and `docs/VALIDATION.md` for present evidence.
+
 ## 1. Define the target before calling it one-to-one
 
 Reference installation: Steam app 4000, build **25375506**, inventoried 2026-09-29 UTC. The first target is the installed **stock Sandbox** experience. Base and Trouble in Terrorist Town files are also present and cataloged. Workshop and mounted games form a separately versioned compatibility surface. A complete inventory of every possible community addon is not a finite deliverable.
@@ -44,7 +46,7 @@ flowchart TB
 
 Present: a small catalog crate has no Bevy dependency. The application uses Bevy ECS and rendering with Rapier. This is our own sandbox application/compatibility layer **on Bevy**, not a renderer or solver written from scratch. Actions are shared by UI, tests and smoke runs. Authoritative multiplayer will require stable application IDs rather than serializing Bevy entity indices.
 
-Prototype units are meters, kilograms, seconds, +Y up. Source coordinate and unit conversion is **not implemented**. The future import boundary must define handedness, up axis, distance, angle and mass conventions in one tested adapter. Do not apply an assumed universal scale without measuring gameplay and imported collision dimensions.
+Prototype units are meters, kilograms, seconds, +Y up. The Source importer now has tested coordinate and unit conversion. Exact Source movement, mass properties and physics behavior remain separate measurement and compatibility work.
 
 ## 4. Milestones and exit gates
 
