@@ -17,6 +17,24 @@ pub fn source_position(v: [f32; 3], scale: f32) -> Vec3 {
     Vec3::new(-v[1], v[2], -v[0]) * scale
 }
 
+/// Horizontal rendered water triangles. Surface support only, not native fluid volumes.
+#[derive(Resource, Default)]
+pub struct WaterSurfaces(pub Vec<[Vec3; 3]>);
+impl WaterSurfaces {
+    pub fn height(&self, point: Vec3) -> Option<f32> {
+        self.0.iter().filter_map(|[a,b,c]| {
+            if (a.y-b.y).abs() > 0.01 || (a.y-c.y).abs() > 0.01 { return None; }
+            let p = Vec2::new(point.x,point.z);
+            let a2 = Vec2::new(a.x,a.z); let b2 = Vec2::new(b.x,b.z); let c2 = Vec2::new(c.x,c.z);
+            let d = (b2-a2).perp_dot(c2-a2);
+            if d.abs() < 1e-6 { return None; }
+            let u = (p-a2).perp_dot(c2-a2)/d;
+            let v = (b2-a2).perp_dot(p-a2)/d;
+            (u >= -0.0001 && v >= -0.0001 && u+v <= 1.0001).then_some(a.y)
+        }).max_by(f32::total_cmp)
+    }
+}
+
 pub fn virtual_path(name: &str) -> Result<String> {
     let path = name.replace('\\', "/").to_ascii_lowercase();
     if path.is_empty()

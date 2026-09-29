@@ -1,5 +1,15 @@
 # Validation record
 
+## Playable weapons and typed vehicles, 2026-09-29 22:40 UTC
+
+- Published the preceding nine local commits to origin/master through 143dd5c immediately on request. This section records the subsequent gameplay integration separately.
+- First integrated build failed with two compiler errors: RapierContext lacks singular intersection_with_shape, and the asset-validation caller still passed a bool after weapon creation changed to an explicit ID. Corrected both. Repaired executable build succeeded, followed by final input/projectile safety changes.
+- Final actual executable build succeeded in 52.78s: `cargo rustc --locked -p rust-sandbox --bin source-map -- -o D:\jcode-build\rust-sandbox-20260929\source-map-playable-entities.exe`. Log: local/build-playable-entities-final.log. Only the two deliberate explicit-output-path warnings and existing binrw future-incompatibility notice were reported.
+- Production `sandbox-catalog validate sheets` passed. It loads the new 34 weapon, 15 vehicle and shared tuning rows through the actual generation path, with the existing 197 references/eight tabs/56 capabilities. Coverage export generated 49 rows. Workbook export succeeded with 98,763 data rows at `spreadsheets/rust-sandbox-catalog-20260929-playable-entities.xlsx`. Earlier snapshots remain intact. Export success is not independent workbook acceptance.
+- Static review covered explicit equip/spawn routing, post-menu click blocking, projectile budget before ammo consumption, resting grenade contacts, fixed-step focus/UI gates, camera/held-weapon occupancy behavior, safe endpoint checks and versioned scene identity. git diff --check passed. Original model inventory paths were checked, but actual mounted weapon clip decoding and seat alignment were not exercised.
+- No tests or test compilation, Clippy, benchmarks, screenshots, gameplay automation or native reference capture were run. No game was launched or terminated in this integration pass. Saves and private feedback were not changed. All 49 per-registration acceptance rows remain not_run and Drew-owned.
+- This is a partial integration: 13 weapon routes include the existing physgun/toolgun plus 11 primary-attack prototypes. Fifteen vehicle registrations include four powered prototypes and eleven passive seats. Native driving parameters, secondary attacks, sounds, 21 disabled weapons, NPC AI and exact entry/exit cinematics are not implemented. Generic seated pose interpolation is not native entry animation. Vehicle drive feel, hull clearance, scene restore, assets and all menu/visual parity still require real gameplay acceptance.
+
 ## Entity/menu source-of-truth integration, 2026-09-29
 
 - Read-only reference extraction completed: 197 spawn definitions, 1,406 literal UI rows and 178 hashed files. An attempted property scan initially used a nonexistent directory; corrected to installed `lua/autorun/properties` and regenerated successfully. This is metadata generation, not Lua or gameplay execution.

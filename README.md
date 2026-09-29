@@ -6,13 +6,22 @@ Independent **Bevy 0.16.1 + Rapier 0.30** sandbox foundation, with spreadsheet-a
 
 ## Continue development
 
-- **[Download the complete review workbook](spreadsheets/rust-sandbox-catalog-20260929-frontend.xlsx)**: includes the full parity backlog, placement/animation sheets, performance records, all 37 stock-tool entries, 170 literal reference defaults and tool acceptance cases. Use GitHub's **Download raw file** button for Excel/LibreOffice.
+- **[Download the complete review workbook](spreadsheets/rust-sandbox-catalog-20260929-playable-entities.xlsx)**: includes the 169-root-gap backlog, 197 spawn references, 56 detailed capabilities, all 34 weapon and 15 vehicle runtime coverage rows, menu research, and per-registration Drew-owned acceptance. Use GitHub's **Download raw file** button for Excel/LibreOffice.
 - **[Spreadsheet contributor guide](spreadsheets/README.md)**: where to edit, validate, rebuild and regenerate the workbook.
 - **[Remaining feature inventory](sheets/parity_gaps.csv)**: 169 missing/partial/unverified entries covering every cataloged system and tool, with priorities and acceptance checks. Includes nonmatching menus and remaining physgun fidelity gaps.
 - **[Ordered implementation queue](sheets/work_queue.csv)**: dependency-ordered work packages assign every known gap exactly once. The first effects slice is implemented, not reference-equivalent.
 - **[Authored CSV sheets](sheets/)** and **[public metadata catalogs](catalogs/stock-20260929/)**: all workbook inputs are tracked. No private local files or original game payloads are needed to inspect or export the data.
 
 The gap inventory covers the current stock-game discovery catalog, not every possible native option or community addon. A reference row is not proof of implemented behavior or one-to-one parity.
+
+### Click-to-equip weapons and typed vehicles
+
+[Integration plan](docs/PLAYABLE_ENTITIES_PLAN.md), [weapon routes](sheets/source_weapons.csv), [vehicle tuning and poses](sheets/source_vehicles.csv), [shared gameplay tuning](sheets/source_gameplay.csv), and [49-row coverage/acceptance view](sheets/playable_coverage.csv). The eight creation tabs now keep **primary Equip/Spawn** separate from **Details / F8**.
+
+- Thirteen weapon routes: existing physgun/toolgun plus prototype pistol, .357, SMG, AR2, shotgun, crossbow, RPG, grenade, crowbar, stunstick and flechette primary behavior. Click equips; release the mouse before firing. LMB attacks and R reloads. Session ammo survives switching. Ordinary spawned props can take damage and be destroyed. Projectiles use swept ray collision with visible debug shapes, not native projectile models/effects.
+- All fifteen registered vehicle/seat entries have typed spawn routes and E entry/exit. Jeep, Jalopy and APC have prototype ray-supported chassis drive. Airboat adds support against mapped horizontal water triangles. WASD drives/reverses/steers, Space brakes, E exits and F4 changes view. Eleven pod/chair/seat entries are passive seats, not cars with invented engines.
+- Original seated clips blend during entry/exit. This is a generic transition, **not native vehicle-specific entry/door animations or IK**. Exact wheel motion, suspension/engine tuning, sounds and damage remain missing. Native weapon secondary actions and 21 other weapon entries remain explicitly pending. Asset/clip failures are reported with rollback or documented pose fallback.
+- Version-3 local scenes retain typed vehicle identities and prop health through save/load/undo/duplication and still accept version-2/legacy prop saves. Full native saves and persistent weapon inventory are not implemented. No gameplay or animation acceptance has been run by the agent; Drew owns testing.
 
 ### Current placement, feedback and menu implementation
 

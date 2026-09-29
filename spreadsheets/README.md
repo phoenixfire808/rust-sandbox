@@ -1,6 +1,6 @@
 # Spreadsheet handoff for contributors
 
-Download [rust-sandbox-catalog-20260929-movement-repair.xlsx](rust-sandbox-catalog-20260929-movement-repair.xlsx) for the combined Excel/LibreOffice review workbook. GitHub does not render XLSX files inline, so use **Download raw file**. All source tables are also available as CSV for review and version control.
+Download [rust-sandbox-catalog-20260929-playable-entities.xlsx](rust-sandbox-catalog-20260929-playable-entities.xlsx) for the combined Excel/LibreOffice review workbook. GitHub does not render XLSX files inline, so use **Download raw file**. All source tables are also available as CSV for review and version control.
 
 The movement-repair snapshot exports **96,805 data rows**. It corrects generic SDK friction 4 to the installed GMod preset 8, separates persistent velocity from step/snap displacement, authors the low-speed stop/support/slope thresholds and expands the movement ledger to **20 rules and acceptance cases**. The [detailed drift investigation](../docs/MOVEMENT_REPAIR.md) records exact source functions, equations, native-engine uncertainty and unrun regression cases. The final executable compiled separately from the still-running prior game and has not been launched or gameplay-tested. All prior menu/tool/context inventories remain included. Acceptance remains Drew-owned and not_run.
 
@@ -15,6 +15,10 @@ The retained toolgun snapshot adds the typed tool matrix, toolgun presentation c
 The retained performance snapshot adds `source_performance.csv` (typed queue and diagnostic settings) and `performance_cases.csv` (implementation versus user acceptance), and prioritizes spawn lag in the full backlog. Export produced 94,663 data rows. See [the performance plan](../docs/PERFORMANCE_PLAN.md). No measured speedup is claimed.
 
 The retained presentation snapshot added `source_layout.csv` (runtime placement and timing), `source_animation_states.csv` (installed clip mappings), and `presentation_references.csv` (public-source rules versus independent approximation). The [detailed correction plan](../docs/PRESENTATION_PLAN.md) identifies what is implemented and what remains. Earlier snapshots are retained. Drew is performing testing, so this snapshot has not been independently workbook-tested or visually accepted.
+
+The playable-entities snapshot adds all 34 weapon rows, all 15 vehicle rows, shared runtime tuning and 49 derived coverage rows. Thirteen weapon routes include the existing physgun/toolgun plus eleven primary-attack prototypes. Four powered vehicles and eleven passive seats have typed occupancy routes. Native secondary attacks, 21 disabled weapons, NPC AI, native driving/entry animations and audiovisual parity remain open. No gameplay acceptance is claimed.
+
+Before workbook export run `powershell -NoProfile -File scripts/export-gameplay-coverage.ps1`. Project policy reserves gameplay and tests to Drew. The contributor test commands below are not authorization for agent-run tests.
 
 ## Where to work
 

@@ -40,6 +40,7 @@ pub struct PlayerState {
     pub vertical: f32,
     pub running: bool,
     pub horizontal_velocity: Vec3,
+    pub vehicle: Option<Entity>,
     jumped: bool,
     movement_submitted: bool,
 }
@@ -98,6 +99,7 @@ pub fn spawn(commands: &mut Commands, eye: Vec3, forward: Vec3) {
         vertical: 0.,
         running: false,
         horizontal_velocity: Vec3::ZERO,
+        vehicle: None,
         jumped: false,
         movement_submitted: false,
     });
@@ -132,6 +134,10 @@ pub fn input(
     }
     if keys.just_pressed(KeyCode::F4) {
         s.third_person = !s.third_person;
+    }
+    if s.vehicle.is_some() {
+        s.jump = false;
+        return;
     }
     if keys.just_pressed(KeyCode::KeyV) {
         s.noclip = !s.noclip;
@@ -186,6 +192,10 @@ fn walk(
     let dt = time.delta_secs();
     s.movement_submitted = false;
     s.jumped = false;
+    if s.vehicle.is_some() {
+        controller.translation = None;
+        return;
+    }
     let rotation = Quat::from_euler(
         EulerRot::YXZ,
         s.yaw,
@@ -461,6 +471,7 @@ struct Scene {
     held: Actor,
     view_camera: Entity,
     physgun: bool,
+    weapon_id: String,
     playback: crate::source_pose::PosePlayback,
     animation_states: Vec<sandbox_catalog::presentation::AnimationState>,
     layout: sandbox_catalog::presentation::LayoutConfig,
@@ -468,6 +479,7 @@ struct Scene {
 fn create_scene(world: &mut World) -> Result<Scene> {
     let c = world.resource::<PlayerState>().config.clone();
     let physgun = world.resource::<PlayState>().physgun;
+    let weapon_id = world.resource::<PlayState>().active_weapon.clone();
     let mut body = actor(world, &c.model, 0, None)?;
     let animation_states = crate::compiled_animation_states();
     for mapping in &animation_states {
@@ -482,6 +494,18 @@ fn create_scene(world: &mut World) -> Result<Scene> {
                     &template.replace("{direction}", direction),
                 )?;
             }
+        }
+    }
+    let poses: std::collections::BTreeSet<_> = world
+        .resource::<PlayState>()
+        .spawn_catalog
+        .vehicles
+        .iter()
+        .map(|v| v.pose.clone())
+        .collect();
+    for pose in poses {
+        if let Err(error) = add_clip(world, &mut body, &c.animations, &pose) {
+            eprintln!("VEHICLE_POSE_MISSING {pose}: {error}");
         }
     }
     let view_camera = world
@@ -503,7 +527,7 @@ fn create_scene(world: &mut World) -> Result<Scene> {
             RenderLayers::layer(1),
         ))
         .id();
-    let (view, hands, held) = create_weapons(world, view_camera, physgun)?;
+    let (view, hands, held) = create_weapons(world, view_camera, &weapon_id)?;
     Ok(Scene {
         body,
         view,
@@ -511,6 +535,7 @@ fn create_scene(world: &mut World) -> Result<Scene> {
         held,
         view_camera,
         physgun,
+        weapon_id,
         playback: crate::source_pose::PosePlayback::default(),
         animation_states,
         layout: crate::compiled_layout_config(),
@@ -519,10 +544,22 @@ fn create_scene(world: &mut World) -> Result<Scene> {
 fn create_weapons(
     world: &mut World,
     camera: Entity,
-    physgun: bool,
+    weapon_id: &str,
 ) -> Result<(Actor, Actor, Actor)> {
     let c = world.resource::<PlayerState>().config.clone();
-    let path = if physgun {
+    let physgun = weapon_id == "weapon_weapon_physgun";
+    let toolgun = weapon_id == "weapon_gmod_tool";
+    let definition = world
+        .resource::<PlayState>()
+        .spawn_catalog
+        .weapons
+        .iter()
+        .find(|w| w.id == weapon_id)
+        .cloned()
+        .ok_or("unknown weapon")?;
+    let path = if !physgun && !toolgun {
+        definition.view_model.clone()
+    } else if physgun {
         world.resource::<PlayState>().config.physgun_model.clone()
     } else {
         world.resource::<PlayState>().config.toolgun_model.clone()
@@ -531,31 +568,54 @@ fn create_weapons(
     let result = (|| -> Result<_> {
         let mut view = actor(world, &path, 1, Some(camera))?;
         created.push(view.root);
-        add_clip(
-            world,
-            &mut view,
-            &path,
-            if physgun {
-                &c.physgun_idle
-            } else {
-                &c.toolgun_idle
-            },
-        )?;
-        if !physgun {
-            let fire = world
-                .resource::<PlayState>()
-                .tools
-                .catalog
-                .gun
-                .fire_clip
-                .clone();
-            add_clip(world, &mut view, &path, &fire)?;
+        if !physgun && !toolgun {
+            for (key, candidates) in [
+                ("runtime_idle", &definition.idle),
+                ("runtime_fire", &definition.fire),
+                ("runtime_reload", &definition.reload),
+            ] {
+                let mut loaded = false;
+                for name in candidates.split('|').filter(|n| !n.is_empty()) {
+                    if add_clip(world, &mut view, &path, name).is_ok() {
+                        let clip = view.clips.remove(name).unwrap();
+                        view.clips.insert(key.into(), clip);
+                        loaded = true;
+                        break;
+                    }
+                }
+                if !loaded && !candidates.is_empty() {
+                    eprintln!("WEAPON_CLIP_MISSING {weapon_id} {key}; bind/idle fallback");
+                }
+            }
+        } else {
+            add_clip(
+                world,
+                &mut view,
+                &path,
+                if physgun {
+                    &c.physgun_idle
+                } else {
+                    &c.toolgun_idle
+                },
+            )?;
+            if !physgun {
+                let fire = world
+                    .resource::<PlayState>()
+                    .tools
+                    .catalog
+                    .gun
+                    .fire_clip
+                    .clone();
+                add_clip(world, &mut view, &path, &fire)?;
+            }
         }
         let hands = actor(world, &c.hands, 1, Some(camera))?;
         created.push(hands.root);
         let held = actor(
             world,
-            if physgun {
+            if !physgun && !toolgun {
+                &definition.world_model
+            } else if physgun {
                 &c.world_physgun
             } else {
                 &c.world_toolgun
@@ -595,8 +655,9 @@ pub(crate) fn visuals(world: &mut World) {
     }
     world.resource_scope(|world, mut scene: Mut<Scene>| {
         let physgun = world.resource::<PlayState>().physgun;
-        if scene.physgun != physgun {
-            match create_weapons(world, scene.view_camera, physgun) {
+        let weapon_id = world.resource::<PlayState>().active_weapon.clone();
+        if scene.weapon_id != weapon_id {
+            match create_weapons(world, scene.view_camera, &weapon_id) {
                 Ok((view, hands, held)) => {
                     for e in [scene.view.root, scene.hands.root, scene.held.root] {
                         world.despawn(e);
@@ -605,10 +666,12 @@ pub(crate) fn visuals(world: &mut World) {
                     scene.hands = hands;
                     scene.held = held;
                     scene.physgun = physgun;
+                    scene.weapon_id = weapon_id.clone();
                 }
                 Err(e) => {
                     let mut play = world.resource_mut::<PlayState>();
                     play.physgun = scene.physgun;
+                    play.active_weapon = scene.weapon_id.clone();
                     play.tools.stage = None;
                     play.tools.shot = None;
                     play.status = format!("Weapon failed: {e}");
@@ -618,10 +681,18 @@ pub(crate) fn visuals(world: &mut World) {
             }
         }
         let s = world.resource::<PlayerState>();
+        let occupied = s.vehicle.is_some();
+        let occupied_vehicle = s.vehicle;
         let c = s.config.clone();
         let center = world.get::<Transform>(s.entity).unwrap().translation;
         let feet = center - Vec3::Y * c.height * 0.5;
-        let eye = Transform::from_translation(feet + Vec3::Y * c.eye_height)
+        let tuning = world.resource::<PlayState>().spawn_catalog.runtime.clone();
+        let eye_height = if occupied {
+            tuning.seat_eye_height
+        } else {
+            c.eye_height
+        };
+        let eye = Transform::from_translation(feet + Vec3::Y * eye_height)
             .with_rotation(Quat::from_euler(EulerRot::YXZ, s.yaw, s.pitch, 0.));
         let third = s.third_person;
         let local_velocity = s.local_velocity;
@@ -632,7 +703,11 @@ pub(crate) fn visuals(world: &mut World) {
         let mut camera = eye;
         if third {
             let back = -*eye.forward();
-            let mut distance = c.camera_distance;
+            let mut distance = if occupied {
+                tuning.vehicle_camera_distance
+            } else {
+                c.camera_distance
+            };
             let mut query = world.query::<(
                 &RapierContextSimulation,
                 &RapierContextColliders,
@@ -649,13 +724,13 @@ pub(crate) fn visuals(world: &mut World) {
                     joints,
                     query_pipeline,
                 };
-                if let Some((_, hit)) = context.cast_ray(
-                    eye.translation,
-                    back,
-                    distance,
-                    true,
-                    QueryFilter::default().exclude_collider(player_entity),
-                ) {
+                let mut filter = QueryFilter::default().exclude_collider(player_entity);
+                if let Some(vehicle) = occupied_vehicle {
+                    filter = filter.exclude_rigid_body(vehicle);
+                }
+                if let Some((_, hit)) =
+                    context.cast_ray(eye.translation, back, distance, true, filter)
+                {
                     distance = (hit - 0.1).max(0.05);
                 }
             }
@@ -673,21 +748,31 @@ pub(crate) fn visuals(world: &mut World) {
         world
             .get_mut::<Camera>(scene.view_camera)
             .unwrap()
-            .is_active = !third && world.resource::<PlayState>().weapon_visible;
+            .is_active = !third && !occupied && world.resource::<PlayState>().weapon_visible;
         let visible = if third {
             Visibility::Inherited
         } else {
             Visibility::Hidden
         };
         *world.get_mut::<Visibility>(scene.body.root).unwrap() = visible;
-        *world.get_mut::<Visibility>(scene.held.root).unwrap() = visible;
-        let body_transform =
+        *world.get_mut::<Visibility>(scene.held.root).unwrap() = if occupied {
+            Visibility::Hidden
+        } else {
+            visible
+        };
+        let mut body_transform =
             Transform::from_translation(feet).with_rotation(Quat::from_rotation_y(yaw));
+        if occupied {
+            let seat = world.resource::<source_play::vehicles::Occupancy>();
+            body_transform.rotation = body_transform
+                .rotation
+                .slerp(seat.body_rotation, seat.weight);
+        }
         *world.get_mut::<Transform>(scene.body.root).unwrap() = body_transform;
         let time = world.resource::<Time>().elapsed_secs();
         let hold = if physgun { "physgun" } else { "pistol" };
         let dt = world.resource::<Time>().delta_secs();
-        let pose = {
+        let mut pose = {
             let scene = &mut *scene;
             let mapping = scene
                 .animation_states
@@ -704,6 +789,16 @@ pub(crate) fn visuals(world: &mut World) {
                 dt,
             )
         };
+        if occupied {
+            let seat = world.resource::<source_play::vehicles::Occupancy>();
+            if let Some(clip) = scene.body.clips.get(&seat.pose) {
+                let seated = clip.sample(time);
+                for (p, target) in pose.iter_mut().zip(seated) {
+                    p.translation = p.translation.lerp(target.translation, seat.weight);
+                    p.rotation = p.rotation.slerp(target.rotation, seat.weight);
+                }
+            }
+        }
         let globals = scene.body.skeleton.globals(&pose);
         if third {
             skin(world, &scene.body, &globals);
@@ -753,7 +848,38 @@ pub(crate) fn visuals(world: &mut World) {
         } else {
             &c.toolgun_idle
         };
-        let pose = if !physgun {
+        let generic =
+            scene.weapon_id != "weapon_weapon_physgun" && scene.weapon_id != "weapon_gmod_tool";
+        let pose = if generic {
+            let state = world.resource::<source_play::weapons::WeaponState>();
+            let reload = state
+                .reload
+                .as_ref()
+                .filter(|(id, _, end)| id == &scene.weapon_id && time < *end)
+                .and_then(|(_, start, _)| {
+                    scene
+                        .view
+                        .clips
+                        .get("runtime_reload")
+                        .map(|clip| clip.sample_mode(time - *start, false))
+                });
+            let fire = state.fired_at.and_then(|start| {
+                scene
+                    .view
+                    .clips
+                    .get("runtime_fire")
+                    .filter(|clip| time - start < clip.duration())
+                    .map(|clip| clip.sample_mode(time - start, false))
+            });
+            reload.or(fire).unwrap_or_else(|| {
+                scene
+                    .view
+                    .clips
+                    .get("runtime_idle")
+                    .map(|clip| clip.sample(time))
+                    .unwrap_or_else(|| scene.view.skeleton.bind_pose())
+            })
+        } else if !physgun {
             let fire = &scene.view.clips[&play.tools.catalog.gun.fire_clip];
             if let Some(shot) = play.tools.shot.filter(|s| time - s.time < fire.duration()) {
                 fire.sample_mode(time - shot.time, false)
@@ -825,7 +951,7 @@ fn update_effect_attachments(world: &mut World, actor: &Actor, globals: &[Mat4],
 }
 pub fn validate_assets(world: &mut World) -> Result<()> {
     let scene = create_scene(world)?;
-    let (tool, hands, held) = create_weapons(world, scene.view_camera, false)?;
+    let (tool, hands, held) = create_weapons(world, scene.view_camera, "weapon_gmod_tool")?;
     for actor in [
         &scene.body,
         &scene.view,

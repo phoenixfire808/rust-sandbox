@@ -147,7 +147,11 @@ fn setup(
         .into_iter()
         .map(|(name, image)| (name, images.add(image)))
         .collect();
+    let mut water = rust_sandbox::source_assets::WaterSurfaces::default();
     for surface in map.surfaces {
+        if surface.name.contains("water") {
+            water.0.extend(surface.geometry.positions.chunks_exact(3).map(|p| [Vec3::from_array(p[0]), Vec3::from_array(p[1]), Vec3::from_array(p[2])]));
+        }
         if !surface.name.contains("water") {
             let vertices = surface
                 .geometry
@@ -198,6 +202,7 @@ fn setup(
             },
         ));
     }
+    commands.insert_resource(water);
     // Six original sky textures, rendered on a large camera-centered cube.
     for (side, image) in map.sky {
         let (normal, right, up) = match side.as_str() {

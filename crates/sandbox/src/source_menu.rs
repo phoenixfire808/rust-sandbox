@@ -165,7 +165,10 @@ fn catalog_browser(world: &mut World, body: Entity, tree_width: f32) {
     text(
         world,
         content,
-        format!("{}: reference catalog, not implemented spawning", tab.label),
+        format!(
+            "{} | Click to use supported entries; Details shows remaining work",
+            tab.label
+        ),
         c.font_size,
     );
     let needle = search.to_lowercase();
@@ -188,6 +191,22 @@ fn catalog_browser(world: &mut World, body: Entity, tree_width: f32) {
     if let Some(e) = results.iter().find(|e| e.id == selected) {
         text(world, viewport, format!("{} | {}\nClass: {}\nAvailability: {} (mount not checked) | Admin: {}\nReference: {}:{}\nModel: {}", e.label, e.spawn_name, e.class_name, e.condition, e.admin_only, e.source, e.line,
             if e.model.is_empty() { "native/inherited default; not inferred" } else { &e.model }), c.font_size);
+        if let Some(w) = catalog.weapons.iter().find(|w| w.id == e.id) {
+            text(
+                world,
+                viewport,
+                format!("Scope: {}\nRemaining: {}", w.scope, w.remaining),
+                c.font_size,
+            );
+        }
+        if let Some(v) = catalog.vehicles.iter().find(|v| v.id == e.id) {
+            text(
+                world,
+                viewport,
+                format!("Scope: {}\nRemaining: {}", v.scope, v.remaining),
+                c.font_size,
+            );
+        }
         action(
             world,
             viewport,
@@ -218,17 +237,39 @@ fn catalog_browser(world: &mut World, body: Entity, tree_width: f32) {
         }
     }
     for e in results.iter().skip(page * page_size).take(page_size) {
+        let weapon = catalog.weapons.iter().find(|w| w.id == e.id);
+        let vehicle = catalog.vehicles.iter().find(|v| v.id == e.id);
+        let usable = weapon.is_some_and(|w| w.kind != "disabled") || vehicle.is_some();
+        let label = if weapon.is_some_and(|w| w.kind != "disabled") {
+            "Equip"
+        } else if vehicle.is_some() {
+            "Spawn"
+        } else {
+            "Pending"
+        };
+        let buttons = row(world, viewport, c.row_height);
         action(
             world,
-            viewport,
+            buttons,
             format!(
-                "{}{} | {} | Inspect",
+                "{}{} | {}",
                 e.label,
                 if e.admin_only { " [Admin]" } else { "" },
-                e.spawn_name
+                label
             ),
-            UiAction::InspectEntry(e.id.clone()),
+            if usable {
+                UiAction::UseEntry(e.id.clone())
+            } else {
+                UiAction::InspectEntry(e.id.clone())
+            },
             e.id == selected,
+        );
+        action(
+            world,
+            buttons,
+            "Details / F8",
+            UiAction::InspectEntry(e.id.clone()),
+            false,
         );
     }
     if results.is_empty() {
@@ -270,14 +311,19 @@ fn catalog_browser(world: &mut World, body: Entity, tree_width: f32) {
 }
 
 pub(super) fn reset_creation_scroll(world: &mut World, tree: bool) {
-    for (pane, mut position) in world.query::<(&ScrollPane, &mut ScrollPosition)>().iter_mut(world) {
+    for (pane, mut position) in world
+        .query::<(&ScrollPane, &mut ScrollPosition)>()
+        .iter_mut(world)
+    {
         if pane.0 == 1 || (tree && pane.0 == 0) {
             position.offset_y = 0.;
         }
     }
     let mut state = world.resource_mut::<PlayState>();
     state.menu_scroll[1] = 0.;
-    if tree { state.menu_scroll[0] = 0.; }
+    if tree {
+        state.menu_scroll[0] = 0.;
+    }
 }
 
 pub(super) fn rebuild(world: &mut World) {

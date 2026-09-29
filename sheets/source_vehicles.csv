@@ -1,0 +1,16 @@
+id,kind,mass,engine_accel,brake_accel,max_speed,steer_rate,suspension,spring,damping,grip,seat_x,seat_y,seat_z,seat_yaw,exit_distance,entry_seconds,exit_seconds,pose,scope,remaining
+vehicle_jeep,wheels,700,7,12,28,0.65,0.55,35000,4500,7,-0.25,0.48,0.05,0,2.2,0.65,0.5,drive_jeep_center,Prototype four-ray sprung chassis and occupancy,Native script tuning wheel animation gearbox sounds entry sequences damage
+vehicle_jalopy,wheels,1100,6,12,30,0.6,0.55,48000,6000,7,-0.35,0.48,0.1,0,2.4,0.7,0.55,drive_jeep_center,Prototype four-ray sprung chassis and occupancy,Native script tuning wheel animation gearbox sounds entry sequences damage
+vehicle_prop_vehicle_apc,wheels,4000,4,10,20,0.45,0.6,180000,18000,6,0,1.3,0,0,3.2,0.8,0.6,drive_jeep_center,Prototype heavy four-ray chassis and occupancy,Native engine turret weapons camera entry sequences damage
+vehicle_airboat,airboat,500,6,8,24,0.8,0.5,26000,3600,3,0,0.48,0.25,0,2,0.65,0.5,drive_airboat_center,Prototype surface-support propulsion and occupancy,Native hydrodynamics water-volume buoyancy rudder fan animation and sounds
+vehicle_pod,seat,200,0,0,0,0,0.2,10000,1500,0,0,0.35,0,0,1.8,0.65,0.5,@drive_pd,Passive usable pod without engine,Door sequences view limits native seated offsets and sounds
+vehicle_chair_wood,seat,30,0,0,0,0,0.2,10000,1500,0,0,0.05,0,0,1.3,0.5,0.4,@sit,Passive usable chair without engine,Native seat offsets animation alignment and constraints
+vehicle_chair_plastic,seat,20,0,0,0,0,0.2,10000,1500,0,0,0.05,0,0,1.3,0.5,0.4,@sit,Passive usable chair without engine,Native seat offsets animation alignment and constraints
+vehicle_chair_office1,seat,35,0,0,0,0,0.2,10000,1500,0,0,0.05,0,0,1.3,0.5,0.4,@sit,Passive usable chair without engine,Native seat offsets animation alignment and constraints
+vehicle_chair_office2,seat,40,0,0,0,0,0.2,10000,1500,0,0,0.05,0,0,1.3,0.5,0.4,@sit,Passive usable chair without engine,Native seat offsets animation alignment and constraints
+vehicle_seat_jeep,seat,35,0,0,0,0,0.2,10000,1500,0,0,0.05,0,0,1.3,0.5,0.4,drive_jeep_center,Passive usable seat without engine,Native seat offsets animation alignment and constraints
+vehicle_seat_airboat,seat,35,0,0,0,0,0.2,10000,1500,0,0,0.05,0,0,1.3,0.5,0.4,drive_airboat_center,Passive usable seat without engine,Native seat offsets animation alignment and constraints
+vehicle_seat_jalopy,seat,35,0,0,0,0,0.2,10000,1500,0,0,0.05,0,0,1.3,0.5,0.4,drive_jeep_center,Passive usable seat without engine,Native seat offsets animation alignment and constraints
+vehicle_phx_seat,seat,35,0,0,0,0,0.2,10000,1500,0,0,0.3048,0,0,1.3,0.5,0.4,@sit,Passive usable seat without engine,Native seat offsets animation alignment and constraints
+vehicle_phx_seat2,seat,35,0,0,0,0,0.2,10000,1500,0,0,0.3048,0,0,1.3,0.5,0.4,drive_jeep_center,Passive usable seat without engine,Native seat offsets animation alignment and constraints
+vehicle_phx_seat3,seat,35,0,0,0,0,0.2,10000,1500,0,0,0.3048,0,0,1.3,0.5,0.4,drive_airboat_center,Passive usable seat without engine,Native seat offsets animation alignment and constraints

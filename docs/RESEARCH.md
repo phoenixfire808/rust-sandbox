@@ -1,5 +1,15 @@
 # Research record
 
+## 2026-09-29 playable weapon and vehicle integration
+
+Reused installed Facepunch registrations and menu action semantics from the preceding discovery pass, the tracked original-model inventory, the existing async model preparation/physics/save pipeline and installed player animation metadata. Read `lua/weapons/weapon_flechettegun.lua`: automatic unlimited-ammo primary cadence is 0.1 seconds and native projectile speed is 2000 HU/s (38.1 m/s at the existing conversion). Native sticking/effects/sound remain absent. Public counterpart: <https://github.com/Facepunch/garrysmod/blob/master/garrysmod/lua/weapons/weapon_flechettegun.lua>.
+
+The local animation inventory lists drive_jeep_center, drive_airboat_center, @drive_pd and @sit. These supply optional seated poses, not native entry/exit cinematics. Weapon clip names are candidates with explicit fallback diagnostics, not individually verified asset acceptance. Enabled weapon model paths were matched against the tracked model inventory. No Steam asset was modified or copied into Git.
+
+No loose installed scripts/vehicles directory was available. Native archived vehicle scripts have not been parsed. Chassis, suspension, wheel-ray support, surface-triangle airboat support, generic prop health and most firearm tuning are independent prototypes, not measured Source engine equivalents. Native damage classes, secondary attacks, fluid volumes, transmission, sounds, multiplayer and all NPC AI remain separate work. Read installed bevy_rapier3d 0.30.0 query APIs and reused intersections_with_shape for exit hull clearance after the compiler rejected the singular context method.
+
+Authored source_weapons.csv covers all 34 cataloged weapons, source_vehicles.csv all 15 vehicles, and source_gameplay.csv shared tuning. Derived playable_coverage.csv records every route and its remaining work. All acceptance remains not_run. See PLAYABLE_ENTITIES_PLAN.md.
+
 ## 2026-09-29 entity and creation-menu discovery
 
 Read installed Facepunch stock NPC/vehicle/item registrations, Sandbox spawn commands, creation/content/context menus, content-icon implementation and scripted entity/weapon declarations. Reused their metadata and documented semantics, not executable Lua. The reproducible read-only extractor is `scripts/catalog-spawn-reference.ps1`. It produced 197 spawn definitions, 1,406 literal menu-control records and 178 source hashes. Existing HTML/CSS/native-menu research remains intact. Detailed findings, bounds and the next vehicle/NPC implementation sequence are in [ENTITY_MENU_SOURCE_OF_TRUTH.md](ENTITY_MENU_SOURCE_OF_TRUTH.md). The sources are the installed counterparts of <https://github.com/Facepunch/garrysmod>. Discovery does not demonstrate native behavior or pixel parity, and conditional mount availability is not evaluated.

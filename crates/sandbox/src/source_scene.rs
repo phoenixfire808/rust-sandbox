@@ -39,6 +39,8 @@ pub(super) fn snapshot_selection(world: &mut World, ids: &[Entity]) -> SavedScen
             let t = world.get::<Transform>(*e)?;
             let b = world.get::<RigidBody>(*e)?;
             Some(SavedModel {
+                vehicle: world.get::<vehicles::VehicleBody>(*e).map(|v| v.id.clone()),
+                health: world.get::<weapons::Health>(*e).copied(),
                 model: p.model.clone(),
                 position: t.translation.to_array(),
                 rotation: t.rotation.to_array(),
@@ -51,7 +53,7 @@ pub(super) fn snapshot_selection(world: &mut World, ids: &[Entity]) -> SavedScen
         })
         .collect();
     SavedScene {
-        version: 2,
+        version: 3,
         props,
         links: constraints::snapshot(world, ids),
     }
@@ -66,7 +68,7 @@ pub(super) fn remember(world: &mut World) {
 }
 pub(super) fn validate_scene(world: &mut World, save: &SavedScene) -> Result<()> {
     let p = world.resource::<PlayState>();
-    if save.version != 2
+    if ![2, 3].contains(&save.version)
         || save.props.len() > p.config.max_props
         || save.links.len() > p.tools.catalog.gun.max_constraints
     {
@@ -76,6 +78,29 @@ pub(super) fn validate_scene(world: &mut World, save: &SavedScene) -> Result<()>
         constraints::validate(l, save.props.len())?;
     }
     for p in &save.props {
+        if let Some(id) = &p.vehicle {
+            let catalog = &world.resource::<PlayState>().spawn_catalog;
+            if !catalog.vehicles.iter().any(|v| &v.id == id)
+                || !catalog
+                    .entries
+                    .iter()
+                    .any(|e| &e.id == id && e.model == p.model)
+            {
+                return Err("unknown or mismatched saved vehicle".into());
+            }
+        }
+        if p.health.is_some_and(|h| {
+            !h.0.is_finite()
+                || h.0 <= 0.
+                || h.0
+                    > world
+                        .resource::<PlayState>()
+                        .spawn_catalog
+                        .runtime
+                        .prop_health
+        }) {
+            return Err("invalid prop health".into());
+        }
         crate::source_assets::virtual_path(&p.model)?;
         if !p.position.iter().chain(&p.rotation).all(|v| v.is_finite())
             || (Quat::from_array(p.rotation).length() - 1.).abs() > 0.01
@@ -99,6 +124,12 @@ pub(super) fn spawn_scene(world: &mut World, scene: SavedScene, offset: Vec3) ->
             p.frozen,
         )?;
         tools::apply_properties(world, id, p.properties)?;
+        if let Some(vehicle) = p.vehicle {
+            vehicles::attach(world, id, &vehicle)?;
+        }
+        if let Some(health) = p.health {
+            world.entity_mut(id).insert(health);
+        }
         ids.push(id);
     }
     for mut l in scene.links {
@@ -120,6 +151,8 @@ pub(super) fn spawn_scene(world: &mut World, scene: SavedScene, offset: Vec3) ->
 }
 pub(super) fn restore(world: &mut World, save: SavedScene) -> Result<()> {
     validate_scene(world, &save)?;
+    vehicles::release(world, None);
+    weapons::clear_transients(world);
     spawn::clear(world);
     constraints::clear(world);
     let ids: Vec<_> = world

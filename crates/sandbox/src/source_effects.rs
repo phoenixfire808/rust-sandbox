@@ -199,6 +199,7 @@ fn update(world: &mut World) {
         let target = crate::source_play::beam_target(world);
         let play = world.resource::<PlayState>();
         let player = world.resource::<PlayerState>();
+        if player.vehicle.is_some() { return; }
         let physgun = play.physgun;
         let beam_width = if physgun {
             fx.config.beam_width

@@ -48,6 +48,78 @@ pub struct SpawnCatalog {
     pub entries: Vec<Entry>,
     pub tabs: Vec<Tab>,
     pub capabilities: Vec<Capability>,
+    pub weapons: Vec<Weapon>,
+    pub vehicles: Vec<Vehicle>,
+    pub runtime: Runtime,
+}
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct Runtime {
+    pub projectile_limit: usize,
+    pub grenade_fuse: f32,
+    pub projectile_lifetime: f32,
+    pub trace_seconds: f32,
+    pub prop_health: f32,
+    pub damage_impulse: f32,
+    pub equip_delay: f32,
+    pub enter_range: f32,
+    pub vehicle_spawn_distance: f32,
+    pub seat_eye_height: f32,
+    pub vehicle_camera_distance: f32,
+    pub wheel_span_x: f32,
+    pub wheel_span_z: f32,
+    pub spring_force_limit: f32,
+    pub min_up: f32,
+    pub steer_speed: f32,
+    pub vehicle_linear_damping: f32,
+    pub vehicle_angular_damping: f32,
+}
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct Weapon {
+    pub id: String,
+    pub kind: String,
+    pub view_model: String,
+    pub world_model: String,
+    pub idle: String,
+    pub fire: String,
+    pub reload: String,
+    pub clip: u32,
+    pub reserve: u32,
+    pub interval: f32,
+    pub reload_seconds: f32,
+    pub damage: f32,
+    pub pellets: u32,
+    pub spread: f32,
+    pub range: f32,
+    pub speed: f32,
+    pub blast: f32,
+    pub gravity: f32,
+    pub automatic: bool,
+    pub scope: String,
+    pub remaining: String,
+}
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct Vehicle {
+    pub id: String,
+    pub kind: String,
+    pub mass: f32,
+    pub engine_accel: f32,
+    pub brake_accel: f32,
+    pub max_speed: f32,
+    pub steer_rate: f32,
+    pub suspension: f32,
+    pub spring: f32,
+    pub damping: f32,
+    pub grip: f32,
+    pub seat_x: f32,
+    pub seat_y: f32,
+    pub seat_z: f32,
+    pub seat_yaw: f32,
+    pub exit_distance: f32,
+    pub entry_seconds: f32,
+    pub exit_seconds: f32,
+    pub pose: String,
+    pub scope: String,
+    pub remaining: String,
 }
 fn rows<T: serde::de::DeserializeOwned>(dir: &Path, name: &str) -> Result<Vec<T>> {
     csv::Reader::from_path(dir.join(name))?
@@ -65,10 +137,47 @@ fn unique<'a>(ids: impl Iterator<Item = &'a str>) -> Result<()> {
     Ok(())
 }
 pub fn load(dir: &Path) -> Result<SpawnCatalog> {
+    let mut runtime = rows::<Runtime>(dir, "source_gameplay.csv")?;
+    if runtime.len() != 1 {
+        return Err("source_gameplay must have one row".into());
+    }
+    let runtime = runtime.remove(0);
+    if runtime.projectile_limit == 0
+        || runtime.projectile_limit > 1024
+        || ![
+            runtime.grenade_fuse,
+            runtime.projectile_lifetime,
+            runtime.trace_seconds,
+            runtime.prop_health,
+            runtime.damage_impulse,
+            runtime.equip_delay,
+            runtime.enter_range,
+            runtime.vehicle_spawn_distance,
+            runtime.seat_eye_height,
+            runtime.vehicle_camera_distance,
+            runtime.wheel_span_x,
+            runtime.wheel_span_z,
+            runtime.spring_force_limit,
+            runtime.min_up,
+            runtime.steer_speed,
+            runtime.vehicle_linear_damping,
+            runtime.vehicle_angular_damping,
+        ]
+        .iter()
+        .all(|v| v.is_finite() && *v > 0. && *v <= 1000.)
+        || runtime.wheel_span_x > 1.
+        || runtime.wheel_span_z > 1.
+        || runtime.min_up >= 1.
+    {
+        return Err("invalid shared gameplay tuning".into());
+    }
     let mut c = SpawnCatalog {
+        runtime,
         entries: rows(dir, "spawn_reference.csv")?,
         tabs: rows(dir, "source_creation_tabs.csv")?,
         capabilities: rows(dir, "spawn_capabilities.csv")?,
+        weapons: rows(dir, "source_weapons.csv")?,
+        vehicles: rows(dir, "source_vehicles.csv")?,
     };
     #[derive(Deserialize)]
     struct Gap {
@@ -81,6 +190,106 @@ pub fn load(dir: &Path) -> Result<SpawnCatalog> {
     unique(c.entries.iter().map(|e| e.id.as_str()))?;
     unique(c.tabs.iter().map(|e| e.id.as_str()))?;
     unique(c.capabilities.iter().map(|e| e.id.as_str()))?;
+    unique(c.weapons.iter().map(|e| e.id.as_str()))?;
+    unique(c.vehicles.iter().map(|e| e.id.as_str()))?;
+    for e in c
+        .entries
+        .iter()
+        .filter(|e| e.kind == "weapon" || e.kind == "vehicle")
+    {
+        if (e.kind == "weapon" && !c.weapons.iter().any(|w| w.id == e.id))
+            || (e.kind == "vehicle" && !c.vehicles.iter().any(|v| v.id == e.id))
+        {
+            return Err(format!("missing explicit runtime coverage for {}", e.id).into());
+        }
+    }
+    for w in &c.weapons {
+        if !c.entries.iter().any(|e| e.id == w.id && e.kind == "weapon")
+            || ![
+                "disabled",
+                "physgun",
+                "toolgun",
+                "hitscan",
+                "projectile",
+                "grenade",
+                "melee",
+            ]
+            .contains(&w.kind.as_str())
+            || w.clip > 1000
+            || w.reserve > 10000
+            || !(1..=32).contains(&w.pellets)
+            || ![w.interval, w.reload_seconds, w.range]
+                .iter()
+                .all(|n| n.is_finite() && *n > 0. && *n <= 1000.)
+            || ![w.damage, w.spread, w.speed, w.blast, w.gravity]
+                .iter()
+                .all(|n| n.is_finite() && *n >= 0. && *n <= 1000.)
+            || w.remaining.is_empty()
+            || w.scope.is_empty()
+        {
+            return Err(format!("invalid weapon runtime row {}", w.id).into());
+        }
+        if w.kind != "disabled" {
+            for path in [&w.view_model, &w.world_model] {
+                if !path.starts_with("models/")
+                    || !path.ends_with(".mdl")
+                    || path.contains("..")
+                    || path.contains('\\')
+                {
+                    return Err(format!("unsafe weapon model in {}", w.id).into());
+                }
+            }
+        }
+        if (w.kind == "physgun" && w.id != "weapon_weapon_physgun")
+            || (w.kind == "toolgun" && w.id != "weapon_gmod_tool")
+        {
+            return Err("special weapon routes must retain their native identity".into());
+        }
+    }
+    for v in &c.vehicles {
+        if !c
+            .entries
+            .iter()
+            .any(|e| e.id == v.id && e.kind == "vehicle" && !e.model.is_empty())
+            || !["seat", "wheels", "airboat"].contains(&v.kind.as_str())
+            || ![
+                v.mass,
+                v.suspension,
+                v.spring,
+                v.damping,
+                v.exit_distance,
+                v.entry_seconds,
+                v.exit_seconds,
+            ]
+            .iter()
+            .all(|n| n.is_finite() && *n > 0.)
+            || ![
+                v.engine_accel,
+                v.brake_accel,
+                v.max_speed,
+                v.steer_rate,
+                v.grip,
+            ]
+            .iter()
+            .all(|n| n.is_finite() && *n >= 0. && *n <= 100.)
+            || ![v.seat_x, v.seat_y, v.seat_z, v.seat_yaw]
+                .iter()
+                .all(|n| n.is_finite() && n.abs() < 100.)
+            || v.mass > 10000.
+            || v.spring > 1000000.
+            || v.damping > 100000.
+            || v.suspension > 2.
+            || v.entry_seconds > 5.
+            || v.exit_seconds > 5.
+            || v.exit_distance > 10.
+            || v.pose.is_empty()
+            || v.remaining.is_empty()
+            || v.scope.is_empty()
+            || (v.kind == "seat" && (v.engine_accel != 0. || v.max_speed != 0.))
+        {
+            return Err(format!("invalid vehicle runtime row {}", v.id).into());
+        }
+    }
     let kinds = [
         "model",
         "weapon",

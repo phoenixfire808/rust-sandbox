@@ -104,7 +104,7 @@ pub(super) fn update(world: &mut World) {
     }
     let play = world.resource::<PlayState>();
     let label = play.tools.label(&play.tool).to_owned();
-    let active = !play.physgun
+    let active = play.active_weapon == "weapon_gmod_tool"
         && (play.weapon_visible
             || world
                 .get_resource::<crate::source_player::PlayerState>()

@@ -5,11 +5,11 @@ catalog_search,reference_browser,Search names classes and categories including Q
 catalog_categories,reference_browser,Change category after paging,Page clamps and correct category rows appear without stale details,not_run,Drew
 catalog_pages,reference_browser,Page NPC definitions forward and back then switch tabs,No rows are lost or duplicated and new tab starts on page one,not_run,Drew
 catalog_npc,npc,Inspect Rebel Medic hacked turret and mounted HL1 entries,Aliases retain distinct identifiers and conditions; no fake NPC prop is spawned,not_run,Drew
-catalog_vehicle,vehicle,Inspect Jeep Airboat APC and a chair,Original class and model metadata plus missing capabilities are shown; none claims to drive,not_run,Drew
+catalog_vehicle,vehicle,Spawn Jeep Airboat APC and a chair then enter and exit,Typed originals spawn; E occupies and exits; powered vehicles accept driving input; chairs remain passive; native parity remains partial,not_run,Drew
 catalog_visibility,entity,Browse Entities and search internal tool helper classes,Internal or inherited-only definitions are not offered as generic spawnmenu entries,not_run,Drew
-catalog_admin,entity,Inspect Fog Editor and admin-only weapons,Admin metadata visible while actual spawning remains unavailable,not_run,Drew
+catalog_admin,entity,Inspect Fog Editor and admin-only weapons,Admin metadata remains visible; unsupported entities stay inspect-only; available local weapon routes do not imply network permissions,not_run,Drew
 catalog_feedback,context,Select a catalog definition and request improvement then save feedback,Private JSON captures creation tab selected ID source line and exact definition without changing selected prop,not_run,Drew
 catalog_empty,reference_browser,Search nonsense then clear query,Empty results are explicit and clearing restores entries,not_run,Drew
 catalog_backlog,postprocess_dupes_saves,Visit each not-yet-implemented native browser,Capabilities and acceptance shown with no invented user content,not_run,Drew
 catalog_scroll,reference_browser,Scroll and select entries near the bottom then reopen Q,Details remain accessible and each panel scrolls independently,not_run,Drew
-catalog_runtime_boundary,entity_runtime,Attempt to use catalog as an NPC or vehicle spawner,Only inspect and feedback actions exist until a real class implementation is added,not_run,Drew
+catalog_runtime_boundary,entity_runtime,Use enabled weapons and vehicles then inspect NPC and unsupported weapon entries,Enabled routes perform real actions; NPC and unsupported weapon entries remain explicitly unavailable,not_run,Drew

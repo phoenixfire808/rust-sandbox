@@ -23,6 +23,9 @@ fn main() {
         "spawn_reference.csv",
         "source_creation_tabs.csv",
         "spawn_capabilities.csv",
+        "source_weapons.csv",
+        "source_vehicles.csv",
+        "source_gameplay.csv",
         "parity_gaps.csv",
     ] {
         println!("cargo:rerun-if-changed={}", sheets.join(name).display());

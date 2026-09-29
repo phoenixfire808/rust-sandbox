@@ -1,5 +1,7 @@
 # Entity and menu source of truth
 
+**Historical discovery milestone:** the later [playable entities integration](PLAYABLE_ENTITIES_PLAN.md) adds primary weapon and vehicle routes. Current executable scope is `source_weapons.csv`, `source_vehicles.csv` and `playable_coverage.csv`; the reference-only runtime description below records the earlier milestone, not current route availability.
+
 ## Authority and current delivery
 
 The editable source is CSV in `sheets/`. XLSX is a review/export artifact, not a second database. Export edited workbook tabs back to their corresponding CSV files before compiling. Do not edit generated Rust.

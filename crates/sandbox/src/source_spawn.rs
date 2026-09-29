@@ -45,6 +45,8 @@ pub(super) fn report(
 }
 
 struct Request {
+    vehicle: Option<String>,
+    rotation: Quat,
     path: String,
     position: Vec3,
     normal: Vec3,
@@ -66,6 +68,26 @@ impl Default for PendingSpawns {
     }
 }
 pub(super) fn enqueue(world: &mut World, path: String, position: Vec3, normal: Vec3) {
+    enqueue_typed(world, path, position, normal, Quat::IDENTITY, None);
+}
+pub(super) fn enqueue_vehicle(
+    world: &mut World,
+    path: String,
+    position: Vec3,
+    normal: Vec3,
+    rotation: Quat,
+    id: String,
+) {
+    enqueue_typed(world, path, position, normal, rotation, Some(id));
+}
+fn enqueue_typed(
+    world: &mut World,
+    path: String,
+    position: Vec3,
+    normal: Vec3,
+    rotation: Quat,
+    vehicle: Option<String>,
+) {
     let count = world.query::<&SpawnedProp>().iter(world).count();
     let queue = world.resource::<PendingSpawns>();
     if queue.requests.len() >= queue.limit
@@ -79,11 +101,15 @@ pub(super) fn enqueue(world: &mut World, path: String, position: Vec3, normal: V
         return;
     }
     world.resource_mut::<PlayState>().status = format!("Loading {path} (Z cancels pending spawn)");
-    world.resource_mut::<PlayState>().selected = path.clone();
+    if vehicle.is_none() {
+        world.resource_mut::<PlayState>().selected = path.clone();
+    }
     world
         .resource_mut::<PendingSpawns>()
         .requests
         .push_back(Request {
+            vehicle,
+            rotation,
             path,
             position,
             normal,
@@ -177,12 +203,21 @@ pub(super) fn complete(world: &mut World) {
             .geometry
             .iter()
             .flat_map(|g| &g.positions)
-            .map(|p| Vec3::from_array(*p).dot(request.normal))
+            .map(|p| (request.rotation * Vec3::from_array(*p)).dot(request.normal))
             .fold(f32::INFINITY, f32::min);
         let position = request.position
             + request.normal * (crate::compiled_frontend_config().spawn_clearance - support);
-        match spawn_model(world, &request.path, position, Quat::IDENTITY, false) {
-            Ok(_) => {
+        match spawn_model(world, &request.path, position, request.rotation, false) {
+            Ok(entity) => {
+                if let Some(id) = &request.vehicle {
+                    if let Err(error) = vehicles::attach(world, entity, id) {
+                        world.despawn(entity);
+                        world.resource_mut::<PlayState>().undo.pop();
+                        world.resource_mut::<PlayState>().status =
+                            format!("Vehicle failed: {error}");
+                        return;
+                    }
+                }
                 world.resource_mut::<PlayState>().status = format!("Spawned {}", request.path);
                 println!(
                     "SPAWN_COMMIT path={} entity_ms={:.2} request_ms={:.2}",

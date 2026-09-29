@@ -1,0 +1,2 @@
+projectile_limit,grenade_fuse,projectile_lifetime,trace_seconds,prop_health,damage_impulse,equip_delay,enter_range,vehicle_spawn_distance,seat_eye_height,vehicle_camera_distance,wheel_span_x,wheel_span_z,spring_force_limit,min_up,steer_speed,vehicle_linear_damping,vehicle_angular_damping
+128,3,10,0.065,100,0.02,0.2,3,6,0.8,5,0.75,0.7,30,0.2,3,0.1,1.5
