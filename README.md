@@ -20,7 +20,9 @@ The launcher builds first, so spreadsheet edits cannot silently leave you runnin
 
 **Normal launch now loads the original installed `gm_construct` in Bevy**, not the box demo. It reads BSP geometry/displacements/lightmaps, VPK-mounted VMT/VTF textures, six sky faces, and placed MDL/VVD/VTX static models. Set `GMOD_DIR` if your Steam `GarrysMod` root differs from `D:\SteamLibrary\steamapps\common\GarrysMod`. First content decode takes a short time, with per-asset progress in the console. No Steam files are changed.
 
-Click to capture the mouse. WASD moves the inspection camera, Space/Ctrl moves vertically, Shift accelerates, Esc releases the mouse, F10 quits. This is still **noclip asset inspection**, not Source player physics. `play-prototype.cmd` preserves the earlier physics sandbox separately. See [original-content plan and limitations](docs/SOURCE_ASSETS.md).
+Click to capture the mouse. **WASD walks**, **Space jumps**, **Shift runs**, **F4 toggles third person**, and **V toggles noclip** (Space/Ctrl moves vertically only in noclip). Esc releases the mouse and F10 quits. The player uses the original Kleiner model, original idle/walk/run clips, bone-merged first-person hands, and attached world weapons. Grounded movement uses Rapier, not an exact Source physics solver.
+
+**Q** opens the original-model build menu, **1/2** selects physgun/toolgun, **Z** undoes, and **F5/F6** saves/loads local prop scenes. `play-prototype.cmd` preserves the earlier physics sandbox separately. The detailed fidelity checklist and unimplemented one-to-one requirements are in [PLAYER_PARITY.md](docs/PLAYER_PARITY.md). Run `cargo run -p rust-sandbox --bin source-player-check` to validate locally installed player/weapon assets, or `call play.cmd --smoke` to capture both views and an interior-wall check.
 
 ## Delivered files
 
@@ -28,6 +30,8 @@ Click to capture the mouse. WASD moves the inspection camera, Space/Ctrl moves v
 |---|---|
 | `sheets/props.csv` | Authored procedural prop sizes, mass, friction, bounce, color |
 | `sheets/source_maps.csv` | Original installed map references, scale, FOV and inspection settings |
+| `sheets/source_player.csv` | Original player/hands/weapon references, movement dimensions and camera settings |
+| `sheets/source_play.csv` | Prop menu, grabbing, gravity and sandbox parameters |
 | `sheets/source_pipeline.csv` | Import capabilities and remaining fidelity gaps |
 | `sheets/world.csv` | Gravity, physics tick rate, floor size, movement, distances, prop limit |
 | `sheets/scene.csv` | Initial prop instances and frozen state |
@@ -88,4 +92,4 @@ The inventory and export commands refuse existing destinations. Inventory reads 
 
 ## Important gaps
 
-The Source importer is partial, not renderer parity. Brush entity simulation, 3D sky scaling, model animation, accurate static prop lighting, HDR, material blending/proxies, reflection/refraction, overlays and original player physics remain. Unsupported assets are listed in `local/<map>-import-report.json`. No walking player, ragdolls, constraint tools, multiplayer, NPCs, vehicles, audio, Lua runtime, Workshop integration, or GMod save/addon compatibility yet. Rapier is not Source VPhysics. The reference game has not been run through a comparative parity harness. Research rows are a structured baseline, not proof that every behavior or addon has been enumerated.
+The Source importer is partial, not renderer parity. Grounded walking, a third-person player, selected original locomotion clips, attached weapons and visible brush submodels are implemented. Brush entity simulation, complete animation blending/IK, accurate static prop lighting, HDR, material blending/proxies, reflection/refraction, overlays, 3D sky scaling and original player physics remain incomplete. Unsupported assets are listed in `local/<map>-import-report.json`. Ragdolls, full constraint tools, multiplayer, NPCs, vehicles, audio, Lua runtime, Workshop integration and GMod save/addon compatibility are not implemented. Rapier is not Source VPhysics. The reference game has not been run through a comparative parity harness. Research rows are a structured baseline, not proof that every behavior or addon has been enumerated.

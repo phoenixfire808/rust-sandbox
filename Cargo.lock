@@ -3723,8 +3723,10 @@ version = "0.1.0"
 dependencies = [
  "bevy",
  "bevy_rapier3d",
+ "csv",
  "image",
  "sandbox-catalog",
+ "serde",
  "serde_json",
  "vbsp",
  "vmdl",

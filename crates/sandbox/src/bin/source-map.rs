@@ -1,14 +1,14 @@
 use bevy::{
     core_pipeline::tonemapping::Tonemapping,
-    input::mouse::MouseMotion,
     pbr::Lightmap,
     prelude::*,
     render::{
         render_resource::Face,
         view::screenshot::{save_to_disk, Screenshot},
     },
-    window::{CursorGrabMode, PrimaryWindow},
 };
+use bevy_rapier3d::prelude::{Collider, RigidBody};
+use rust_sandbox::source_play::{PlayState, SourceCamera, SourceHud, SourcePlayPlugin};
 use rust_sandbox::{
     compiled_source_maps, project_root,
     source_assets::{self, Geometry, LoadedMap},
@@ -25,8 +25,6 @@ struct Settings {
     frame: u32,
     screenshot_done: bool,
 }
-#[derive(Component)]
-struct PlayerCamera;
 #[derive(Component)]
 struct SkyFace;
 
@@ -51,6 +49,23 @@ fn run() -> Result<()> {
         .map(PathBuf::from)
         .unwrap_or_else(|| PathBuf::from(r"D:\SteamLibrary\steamapps\common\GarrysMod"));
     let loaded = source_assets::load(&install, &def)?;
+    if args.iter().any(|a| a == "--export-catalog") {
+        let output = project_root().join("local/playable-catalog");
+        println!("{}", loaded.source.export_catalog(&output)?);
+        return Ok(());
+    }
+    if args.iter().any(|a| a == "--inspect-weapons") {
+        for path in [
+            "scripts/weapons/weapon_physgun.txt",
+            "lua/weapons/gmod_tool/shared.lua",
+        ] {
+            match loaded.source.mounts.read(&loaded.source.bsp, path) {
+                Ok(bytes) => println!("{}\n{}", path, String::from_utf8_lossy(&bytes)),
+                Err(e) => eprintln!("{path}: {e}"),
+            }
+        }
+        return Ok(());
+    }
     let local = project_root().join("local");
     std::fs::create_dir_all(&local)?;
     std::fs::write(
@@ -65,6 +80,10 @@ fn run() -> Result<()> {
         }
         println!("SOURCE_MAP_IMPORT_OK");
         return Ok(());
+    }
+    let mut play = PlayState::new(loaded.source.models()?, def.fov_degrees, def.fly_speed);
+    if args.iter().any(|a| a == "--smoke") {
+        play.storage_root = project_root().join("local/playable-smoke");
     }
     App::new()
         .add_plugins(DefaultPlugins.set(WindowPlugin {
@@ -81,6 +100,11 @@ fn run() -> Result<()> {
             ..default()
         })
         .insert_resource(PendingMap(Some(loaded)))
+        .insert_resource(play)
+        .add_plugins((
+            SourcePlayPlugin,
+            rust_sandbox::source_player::SourcePlayerPlugin,
+        ))
         .insert_resource(Settings {
             def,
             smoke: args.iter().any(|a| a == "--smoke"),
@@ -88,7 +112,13 @@ fn run() -> Result<()> {
             screenshot_done: false,
         })
         .add_systems(Startup, setup)
-        .add_systems(Update, (movement, smoke).chain())
+        .add_systems(
+            Update,
+            (movement, smoke)
+                .chain()
+                .after(rust_sandbox::source_player::input)
+                .before(rust_sandbox::source_play::update_play),
+        )
         .run();
     Ok(())
 }
@@ -101,6 +131,7 @@ fn setup(
     mut images: ResMut<Assets<Image>>,
 ) {
     let map = pending.0.take().expect("map loaded before window creation");
+    commands.insert_resource(map.source);
     let lightmap = images.add(map.lightmap);
     let texture_handles: std::collections::BTreeMap<_, _> = map
         .textures
@@ -108,6 +139,22 @@ fn setup(
         .map(|(name, image)| (name, images.add(image)))
         .collect();
     for surface in map.surfaces {
+        if !surface.name.contains("water") {
+            let vertices = surface
+                .geometry
+                .positions
+                .iter()
+                .map(|p| Vec3::from_array(*p))
+                .collect();
+            let indices = (0..surface.geometry.positions.len() as u32)
+                .collect::<Vec<_>>()
+                .chunks_exact(3)
+                .map(|t| [t[0], t[1], t[2]])
+                .collect();
+            if let Ok(collider) = Collider::trimesh(vertices, indices) {
+                commands.spawn((RigidBody::Fixed, collider, Transform::default()));
+            }
+        }
         let material = materials.add(StandardMaterial {
             base_color: surface.tint,
             base_color_texture: surface.texture.map(|name| texture_handles[&name].clone()),
@@ -170,8 +217,9 @@ fn setup(
             Transform::from_translation(map.spawn),
         ));
     }
+    rust_sandbox::source_player::spawn(&mut commands, map.spawn, map.forward);
     commands.spawn((
-        PlayerCamera,
+        SourceCamera,
         Camera3d::default(),
         Tonemapping::None,
         bevy::render::camera::Exposure {
@@ -185,91 +233,107 @@ fn setup(
         }),
         Transform::from_translation(map.spawn).looking_to(map.forward, Vec3::Y),
     ));
-    commands.spawn((Text::new(format!("{}  |  Original local BSP + VMT/VTF\nClick: capture mouse  Esc: release  F10: quit\nWASD: noclip  Space/Ctrl: up/down  Shift: fast\nAsset preview, not gameplay parity",settings.def.id)),TextFont {font_size:16.,..default()},Node {position_type:PositionType::Absolute,left:Val::Px(16.),bottom:Val::Px(16.),padding:UiRect::all(Val::Px(8.)),..default()},BackgroundColor(Color::srgba(0.,0.,0.,0.6))));
+    commands.spawn((
+        Camera2d,
+        Camera {
+            order: 2,
+            clear_color: bevy::render::camera::ClearColorConfig::None,
+            ..default()
+        },
+        IsDefaultUiCamera,
+    ));
+    commands.spawn((
+        SourceHud,
+        Text::new("Loading original weapon and build menu..."),
+        TextFont {
+            font_size: 16.,
+            ..default()
+        },
+        Node {
+            position_type: PositionType::Absolute,
+            left: Val::Px(16.),
+            bottom: Val::Px(16.),
+            padding: UiRect::all(Val::Px(8.)),
+            ..default()
+        },
+        BackgroundColor(Color::srgba(0., 0., 0., 0.6)),
+    ));
     println!("SOURCE_MAP_WINDOW_READY");
 }
-// Each independent Bevy input resource is injected by the ECS scheduler.
-#[allow(clippy::too_many_arguments)]
 fn movement(
-    keys: Res<ButtonInput<KeyCode>>,
-    mouse: Res<ButtonInput<MouseButton>>,
-    mut events: EventReader<MouseMotion>,
-    time: Res<Time>,
-    settings: Res<Settings>,
-    mut window: Query<&mut Window, With<PrimaryWindow>>,
-    mut camera: Query<&mut Transform, (With<PlayerCamera>, Without<SkyFace>)>,
-    mut sky: Query<&mut Transform, (With<SkyFace>, Without<PlayerCamera>)>,
-    mut exit: EventWriter<AppExit>,
+    camera: Query<&Transform, (With<SourceCamera>, Without<SkyFace>)>,
+    mut sky: Query<&mut Transform, (With<SkyFace>, Without<SourceCamera>)>,
 ) {
-    let Ok(mut window) = window.single_mut() else {
-        return;
-    };
-    if keys.just_pressed(KeyCode::F10) {
-        exit.write(AppExit::Success);
-    }
-    if mouse.just_pressed(MouseButton::Left) && window.focused {
-        window.cursor_options.grab_mode = CursorGrabMode::Locked;
-        window.cursor_options.visible = false;
-    }
-    if keys.just_pressed(KeyCode::Escape) || !window.focused {
-        window.cursor_options.grab_mode = CursorGrabMode::None;
-        window.cursor_options.visible = true;
-    }
-    let delta = events.read().fold(Vec2::ZERO, |sum, e| sum + e.delta);
-    let Ok(mut camera) = camera.single_mut() else {
-        return;
-    };
-    if window.cursor_options.grab_mode != CursorGrabMode::None {
-        let (yaw, pitch, _) = camera.rotation.to_euler(EulerRot::YXZ);
-        camera.rotation = Quat::from_euler(
-            EulerRot::YXZ,
-            yaw - delta.x * 0.0025,
-            (pitch - delta.y * 0.0025).clamp(-1.55, 1.55),
-            0.,
-        );
-    }
-    let mut direction = Vec3::ZERO;
-    if window.focused {
-        if keys.pressed(KeyCode::KeyW) {
-            direction += *camera.forward();
+    if let Ok(camera) = camera.single() {
+        for mut t in &mut sky {
+            t.translation = camera.translation;
         }
-        if keys.pressed(KeyCode::KeyS) {
-            direction -= *camera.forward();
-        }
-        if keys.pressed(KeyCode::KeyD) {
-            direction += *camera.right();
-        }
-        if keys.pressed(KeyCode::KeyA) {
-            direction -= *camera.right();
-        }
-        if keys.pressed(KeyCode::Space) {
-            direction += Vec3::Y;
-        }
-        if keys.pressed(KeyCode::ControlLeft) {
-            direction -= Vec3::Y;
-        }
-        let speed = settings.def.fly_speed
-            * if keys.pressed(KeyCode::ShiftLeft) {
-                4.
-            } else {
-                1.
-            };
-        camera.translation += direction.normalize_or_zero() * speed * time.delta_secs();
-    }
-    for mut t in &mut sky {
-        t.translation = camera.translation;
     }
 }
-fn smoke(mut commands: Commands, mut settings: ResMut<Settings>, mut exit: EventWriter<AppExit>) {
-    if !settings.smoke {
+fn smoke(world: &mut World) {
+    if !world.resource::<Settings>().smoke {
         return;
     }
-    settings.frame += 1;
-    if settings.frame == 120 {
-        let path = project_root()
-            .join("evidence")
-            .join(format!("{}-source.png", settings.def.id));
-        commands
+    world.resource_mut::<Settings>().frame += 1;
+    let frame = world.resource::<Settings>().frame;
+    if frame == 120 && !rust_sandbox::source_player::scene_ready(world) {
+        eprintln!("PLAYER_SMOKE_FAILED: player assets did not load");
+        world.send_event(AppExit::error());
+        return;
+    }
+    if let Some(mut player) = world.get_resource_mut::<rust_sandbox::source_player::PlayerState>() {
+        if frame == 180 {
+            player.third_person = true;
+        }
+        if (260..340).contains(&frame) {
+            player.direction = Vec3::NEG_Z;
+        }
+        if frame == 340 {
+            player.direction = Vec3::ZERO;
+        }
+        if frame == 480 {
+            player.third_person = false;
+        }
+        if matches!(frame, 120 | 240 | 320 | 460 | 540) {
+            println!(
+                "PLAYER_SMOKE_STATE frame={frame} eye={:?} grounded={} third={} moving={}",
+                player.eye.translation, player.grounded, player.third_person, player.moving
+            );
+        }
+    }
+    if frame == 400 {
+        world.resource_mut::<PlayState>().physgun = false;
+    }
+    if frame == 620 && world.resource::<Settings>().def.id == "gm_construct" {
+        let (entity, center_offset) = {
+            let mut p = world.resource_mut::<rust_sandbox::source_player::PlayerState>();
+            p.yaw = 0.;
+            p.pitch = 0.;
+            p.vertical = 0.;
+            p.third_person = false;
+            (p.entity, p.config.height * 0.5 - p.config.eye_height)
+        };
+        // Acceptance fixture inside the white room omitted by the old model-0 importer.
+        world.get_mut::<Transform>(entity).unwrap().translation =
+            source_assets::source_position([-2048., -3600., -192.], 0.01905)
+                + Vec3::Y * center_offset;
+    }
+    let capture = match frame {
+        120 => Some("player-first"),
+        240 => Some("player-third"),
+        320 => Some("player-walk"),
+        460 => Some("tool-third"),
+        540 => Some("tool-first"),
+        680 => Some("interior-walls"),
+        _ => None,
+    };
+    if let Some(label) = capture {
+        world.resource_mut::<Settings>().screenshot_done = false;
+        let path = project_root().join("evidence").join(format!(
+            "{}-{label}.png",
+            world.resource::<Settings>().def.id
+        ));
+        world
             .spawn(Screenshot::primary_window())
             .observe(save_to_disk(path))
             .observe(
@@ -279,12 +343,12 @@ fn smoke(mut commands: Commands, mut settings: ResMut<Settings>, mut exit: Event
                 },
             );
     }
-    if settings.frame > 180 && settings.screenshot_done {
-        println!("SOURCE_MAP_RENDER_OK: {}", settings.def.id);
-        exit.write(AppExit::Success);
+    if frame > 740 && world.resource::<Settings>().screenshot_done {
+        println!("SOURCE_PLAYER_RENDER_OK");
+        world.send_event(AppExit::Success);
     }
-    if settings.frame > 1800 {
-        eprintln!("screenshot timed out");
-        exit.write(AppExit::error());
+    if frame > 1800 {
+        eprintln!("player screenshot timed out");
+        world.send_event(AppExit::error());
     }
 }

@@ -23,11 +23,11 @@ flowchart LR
 
 ## Player assets and rendering
 
-- [ ] Correct selected stock player model, no substitute primitive or unrelated mesh.
+- [x] Correct selected stock player model, no substitute primitive or unrelated mesh. Default Kleiner uses original installed geometry.
 - [ ] MDL/VVD/VTX checksums, vertex fixups, mesh offsets, triangle lists/strips, LOD selection.
 - [ ] Bodygroup selection instead of simultaneously rendering alternatives.
 - [ ] Skin-family selection, model texture search paths, material patch resolution.
-- [ ] Bone hierarchy, bind matrices, normalized weights, correct coordinate conversion.
+- [x] Bone hierarchy, bind matrices, normalized weights, correct coordinate conversion. Original-asset bind residuals below 0.00003.
 - [ ] Idle, forward/backward/strafe walk, run, crouch idle/walk, jump, fall, land.
 - [ ] Included animation models, external blocks, animation sections, signed compressed tracks.
 - [ ] Pose parameters, animation blending, hold-type layers, aim pitch/yaw, foot IK.
@@ -38,8 +38,8 @@ flowchart LR
 
 ## First-person weapons and hands
 
-- [ ] Physgun and toolgun original model geometry intact, no floating fragments.
-- [ ] Bind pose evaluated into authored idle pose, correct camera-relative axes.
+- [x] Physgun and toolgun original model geometry intact, no floating fragments. Verified rendered captures.
+- [x] Bind pose evaluated into authored idle pose, correct camera-relative axes.
 - [ ] Matching original arms/hands model, bone merge and skin choice.
 - [ ] Separate viewmodel FOV, near plane, render layer and depth handling.
 - [ ] Idle/draw/holster/attack/reload animations and correct event timing.
@@ -51,10 +51,10 @@ flowchart LR
 
 ## Third-person player and held weapon
 
-- [ ] Toggle first/third person without moving the player or resetting aim.
+- [x] Toggle first/third person without moving the player or resetting aim. F4.
 - [ ] Camera follows player eye origin and collides with walls/ceilings.
-- [ ] Body is visible in third person and hidden from first-person camera only.
-- [ ] World weapon attaches to actual animated right hand, not camera or approximate screen offset.
+- [x] Body is visible in third person and hidden from first-person camera only.
+- [x] World weapon attaches to actual animated right hand, not camera or approximate screen offset. Uses authored attachment matrix.
 - [ ] Left hand grips weapon through authored pose or IK.
 - [ ] Weapon hold poses for physgun/toolgun and aiming pitch.
 - [ ] Walk/run/strafe animation matches speed and heading without foot sliding.
@@ -64,9 +64,9 @@ flowchart LR
 ## Grounded movement and collision
 
 - [ ] Spawn at original info_player_start with correct feet/eye height and yaw.
-- [ ] Walking is default, noclip is an explicit toggle.
-- [ ] Horizontal movement independent of look pitch, normalized diagonal speed.
-- [ ] Gravity, grounded detection, jump impulse, no mid-air repeated jump.
+- [x] Walking is default, noclip is an explicit toggle. V.
+- [x] Horizontal movement independent of look pitch, normalized diagonal speed. Real Rapier wall test passes.
+- [x] Gravity, grounded detection, jump impulse, no mid-air repeated jump. Real controller jump/land test passes.
 - [ ] Walk/run/slow speeds, acceleration, friction, air acceleration match measured reference.
 - [ ] Standing/crouched hulls and eye heights, no standing through low ceiling.
 - [ ] Step up/down, ramps, steep slopes, ledges, wall sliding, corner contacts.
@@ -113,3 +113,9 @@ These requirements are also necessary for an actual one-to-one sandbox copy. Fix
 ## Initial findings, 2026-09-29
 
 Code inspection confirms the initial viewer imports only BSP model 0 and static props. Brush entities are excluded. The camera is free-flying, with no player controller or body. The view weapons are static unposed meshes parented directly to the world camera. The existing vmdl decoder exposes bones and animation data, but its own animation reader has unsupported external blocks and questionable compressed-track semantics. These are concrete implementation gaps, not settings fixes.
+
+## Implemented follow-up, 2026-09-29
+
+Those initial findings describe the previous viewer, not the current launcher. `play.cmd` now includes grounded capsule movement, jump, optional noclip, first/third-person views, original Kleiner geometry, selected idle/forward walk/run clips for physgun and pistol holds, bone-merged hands and authored right-hand weapon attachments. The viewmodel has a separate render camera/FOV. Visible brush submodels are imported with entity transforms. An erroneous second plane-normal flip was removed after the interior capture exposed missing walls and ceiling.
+
+Unchecked compound requirements above remain unchecked when only part is implemented or only code inspection supports them. Directional blending, crouch and airborne animation, foot/left-hand IK, exact pose/lighting agreement, original box-hull movement and a measured GMod reference comparison remain gaps. The sandbox menu/prop tools are a limited independent implementation, not all stock GMod tools. See [VALIDATION.md](VALIDATION.md) for executed checks and local capture paths.

@@ -32,7 +32,7 @@ pub fn virtual_path(name: &str) -> Result<String> {
 }
 
 pub struct Mounts {
-    roots: Vec<(PathBuf, Vec<vpk::VPK>)>,
+    pub(crate) roots: Vec<(PathBuf, Vec<vpk::VPK>)>,
 }
 impl Mounts {
     pub fn open(install: &Path) -> Result<Self> {
@@ -90,7 +90,7 @@ impl Mounts {
         }
         Err(format!("missing mounted asset: {name}").into())
     }
-    fn material(&self, bsp: &vbsp::Bsp, name: &str) -> Result<vmt_parser::material::Material> {
+    pub fn material(&self, bsp: &vbsp::Bsp, name: &str) -> Result<vmt_parser::material::Material> {
         let name = if name.starts_with("materials/") {
             name.to_string()
         } else {
@@ -101,7 +101,15 @@ impl Mounts {
         } else {
             format!("{name}.vmt")
         };
-        let text = String::from_utf8(self.read(bsp, &name)?)?;
+        let mut text = String::from_utf8(self.read(bsp, &name)?)?;
+        // The parser lacks Source's Teeth/Eyes shaders. Preserve their parameters and
+        // base texture via VertexLitGeneric; eye/teeth lighting remains approximate.
+        if let Some(brace) = text.find('{') {
+            let shader = text[..brace].trim().trim_matches('"').to_ascii_lowercase();
+            if matches!(shader.as_str(), "teeth" | "eyes") {
+                text = format!("VertexLitGeneric {}", &text[brace..]);
+            }
+        }
         let mut mat = vmt_parser::from_str(&text)?;
         for _ in 0..8 {
             if !matches!(mat, vmt_parser::material::Material::Patch(_)) {
@@ -118,7 +126,7 @@ impl Mounts {
         }
         Err(format!("material patch depth exceeded: {name}").into())
     }
-    fn texture(&self, bsp: &vbsp::Bsp, name: &str, repeat: bool) -> Result<Image> {
+    pub fn texture(&self, bsp: &vbsp::Bsp, name: &str, repeat: bool) -> Result<Image> {
         let name = name.trim_end_matches(".vtf");
         let name = if name.starts_with("materials/") {
             format!("{name}.vtf")
@@ -186,6 +194,7 @@ pub struct Geometry {
     pub normals: Vec<[f32; 3]>,
     pub uv: Vec<[f32; 2]>,
     pub light_uv: Vec<[f32; 2]>,
+    pub weights: Vec<[(u8, f32); 3]>,
 }
 impl Geometry {
     pub fn mesh(self) -> Mesh {
@@ -209,6 +218,7 @@ pub struct Surface {
     pub tint: Color,
 }
 pub struct LoadedMap {
+    pub source: MountedSource,
     pub surfaces: Vec<Surface>,
     pub textures: BTreeMap<String, Image>,
     pub lightmap: Image,
@@ -216,6 +226,12 @@ pub struct LoadedMap {
     pub spawn: Vec3,
     pub forward: Vec3,
     pub report: serde_json::Value,
+}
+
+#[derive(Resource)]
+pub struct MountedSource {
+    pub mounts: Mounts,
+    pub bsp: vbsp::Bsp,
 }
 
 fn lump(bytes: &[u8], index: usize) -> Result<&[u8]> {
@@ -333,69 +349,110 @@ pub fn load(install: &Path, def: &SourceMapDef) -> Result<LoadedMap> {
     let mut face_count = 0;
     let mut displacement_faces = 0;
     let mut lightmapped_faces = 0;
-    // Model 0 is the world. Brush entities require separate transforms and entity simulation.
-    let world = bsp.models().next().ok_or("BSP has no world model")?;
-    for face in world.faces() {
-        if face.texture_info < 0 || !face.is_visible() {
-            continue;
-        }
-        let texture = face.texture();
-        if texture.flags.intersects(
-            vbsp::TextureFlags::SKY
-                | vbsp::TextureFlags::SKY2D
-                | vbsp::TextureFlags::NODRAW
-                | vbsp::TextureFlags::SKIP,
-        ) {
-            continue;
-        }
-        let name = texture.name().replace('\\', "/").to_ascii_lowercase();
-        let geometry = groups.entry(name).or_default();
-        let light = if lighting.is_empty() {
-            None
+    let mut brush_models = 0;
+    let mut brush_faces = 0;
+    for (model_index, model) in bsp.models().enumerate() {
+        let entity = bsp
+            .entities
+            .iter()
+            .find(|e| e.prop("model") == Some(format!("*{model_index}").as_str()));
+        let (origin, rotation) = if model_index == 0 {
+            (Vec3::ZERO, Quat::IDENTITY)
         } else {
-            atlas.face(&face, lighting)?
+            let Some(entity) = entity else { continue };
+            let class = entity.prop("classname").unwrap_or("");
+            if !matches!(
+                class,
+                "func_brush"
+                    | "func_wall"
+                    | "func_illusionary"
+                    | "func_reflective_glass"
+                    | "func_door"
+                    | "func_door_rotating"
+                    | "func_movelinear"
+                    | "func_button"
+                    | "func_breakable"
+            ) || entity.prop("StartDisabled") == Some("1")
+                || entity.prop("rendermode") == Some("10")
+            {
+                continue;
+            }
+            brush_models += 1;
+            let origin = entity.prop("origin").and_then(triple).unwrap_or([0.; 3]);
+            let angles = entity.prop("angles").and_then(triple).unwrap_or([0.; 3]);
+            // Source angles are pitch(Y), yaw(Z), roll(X), converted to Bevy axes.
+            let rotation = Quat::from_rotation_y(angles[1].to_radians())
+                * Quat::from_rotation_x(-angles[0].to_radians())
+                * Quat::from_rotation_z(-angles[2].to_radians());
+            (source_position(origin, def.unit_scale), rotation)
         };
-        if light.is_some() {
-            lightmapped_faces += 1;
-        }
-        if face.displacement().is_some() {
-            displacement_faces += 1;
-        }
-        let positions: Vec<_> = face.vertex_positions().collect();
-        let normal = source_position([face.normal().x, face.normal().y, face.normal().z], 1.)
-            * if face.side == 0 { 1. } else { -1. };
-        for triangle in positions.chunks_exact(3) {
-            let mut tri = [triangle[0], triangle[1], triangle[2]];
-            let a = source_position([tri[0].x, tri[0].y, tri[0].z], def.unit_scale);
-            let b = source_position([tri[1].x, tri[1].y, tri[1].z], def.unit_scale);
-            let c = source_position([tri[2].x, tri[2].y, tri[2].z], def.unit_scale);
-            if (b - a).cross(c - a).dot(normal) < 0. {
-                tri.swap(1, 2);
+        for face in model.faces() {
+            if face.texture_info < 0 || !face.is_visible() {
+                continue;
             }
-            for p in tri {
-                geometry
-                    .positions
-                    .push(source_position([p.x, p.y, p.z], def.unit_scale).to_array());
-                geometry.normals.push(normal.to_array());
-                geometry.uv.push(texture.uv(p));
-                let uv = light
-                    .map(|[x, y, _, _]| {
-                        [
-                            (x as f32 + axis(texture.light_map_scale, p)
-                                - face.light_map_texture_min[0] as f32
-                                + 0.5)
-                                / ATLAS as f32,
-                            (y as f32 + axis(texture.light_map_transform, p)
-                                - face.light_map_texture_min[1] as f32
-                                + 0.5)
-                                / ATLAS as f32,
-                        ]
-                    })
-                    .unwrap_or([0.5 / ATLAS as f32; 2]);
-                geometry.light_uv.push(uv);
+            let texture = face.texture();
+            if texture.flags.intersects(
+                vbsp::TextureFlags::SKY
+                    | vbsp::TextureFlags::SKY2D
+                    | vbsp::TextureFlags::NODRAW
+                    | vbsp::TextureFlags::SKIP,
+            ) {
+                continue;
+            }
+            let name = texture.name().replace('\\', "/").to_ascii_lowercase();
+            let geometry = groups.entry(name).or_default();
+            let light = if lighting.is_empty() {
+                None
+            } else {
+                atlas.face(&face, lighting)?
+            };
+            if light.is_some() {
+                lightmapped_faces += 1;
+            }
+            if face.displacement().is_some() {
+                displacement_faces += 1;
+            }
+            let positions: Vec<_> = face.vertex_positions().collect();
+            // The indexed BSP plane already carries its signed orientation. Applying
+            // face.side again flips negative-axis faces (including the room ceiling).
+            let normal = source_position([face.normal().x, face.normal().y, face.normal().z], 1.);
+            for triangle in positions.chunks_exact(3) {
+                let mut tri = [triangle[0], triangle[1], triangle[2]];
+                let a = source_position([tri[0].x, tri[0].y, tri[0].z], def.unit_scale);
+                let b = source_position([tri[1].x, tri[1].y, tri[1].z], def.unit_scale);
+                let c = source_position([tri[2].x, tri[2].y, tri[2].z], def.unit_scale);
+                if (b - a).cross(c - a).dot(normal) < 0. {
+                    tri.swap(1, 2);
+                }
+                for p in tri {
+                    geometry.positions.push(
+                        (origin + rotation * source_position([p.x, p.y, p.z], def.unit_scale))
+                            .to_array(),
+                    );
+                    geometry.normals.push((rotation * normal).to_array());
+                    geometry.uv.push(texture.uv(p));
+                    let uv = light
+                        .map(|[x, y, _, _]| {
+                            [
+                                (x as f32 + axis(texture.light_map_scale, p)
+                                    - face.light_map_texture_min[0] as f32
+                                    + 0.5)
+                                    / ATLAS as f32,
+                                (y as f32 + axis(texture.light_map_transform, p)
+                                    - face.light_map_texture_min[1] as f32
+                                    + 0.5)
+                                    / ATLAS as f32,
+                            ]
+                        })
+                        .unwrap_or([0.5 / ATLAS as f32; 2]);
+                    geometry.light_uv.push(uv);
+                }
+            }
+            face_count += 1;
+            if model_index != 0 {
+                brush_faces += 1;
             }
         }
-        face_count += 1;
     }
     let mut warnings = Vec::new();
     let loaded_props = crate::source_models::append_static_props(
@@ -502,9 +559,10 @@ pub fn load(install: &Path, def: &SourceMapDef) -> Result<LoadedMap> {
             Err(e) => warnings.push(format!("sky {side}: {e}")),
         }
     }
-    let report = serde_json::json!({ "map":def.id, "bsp_bytes":bytes.len(), "world_faces":face_count,"displacement_faces":displacement_faces,"lightmapped_faces":lightmapped_faces,"triangles":triangles,"materials":surfaces.len(),"textured_materials":textured,"sky_faces":sky.len(),"skyname":skyname,"spawn_source":origin,"spawn_bevy":spawn.to_array(),"source_static_props":bsp.static_props().count(),"loaded_static_props":loaded_props,"warnings":warnings,"limitations":["World and static models imported, brush entities and 3D sky scaling not implemented; static prop lighting is approximate","Source shaders, water, blend textures, overlays and material proxies not equivalent","LDR lightmaps clamped to normalized range, HDR exposure not matched","Noclip inspection camera, not Source player movement"] });
+    let report = serde_json::json!({ "map":def.id, "bsp_bytes":bytes.len(), "world_faces":face_count-brush_faces,"brush_models":brush_models,"brush_faces":brush_faces,"displacement_faces":displacement_faces,"lightmapped_faces":lightmapped_faces,"triangles":triangles,"materials":surfaces.len(),"textured_materials":textured,"sky_faces":sky.len(),"skyname":skyname,"spawn_source":origin,"spawn_bevy":spawn.to_array(),"source_static_props":bsp.static_props().count(),"loaded_static_props":loaded_props,"warnings":warnings,"limitations":["World, visible brush entities and static models imported; brush entity simulation and 3D sky scaling not implemented; static prop lighting is approximate","Source shaders, water, blend textures, overlays and material proxies not equivalent","LDR lightmaps clamped to normalized range, HDR exposure not matched","Grounded Rapier player controller and optional noclip, not exact Source movement"] });
     println!("{}", serde_json::to_string_pretty(&report)?);
     Ok(LoadedMap {
+        source: MountedSource { mounts, bsp },
         surfaces,
         textures,
         lightmap: atlas.image(),

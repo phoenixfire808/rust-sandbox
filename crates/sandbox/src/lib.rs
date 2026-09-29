@@ -1,6 +1,10 @@
 use bevy::prelude::*;
 pub mod source_assets;
-mod source_models;
+pub mod source_animation;
+pub mod source_catalog;
+pub mod source_models;
+pub mod source_play;
+pub mod source_player;
 use bevy_rapier3d::prelude::*;
 use sandbox_catalog::{
     content::Content,

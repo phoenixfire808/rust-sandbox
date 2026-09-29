@@ -4,6 +4,21 @@ Date: 2026-09-29 UTC. Windows x86_64, Rust 1.97.1. Build artifacts isolated in `
 
 ## Observed passing checks
 
+### Grounded player and original animation follow-up
+
+This section supersedes the earlier viewer-only limitations below. The current launcher includes the Source player and limited prop sandbox plugins.
+
+- `cargo test --workspace --all-features`: **38 passed**, zero failed, one installed-content test ignored by default. Includes real Bevy/Rapier grounded-wall and jump/land tests, signed animation-run and coordinate-basis regressions, compiled player/play spreadsheet equality, and actual catalog CLI validation/generation tests. Invalid player paths, NaN, inconsistent hull dimensions and zero prop limits are rejected before output is written. Existing generated files are not overwritten.
+- `cargo test -p rust-sandbox --test source_content installed_stock_maps -- --ignored`, with `GMOD_DIR`: **passed against both original installed maps**. Added a gm_construct white-room ceiling orientation/winding gate using original brush coordinates. The first regression run failed with `ceiling faces away from room`. The probe was then narrowed to interior triangles to exclude wall-top/degenerate border triangles sharing the same height. The corrected importer and final probe pass.
+- `cargo clippy --workspace --all-targets --all-features -- -D warnings`: passed. Cargo still reports the existing upstream `binrw 0.14.2` future-incompatibility notice, not a project lint failure.
+- `source-player-check`: eight original clips decoded, including external player animation blocks. Player bind residual 0.00002670288, physgun 0.000015854836 and toolgun 0.000009536743. The acceptance binary uses the same actor/model/skinning pipeline as gameplay.
+- Actual windowed `source-map --smoke` completed with `SOURCE_PLAYER_RENDER_OK`. Logged the player grounded in both views and moving in third person. Captures: `evidence/gm_construct-player-first.png`, `-player-third.png`, `-player-walk.png`, `-tool-first.png`, `-tool-third.png`, and `-interior-walls.png`. These are local ignored artifacts, not redistributed original assets.
+- Visual review identified a wrong world-weapon orientation and a second BSP plane-normal flip. The attachment now uses the authored right-hand attachment matrix. Removing the duplicate normal flip restored missing building panels and the interior enclosure. Final third-person and interior images were inspected again. The color room remains flat white, not matched Source lighting/material proxies.
+
+Evidence logs: `local/player-final-tests.log`, `player-final-clippy.log`, `player-asset-check.log`, `brush-regression-before.log`, `brush-regression-after.log`, and `player-corrected-capture*.log`. No Steam files were modified. CSV remains authoritative and existing workbooks/saves were preserved.
+
+These checks establish a working partial implementation, **not one-to-one GMod parity**. The graphics harness sets ECS state rather than automating physical input devices. It does not verify every UI action, save/load path in the new Source prop sandbox, all directional/airborne animations, hand IK, all collision contents, camera corner cases, performance or exact reference appearance/trajectories. Older procedural sandbox tests below do not substitute for those Source-workflow checks.
+
 ### Original installed-content follow-up
 
 The normal `play.cmd` now starts `source-map`. Earlier prototype evidence below describes the historical launcher, now preserved as `play-prototype.cmd`.

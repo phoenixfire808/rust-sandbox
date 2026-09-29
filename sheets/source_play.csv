@@ -1,0 +1,2 @@
+id,physgun_model,toolgun_model,default_prop,spawn_distance,hold_gain,hold_max_speed,max_props,page_size,sensitivity,gravity,prop_mass,view_x,view_y,view_z
+sandbox,models/weapons/c_superphyscannon.mdl,models/weapons/c_toolgun.mdl,models/props_c17/oildrum001.mdl,5,12,30,500,12,0.0025,-11.43,20,0.16,-0.18,-0.35

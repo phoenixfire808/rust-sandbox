@@ -6,6 +6,11 @@ resolver = "2"
 debug = 0
 incremental = false
 
+# CPU skinning and selected animation sampling need optimized application math.
+# Dependencies keep the existing build profile and cached artifacts.
+[profile.dev.package.rust-sandbox]
+opt-level = 2
+
 [profile.test]
 debug = 0
 incremental = false

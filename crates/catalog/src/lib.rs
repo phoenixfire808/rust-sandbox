@@ -1,6 +1,8 @@
 pub mod behavior;
 pub mod content;
 pub mod inventory;
+pub mod play;
+pub mod player;
 pub mod scene;
 pub mod source_maps;
 #[cfg(feature = "workbook")]

@@ -5,7 +5,7 @@ use sandbox_catalog::Result;
 use std::collections::BTreeMap;
 use vbsp::AsPropPlacement;
 
-fn model_parts(
+pub fn model_parts(
     bsp: &vbsp::Bsp,
     mounts: &Mounts,
     path: &str,
@@ -14,9 +14,21 @@ fn model_parts(
     let stem = path
         .strip_suffix(".mdl")
         .ok_or("model must have .mdl extension")?;
-    let mdl = vmdl::Mdl::read(&mounts.read(bsp, path)?)?;
+    let mut bytes = mounts.read(bsp, path)?;
+    // Geometry decoding must not eagerly decode unrelated external animation blocks.
+    crate::source_animation::Skeleton::read(&bytes)?;
+    bytes[180..184].copy_from_slice(&0i32.to_le_bytes());
+    bytes[188..192].copy_from_slice(&0i32.to_le_bytes());
+    let mut mdl = vmdl::Mdl::read(&bytes)?;
     let vvd = vmdl::Vvd::read(&mounts.read(bsp, &format!("{stem}.vvd"))?)?;
-    let vtx = vmdl::Vtx::read(&mounts.read(bsp, &format!("{stem}.dx90.vtx"))?)?;
+    let mut vtx = vmdl::Vtx::read(&mounts.read(bsp, &format!("{stem}.dx90.vtx"))?)?;
+    // Bodygroup zero is a selection, not a union of all alternate meshes.
+    for p in &mut mdl.body_parts {
+        p.models.truncate(1);
+    }
+    for p in &mut vtx.body_parts {
+        p.models.truncate(1);
+    }
     let model = vmdl::Model::from_parts(mdl, vtx, vvd);
     let skins = model
         .skin_tables()
@@ -64,7 +76,14 @@ fn model_parts(
                 let mut positions = Vec::new();
                 let mut normals = Vec::new();
                 let mut uvs = Vec::new();
+                let mut weights = Vec::new();
                 for v in vertices {
+                    let mut row = [(0, 0.); 3];
+                    let total: f32 = v.bone_weights.weights().map(|w| w.weight).sum();
+                    for (i, w) in v.bone_weights.weights().enumerate() {
+                        row[i] = (w.bone_id, if total > 0. { w.weight / total } else { 0. });
+                    }
+                    weights.push(row);
                     positions.push(source_position(
                         [v.position.x, v.position.y, v.position.z],
                         1.,
@@ -85,6 +104,7 @@ fn model_parts(
                     geo.positions.push(positions[i].to_array());
                     geo.normals.push(normals[i].to_array());
                     geo.uv.push(uvs[i]);
+                    geo.weights.push(weights[i]);
                     geo.light_uv.push([0.5 / 4096.; 2]);
                 }
             }

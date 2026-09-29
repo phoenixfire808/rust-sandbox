@@ -12,6 +12,9 @@ All files are UTF-8 CSV with a required header row. IDs are stable references, n
 
 ## Runtime tables
 
+- **source_player.csv -> PlayerConfig:** exactly one row. Mounted `models/*.mdl` references select the player, hands, animation source and held world weapons. Idle clip names select authored weapon poses. Movement speeds are meters/second, hull/eye/step/camera dimensions are meters and viewmodel FOV is degrees. Paths reject traversal, numeric values must be finite and bounded, capsule diameter must be smaller than height, eye height cannot exceed height and run speed cannot be below walk speed. These are approximation settings, not measured Source parity values.
+- **source_play.csv -> PlayConfig:** exactly one row. Original first-person weapon/default prop references, spawn distance, hold gain/speed, prop/page limits, sensitivity, gravity, mass and view offsets. Model paths and numeric ranges are validated. Both new sheets are validated by the build script and catalog CLI, emitted by `generate`, and included automatically in new workbook exports. Existing workbooks are snapshots and are not silently overwritten.
+
 - **props.csv -> PropDef:** `id` is alphanumeric/underscore, `label` is 1..100 bytes. Box dimensions `size_x/y/z` are 0.05..100 meters. `mass` is 0.01..10000 kg. `friction` is 0..2, `restitution` is 0..1. RGB is 0..1 sRGB. `provenance` currently must be `original_procedural`.
 - **world.csv -> WorldDef:** exactly one row. Gravity -100..0 m/s², `fixed_hz` 30..240, ground half-size 5..1000 m, movement/spawn/grab distances 0.1..100 in applicable units, `max_props` 1..10000. Physics clock, ground collider, camera speed, spawn distance and initial hold distance consume these values.
 - **scene.csv -> Placement:** `prop_id` references an authored prop, positions are finite and within +/-10000 meters, frozen is `true` or `false`. Initial rows cannot exceed the prop limit.

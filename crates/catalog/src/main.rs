@@ -12,6 +12,9 @@ fn run() -> Result<()> {
             let c=content::load(Path::new(dir))?;
             let specs=behavior::load(Path::new(dir))?;
             let maps=sandbox_catalog::source_maps::load(Path::new(dir))?;
+            sandbox_catalog::player::load(Path::new(dir))?;
+            sandbox_catalog::play::load(Path::new(dir))?;
+            println!("VALID: player and Source sandbox configuration");
             println!("VALID: {} original Source map references",maps.len());
             println!("VALID: {} prop definitions, {} scene instances, {} Hz, {} behavior specifications",c.props.len(),c.scene.len(),c.world.fixed_hz,specs.len());
         }
@@ -21,6 +24,8 @@ fn run() -> Result<()> {
             let mut code=content::generate_rust(&c)?;
             code.push_str(&behavior::generate(&behavior::load(Path::new(dir))?)?);
             code.push_str(&sandbox_catalog::source_maps::generate(&sandbox_catalog::source_maps::load(Path::new(dir))?));
+            code.push_str(&sandbox_catalog::player::generate(&sandbox_catalog::player::load(Path::new(dir))?));
+            code.push_str(&sandbox_catalog::play::generate(&sandbox_catalog::play::load(Path::new(dir))?));
             std::fs::write(out,code)?;
             println!("Generated typed Rust structs: {out}");
         }
