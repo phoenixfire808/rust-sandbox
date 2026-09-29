@@ -1,0 +1,9 @@
+id,label,kind,order,reference_order,gap_id,source
+spawnlists,Spawnlists,model,1,0,menu_tree,gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/content.lua
+weapons,Weapons,weapon,2,10,weapon_inventory,gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenttypes/weapons.lua
+npcs,NPCs,npc,3,20,npc_ai,gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenttypes/npcs.lua
+entities,Entities,entity,4,20,entity_callbacks,gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenttypes/entities.lua
+vehicles,Vehicles,vehicle,5,50,vehicle_runtime,gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenttypes/vehicles.lua
+postprocess,Post Process,postprocess,6,100,menu_tabs,gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenttypes/postprocess.lua
+dupes,Dupes,dupe,7,200,save_compat,gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenttypes/dupes.lua
+saves,Saves,save,8,200,save_compat,gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenttypes/saves.lua

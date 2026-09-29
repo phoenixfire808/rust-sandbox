@@ -82,6 +82,8 @@ fn capture(world: &mut World, f: &Frontend, explicit: Option<String>) -> serde_j
     let subject = explicit.or(hovered).unwrap_or_else(|| screen.clone());
     let gameplay = play.map(|p| serde_json::json!({
         "menu_open":p.menu_open,"tab":p.tab,"category":p.category,"search":p.search,
+        "creation_tab":p.creation_tab,"catalog_selected":p.catalog_selected,
+        "catalog_definition":p.spawn_catalog.entries.iter().find(|e|e.id==p.catalog_selected),
         "page":p.page,"selected_model":p.selected,"active_weapon":if p.physgun {"physgun"} else {"toolgun"},
         "selected_tool":p.tool,"tool_settings":p.tools.values,
         "tool_stage":p.tools.stage.as_ref().map(|(tool,target,step)| serde_json::json!({"tool":tool,"step":step,"target_entity":target.entity.to_bits(),"point":target.point.to_array(),"normal":target.normal.to_array()})),

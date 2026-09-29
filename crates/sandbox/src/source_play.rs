@@ -43,9 +43,10 @@ pub struct SpawnedProp {
 }
 #[derive(Component, Clone)]
 enum UiAction {
+    CreationTab(String),
+    InspectEntry(String),
     Tab(u8),
     Search,
-    Unavailable(String),
     Category(String),
     Page(i32),
     Spawn(String),
@@ -74,6 +75,9 @@ pub struct PlayState {
     pub models: Vec<ModelEntry>,
     pub menu_open: bool,
     pub tab: u8,
+    pub creation_tab: String,
+    pub catalog_selected: String,
+    pub spawn_catalog: sandbox_catalog::spawn::SpawnCatalog,
     pub category: String,
     pub search: String,
     pub page: usize,
@@ -137,6 +141,9 @@ impl PlayState {
             models,
             menu_open: false,
             tab: 0,
+            creation_tab: "spawnlists".into(),
+            catalog_selected: String::new(),
+            spawn_catalog: crate::compiled_spawn_catalog(),
             category: "props_c17".into(),
             search: String::new(),
             page: 0,
@@ -785,18 +792,38 @@ pub fn menu_setting(world: &mut World, key: &'static str, delta: f32) {
     perform(world, UiAction::Setting(key, delta));
 }
 fn perform(world: &mut World, action: UiAction) {
+    if matches!(action, UiAction::CreationTab(_) | UiAction::InspectEntry(_) | UiAction::Category(_) | UiAction::Page(_)) {
+        menu::reset_creation_scroll(world, matches!(action, UiAction::CreationTab(_)));
+    }
     if !matches!(action, UiAction::Search) {
         world.resource_mut::<PlayState>().search_focus = false;
     }
     match action {
+        UiAction::CreationTab(id) => {
+            let mut s = world.resource_mut::<PlayState>();
+            if s.spawn_catalog.tabs.iter().any(|t| t.id == id) {
+                s.creation_tab = id;
+                s.catalog_selected.clear();
+                s.category.clear();
+                s.search.clear();
+                s.page = 0;
+                s.menu_scroll[0] = 0.;
+                s.menu_scroll[1] = 0.;
+                s.dirty = true;
+            }
+        }
+        UiAction::InspectEntry(id) => {
+            let mut s = world.resource_mut::<PlayState>();
+            if s.spawn_catalog.entries.iter().any(|e| e.id == id) {
+                s.catalog_selected = id;
+                s.dirty = true;
+            }
+        }
         UiAction::Feedback(subject) => crate::source_frontend::request_feedback(world, subject),
         UiAction::Search => {
             let mut s = world.resource_mut::<PlayState>();
             s.search_focus = true;
             s.dirty = true;
-        }
-        UiAction::Unavailable(label) => {
-            world.resource_mut::<PlayState>().status = format!("{label}: not implemented yet");
         }
         UiAction::Tab(tab) => {
             let mut s = world.resource_mut::<PlayState>();

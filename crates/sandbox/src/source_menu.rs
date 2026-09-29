@@ -102,6 +102,184 @@ fn divider(world: &mut World, parent: Entity, width: f32) {
         ChildOf(parent),
     ));
 }
+fn catalog_browser(world: &mut World, body: Entity, tree_width: f32) {
+    let s = world.resource::<PlayState>();
+    let catalog = s.spawn_catalog.clone();
+    let Some(tab) = catalog.tabs.iter().find(|t| t.id == s.creation_tab) else {
+        return;
+    };
+    let c = s.layout.clone();
+    let category = s.category.clone();
+    let search = s.search.clone();
+    let focused = s.search_focus;
+    let selected = s.catalog_selected.clone();
+    let page_size = s.config.page_size;
+    let page = s.page;
+    let entries: Vec<_> = catalog
+        .entries
+        .iter()
+        .filter(|e| e.kind == tab.kind && e.visibility == "spawnmenu")
+        .collect();
+    let browser = column(world, body, Val::Px(tree_width));
+    action(
+        world,
+        browser,
+        if search.is_empty() {
+            "Search definitions...".into()
+        } else {
+            format!("{}{}", search, if focused { "|" } else { "" })
+        },
+        UiAction::Search,
+        focused,
+    );
+    let tree = scroll_panel(world, browser, 0);
+    action(
+        world,
+        tree,
+        "All categories",
+        UiAction::Category(String::new()),
+        category.is_empty(),
+    );
+    let categories: std::collections::BTreeSet<_> =
+        entries.iter().map(|e| e.category.clone()).collect();
+    for cat in categories {
+        action(
+            world,
+            tree,
+            &cat,
+            UiAction::Category(cat.clone()),
+            cat == category,
+        );
+    }
+    divider(world, body, c.divider);
+    let content = column(world, body, Val::Auto);
+    world.entity_mut(content).insert(Node {
+        flex_grow: 1.,
+        flex_basis: Val::Px(0.),
+        min_width: Val::Px(0.),
+        min_height: Val::Px(0.),
+        height: Val::Percent(100.),
+        flex_direction: FlexDirection::Column,
+        ..default()
+    });
+    text(
+        world,
+        content,
+        format!("{}: reference catalog, not implemented spawning", tab.label),
+        c.font_size,
+    );
+    let needle = search.to_lowercase();
+    let results: Vec<_> = entries
+        .into_iter()
+        .filter(|e| {
+            (category.is_empty() || e.category == category)
+                && format!(
+                    "{} {} {} {}",
+                    e.label, e.spawn_name, e.class_name, e.category
+                )
+                .to_lowercase()
+                .contains(&needle)
+        })
+        .collect();
+    let pages = results.len().div_ceil(page_size).max(1);
+    let page = page.min(pages - 1);
+    world.resource_mut::<PlayState>().page = page;
+    let viewport = scroll_panel(world, content, 1);
+    if let Some(e) = results.iter().find(|e| e.id == selected) {
+        text(world, viewport, format!("{} | {}\nClass: {}\nAvailability: {} (mount not checked) | Admin: {}\nReference: {}:{}\nModel: {}", e.label, e.spawn_name, e.class_name, e.condition, e.admin_only, e.source, e.line,
+            if e.model.is_empty() { "native/inherited default; not inferred" } else { &e.model }), c.font_size);
+        action(
+            world,
+            viewport,
+            "Request improvement for this definition (F8)",
+            UiAction::Feedback(format!("{} [{}]", e.label, e.id)),
+            false,
+        );
+        text(
+            world,
+            viewport,
+            "Relevant system work, not a per-class implementation claim:",
+            c.font_size,
+        );
+        for cap in catalog.capabilities.iter().filter(|cap| {
+            cap.kind == tab.kind
+                || (cap.kind == "shared"
+                    && ["npc", "entity", "weapon", "vehicle"].contains(&tab.kind.as_str()))
+        }) {
+            text(
+                world,
+                viewport,
+                format!(
+                    "{} [{} / {}] {}",
+                    cap.id, cap.status, cap.priority, cap.feature
+                ),
+                c.font_size,
+            );
+        }
+    }
+    for e in results.iter().skip(page * page_size).take(page_size) {
+        action(
+            world,
+            viewport,
+            format!(
+                "{}{} | {} | Inspect",
+                e.label,
+                if e.admin_only { " [Admin]" } else { "" },
+                e.spawn_name
+            ),
+            UiAction::InspectEntry(e.id.clone()),
+            e.id == selected,
+        );
+    }
+    if results.is_empty() {
+        text(
+            world,
+            viewport,
+            "No matching spawn definitions. No placeholder objects will be spawned.",
+            c.font_size,
+        );
+        for cap in catalog
+            .capabilities
+            .iter()
+            .filter(|cap| cap.kind == tab.kind)
+        {
+            text(
+                world,
+                viewport,
+                format!(
+                    "{} [{}] {}\nAcceptance: {}",
+                    cap.id, cap.status, cap.feature, cap.acceptance
+                ),
+                c.font_size,
+            );
+        }
+    }
+    let footer = row(world, content, c.row_height);
+    if pages > 1 {
+        action(world, footer, "<", UiAction::Page(-1), false);
+    }
+    text(
+        world,
+        footer,
+        format!("{} definitions  {}/{}", results.len(), page + 1, pages),
+        c.font_size,
+    );
+    if pages > 1 {
+        action(world, footer, ">", UiAction::Page(1), false);
+    }
+}
+
+pub(super) fn reset_creation_scroll(world: &mut World, tree: bool) {
+    for (pane, mut position) in world.query::<(&ScrollPane, &mut ScrollPosition)>().iter_mut(world) {
+        if pane.0 == 1 || (tree && pane.0 == 0) {
+            position.offset_y = 0.;
+        }
+    }
+    let mut state = world.resource_mut::<PlayState>();
+    state.menu_scroll[1] = 0.;
+    if tree { state.menu_scroll[0] = 0.; }
+}
+
 pub(super) fn rebuild(world: &mut World) {
     let offsets: Vec<_> = world
         .query::<(&ScrollPane, &ScrollPosition)>()
@@ -156,6 +334,8 @@ pub(super) fn rebuild(world: &mut World) {
         state.tool.clone(),
         state.search_focus,
     );
+    let creation_tab = state.creation_tab.clone();
+    let creation_tabs = state.spawn_catalog.tabs.clone();
     let root = world
         .spawn((
             MenuRoot,
@@ -177,24 +357,21 @@ pub(super) fn rebuild(world: &mut World) {
         .entity_mut(creation)
         .insert(BackgroundColor(Color::srgb(0.82, 0.83, 0.84)));
     let tabs = row(world, creation, c.tab_height);
-    action(
-        world,
-        tabs,
-        "Spawnlists",
-        UiAction::Category(category.clone()),
-        true,
-    );
-    for label in ["Weapons", "NPCs", "Entities", "Vehicles"] {
-        let e = action(
+    world.entity_mut(tabs).insert(Node {
+        flex_direction: FlexDirection::Row,
+        flex_wrap: FlexWrap::Wrap,
+        min_height: Val::Px(c.tab_height),
+        flex_shrink: 0.,
+        ..default()
+    });
+    for t in creation_tabs {
+        action(
             world,
             tabs,
-            label,
-            UiAction::Unavailable(label.into()),
-            false,
+            t.label,
+            UiAction::CreationTab(t.id.clone()),
+            t.id == creation_tab,
         );
-        world
-            .entity_mut(e)
-            .insert(BackgroundColor(Color::srgb(0.72, 0.73, 0.74)));
     }
     action(
         world,
@@ -214,145 +391,149 @@ pub(super) fn rebuild(world: &mut World) {
             ..default()
         },
     );
-    let browser = column(world, body, Val::Px(tree_width));
-    let label = if search.is_empty() {
-        "Search models...".into()
+    if creation_tab != "spawnlists" {
+        catalog_browser(world, body, tree_width);
     } else {
-        format!("{}{}", search, if search_focus { "|" } else { "" })
-    };
-    action(world, browser, label, UiAction::Search, search_focus);
-    let tree = scroll_panel(world, browser, 0);
-    text(world, tree, "Browse installed models", c.font_size);
-    action(
-        world,
-        tree,
-        "All models",
-        UiAction::Category(String::new()),
-        category.is_empty(),
-    );
-    let categories: std::collections::BTreeSet<_> =
-        models.iter().map(|m| m.category.clone()).collect();
-    for cat in categories {
+        let browser = column(world, body, Val::Px(tree_width));
+        let label = if search.is_empty() {
+            "Search models...".into()
+        } else {
+            format!("{}{}", search, if search_focus { "|" } else { "" })
+        };
+        action(world, browser, label, UiAction::Search, search_focus);
+        let tree = scroll_panel(world, browser, 0);
+        text(world, tree, "Browse installed models", c.font_size);
         action(
             world,
             tree,
-            format!("  {cat}"),
-            UiAction::Category(cat.clone()),
-            cat == category,
+            "All models",
+            UiAction::Category(String::new()),
+            category.is_empty(),
         );
-    }
-    divider(world, body, c.divider);
-    let content = column(world, body, Val::Auto);
-    world.entity_mut(content).insert(Node {
-        flex_grow: 1.,
-        flex_basis: Val::Px(0.),
-        min_width: Val::Px(0.),
-        min_height: Val::Px(0.),
-        height: Val::Percent(100.),
-        flex_direction: FlexDirection::Column,
-        ..default()
-    });
-    text(
-        world,
-        content,
-        if category.is_empty() {
-            "All models"
-        } else {
-            &category
-        },
-        c.font_size,
-    );
-    let results: Vec<_> = models
-        .into_iter()
-        .filter(|m| {
-            (category.is_empty() || m.category == category)
-                && m.model.to_lowercase().contains(&search.to_lowercase())
-        })
-        .collect();
-    let pages = results.len().div_ceil(page_size).max(1);
-    let page = page.min(pages - 1);
-    world.resource_mut::<PlayState>().page = page;
-    let viewport = scroll_panel(world, content, 1);
-    let grid = container(
-        world,
-        viewport,
-        Node {
-            width: Val::Percent(100.),
-            flex_direction: FlexDirection::Row,
-            flex_wrap: FlexWrap::Wrap,
-            flex_shrink: 0.,
-            align_content: AlignContent::FlexStart,
-            column_gap: Val::Px(c.icon_gap),
-            row_gap: Val::Px(c.icon_gap),
-            padding: UiRect::all(Val::Px(c.panel_padding)),
+        let categories: std::collections::BTreeSet<_> =
+            models.iter().map(|m| m.category.clone()).collect();
+        for cat in categories {
+            action(
+                world,
+                tree,
+                format!("  {cat}"),
+                UiAction::Category(cat.clone()),
+                cat == category,
+            );
+        }
+        divider(world, body, c.divider);
+        let content = column(world, body, Val::Auto);
+        world.entity_mut(content).insert(Node {
+            flex_grow: 1.,
+            flex_basis: Val::Px(0.),
+            min_width: Val::Px(0.),
+            min_height: Val::Px(0.),
+            height: Val::Percent(100.),
+            flex_direction: FlexDirection::Column,
             ..default()
-        },
-    );
-    for model in results.iter().skip(page * page_size).take(page_size) {
-        let icon = thumbnail(world, &model.model);
-        let e = action(world, grid, "", UiAction::Spawn(model.model.clone()), false);
-        world.entity_mut(e).insert((
+        });
+        text(
+            world,
+            content,
+            if category.is_empty() {
+                "All models"
+            } else {
+                &category
+            },
+            c.font_size,
+        );
+        let results: Vec<_> = models
+            .into_iter()
+            .filter(|m| {
+                (category.is_empty() || m.category == category)
+                    && m.model.to_lowercase().contains(&search.to_lowercase())
+            })
+            .collect();
+        let pages = results.len().div_ceil(page_size).max(1);
+        let page = page.min(pages - 1);
+        world.resource_mut::<PlayState>().page = page;
+        let viewport = scroll_panel(world, content, 1);
+        let grid = container(
+            world,
+            viewport,
             Node {
-                width: Val::Px(c.icon_size),
-                height: Val::Px(c.icon_size),
+                width: Val::Percent(100.),
+                flex_direction: FlexDirection::Row,
+                flex_wrap: FlexWrap::Wrap,
                 flex_shrink: 0.,
-                overflow: Overflow::clip(),
-                align_items: AlignItems::Center,
-                justify_content: JustifyContent::Center,
+                align_content: AlignContent::FlexStart,
+                column_gap: Val::Px(c.icon_gap),
+                row_gap: Val::Px(c.icon_gap),
+                padding: UiRect::all(Val::Px(c.panel_padding)),
                 ..default()
             },
-            ModelHint(model.model.clone()),
-        ));
-        if let Some(image) = icon {
-            world.spawn((
-                ImageNode::new(image),
-                bevy::ui::FocusPolicy::Pass,
+        );
+        for model in results.iter().skip(page * page_size).take(page_size) {
+            let icon = thumbnail(world, &model.model);
+            let e = action(world, grid, "", UiAction::Spawn(model.model.clone()), false);
+            world.entity_mut(e).insert((
                 Node {
-                    width: Val::Percent(100.),
-                    height: Val::Percent(100.),
+                    width: Val::Px(c.icon_size),
+                    height: Val::Px(c.icon_size),
+                    flex_shrink: 0.,
+                    overflow: Overflow::clip(),
+                    align_items: AlignItems::Center,
+                    justify_content: JustifyContent::Center,
                     ..default()
                 },
-                ChildOf(e),
+                ModelHint(model.model.clone()),
             ));
-        } else {
-            let name = model
-                .model
-                .rsplit('/')
-                .next()
-                .unwrap_or("model")
-                .trim_end_matches(".mdl");
-            text(world, e, name, c.font_size);
+            if let Some(image) = icon {
+                world.spawn((
+                    ImageNode::new(image),
+                    bevy::ui::FocusPolicy::Pass,
+                    Node {
+                        width: Val::Percent(100.),
+                        height: Val::Percent(100.),
+                        ..default()
+                    },
+                    ChildOf(e),
+                ));
+            } else {
+                let name = model
+                    .model
+                    .rsplit('/')
+                    .next()
+                    .unwrap_or("model")
+                    .trim_end_matches(".mdl");
+                text(world, e, name, c.font_size);
+            }
         }
+        let footer = row(world, content, c.row_height);
+        if pages > 1 {
+            action(world, footer, "<", UiAction::Page(-1), false);
+        }
+        text(
+            world,
+            footer,
+            format!("{} models  {}/{}", results.len(), page + 1, pages),
+            c.font_size,
+        );
+        if pages > 1 {
+            action(world, footer, ">", UiAction::Page(1), false);
+        }
+        world.spawn((
+            Text::new("Hover an icon for its model name"),
+            HintLine,
+            TextFont {
+                font_size: c.font_size,
+                ..default()
+            },
+            TextColor(Color::srgb(0.15, 0.15, 0.15)),
+            Node {
+                height: Val::Px(c.row_height),
+                overflow: Overflow::clip(),
+                flex_shrink: 0.,
+                ..default()
+            },
+            ChildOf(content),
+        ));
     }
-    let footer = row(world, content, c.row_height);
-    if pages > 1 {
-        action(world, footer, "<", UiAction::Page(-1), false);
-    }
-    text(
-        world,
-        footer,
-        format!("{} models  {}/{}", results.len(), page + 1, pages),
-        c.font_size,
-    );
-    if pages > 1 {
-        action(world, footer, ">", UiAction::Page(1), false);
-    }
-    world.spawn((
-        Text::new("Hover an icon for its model name"),
-        HintLine,
-        TextFont {
-            font_size: c.font_size,
-            ..default()
-        },
-        TextColor(Color::srgb(0.15, 0.15, 0.15)),
-        Node {
-            height: Val::Px(c.row_height),
-            overflow: Overflow::clip(),
-            flex_shrink: 0.,
-            ..default()
-        },
-        ChildOf(content),
-    ));
     divider(world, root, c.divider);
     let tools = column(world, root, Val::Px(tools_width));
     world

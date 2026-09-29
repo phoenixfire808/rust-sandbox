@@ -19,6 +19,8 @@ fn run() -> Result<()> {
             sandbox_catalog::performance::load(Path::new(dir))?;
             sandbox_catalog::toolgun::load(Path::new(dir))?;
             sandbox_catalog::frontend::load(Path::new(dir))?;
+            let spawn=sandbox_catalog::spawn::load(Path::new(dir))?;
+            println!("VALID: {} spawn references, {} creation tabs, {} capabilities",spawn.entries.len(),spawn.tabs.len(),spawn.capabilities.len());
             println!("VALID: player and Source sandbox configuration");
             println!("VALID: {} original Source map references",maps.len());
             println!("VALID: {} prop definitions, {} scene instances, {} Hz, {} behavior specifications",c.props.len(),c.scene.len(),c.world.fixed_hz,specs.len());
@@ -36,6 +38,7 @@ fn run() -> Result<()> {
             code.push_str(&sandbox_catalog::toolgun::generate(&sandbox_catalog::toolgun::load(Path::new(dir))?));
             code.push_str(&sandbox_catalog::frontend::generate(&sandbox_catalog::frontend::load(Path::new(dir))?));
             let presentation=sandbox_catalog::presentation::load(Path::new(dir))?;
+            code.push_str(&sandbox_catalog::spawn::generate(&sandbox_catalog::spawn::load(Path::new(dir))?));
             code.push_str(&sandbox_catalog::presentation::generate(&presentation.0,&presentation.1));
             std::fs::write(out,code)?;
             println!("Generated typed Rust structs: {out}");

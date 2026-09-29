@@ -9,6 +9,7 @@ pub mod inventory;
 pub mod play;
 pub mod player;
 pub mod scene;
+pub mod spawn;
 pub mod source_maps;
 #[cfg(feature = "workbook")]
 pub mod workbook;

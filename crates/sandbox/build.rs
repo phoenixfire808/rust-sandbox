@@ -20,6 +20,10 @@ fn main() {
         "source_tools.csv",
         "source_tool_options.csv",
         "source_physics_materials.csv",
+        "spawn_reference.csv",
+        "source_creation_tabs.csv",
+        "spawn_capabilities.csv",
+        "parity_gaps.csv",
     ] {
         println!("cargo:rerun-if-changed={}", sheets.join(name).display());
     }
@@ -38,6 +42,9 @@ fn main() {
         &presentation.1,
     ));
     let out = std::path::PathBuf::from(std::env::var_os("OUT_DIR").unwrap());
+    generated.push_str(&sandbox_catalog::spawn::generate(
+        &sandbox_catalog::spawn::load(&sheets).expect("invalid spawn catalog spreadsheets"),
+    ));
     generated.push_str(&sandbox_catalog::frontend::generate(
         &sandbox_catalog::frontend::load(&sheets).expect("invalid frontend spreadsheet"),
     ));

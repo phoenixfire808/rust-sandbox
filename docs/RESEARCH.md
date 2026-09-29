@@ -1,5 +1,9 @@
 # Research record
 
+## 2026-09-29 entity and creation-menu discovery
+
+Read installed Facepunch stock NPC/vehicle/item registrations, Sandbox spawn commands, creation/content/context menus, content-icon implementation and scripted entity/weapon declarations. Reused their metadata and documented semantics, not executable Lua. The reproducible read-only extractor is `scripts/catalog-spawn-reference.ps1`. It produced 197 spawn definitions, 1,406 literal menu-control records and 178 source hashes. Existing HTML/CSS/native-menu research remains intact. Detailed findings, bounds and the next vehicle/NPC implementation sequence are in [ENTITY_MENU_SOURCE_OF_TRUTH.md](ENTITY_MENU_SOURCE_OF_TRUTH.md). The sources are the installed counterparts of <https://github.com/Facepunch/garrysmod>. Discovery does not demonstrate native behavior or pixel parity, and conditional mount availability is not evaluated.
+
 Research date: 2026-09-29 UTC. Citation IDs are maintained in `sheets/sources.csv`.
 
 ## Reported running drift: correction to the preceding movement pass

@@ -1,5 +1,13 @@
 # Validation record
 
+## Entity/menu source-of-truth integration, 2026-09-29
+
+- Read-only reference extraction completed: 197 spawn definitions, 1,406 literal UI rows and 178 hashed files. An attempted property scan initially used a nonexistent directory; corrected to installed `lua/autorun/properties` and regenerated successfully. This is metadata generation, not Lua or gameplay execution.
+- Production `sandbox-catalog validate sheets` passed with 197 references, eight creation tabs and 56 dependency-linked capabilities, alongside existing sheet validation. No test binary was compiled or run.
+- Workbook export succeeded: `spreadsheets/rust-sandbox-catalog-20260929-entity-source-of-truth.xlsx`, 98,664 data rows. CSV remains the editable source of truth. All 14 new interaction cases remain `not_run`.
+- Final actual game build: `cargo rustc --locked -p rust-sandbox --bin source-map -- -o D:\jcode-build\rust-sandbox-20260929\source-map-entity-menu.exe`, exit0 in1m22s. Artifact inspected: 68,761,088 bytes. Compiler reported the two expected explicit-output-path warnings and existing binrw future-incompatibility notice, no project code warnings. The preceding integration build also passed, then an obsolete action variant and scroll-reset handling were corrected before this final build.
+- No tests, Clippy, benchmarks, screenshots, gameplay input automation or native reference capture were performed. Runtime search/selection/feedback, small-window layout and source parity are unverified. No active game was terminated, saves and private feedback were preserved. Full cars/NPC/entity simulation remains missing as documented in the sheets and [ENTITY_MENU_SOURCE_OF_TRUTH.md](ENTITY_MENU_SOURCE_OF_TRUTH.md).
+
 Date: 2026-09-29 UTC. Windows x86_64, Rust 1.97.1. Build artifacts isolated in `D:\jcode-build\rust-sandbox-20260929`. No remote compilation or remote asset upload.
 
 ## Running drift repair, 2026-09-29 20:32 UTC
