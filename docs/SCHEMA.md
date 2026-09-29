@@ -1,5 +1,15 @@
 # Spreadsheet and generated-struct contract
 
+## Toolgun and tool authoring
+
+`source_toolgun.csv` has one ToolgunConfig row. It authors fire_clip, safe relative screen material/background paths, power-of-two screen_size (64..1024), finite positive font/scroll/center/tracer/range values, and max_constraints (1..10000). Screen units are texture pixels, tracer dimensions/range are meters and tracer duration is seconds. The stock-derived values and independently chosen approximations are distinguished in RESEARCH.md.
+
+`source_tools.csv` defines every tools.csv ID without its tool_ prefix plus the explicitly custom freeze entry. It authors label, category, partial/missing/reference_only status, current left/right/reload descriptions and remaining work. IDs must be unique and exactly cover the reference set. Categories are Constraints, Construction, Render, Poser or Internal. No partial entry means complete GMod behavior.
+
+`source_tool_options.csv` authors tool/key/label, number/bool/choice kind, default, finite min/max/positive step, pipe-separated choices and enabled flag. Defaults must be accepted, keys unique and tool IDs known. Numeric ranges must have nonzero width. Only enabled controls can be changed by the menu or restored from local preferences. `source_physics_materials.csv` authors unique surface names with bounded friction/restitution and an approximation evidence label. Physical-material choices must resolve to that table. All four runtime sheets are consumed by build.rs and catalog validate/generate. `tool_reference_options.csv` and `tool_cases.csv` are non-executable research/acceptance metadata exported into the workbook.
+
+Source sandbox scene documents now use `{version:2, props:[...], links:[...]}`. Props retain model/position/rotation/frozen plus defaultable colour/material/gravity/physical-material/world-only modifiers. Links store tool kind, prop indices or world endpoints, local anchors/bases and supported settings. Counts, indices, finite values, quaternion lengths, material identities and assets are checked before replacing live props. The previous Source prop-array saves still load with default modifiers. The procedural version-1 format described below is separate. Neither format is compatible with GMod saves, and Source-scene velocities/other entity types remain unsupported. F5 writes a new file rather than overwriting prior saves.
+
 ## Spawn performance authoring
 
 `source_performance.csv` has exactly one typed row: `spawn_queue_limit` (1..64 pending requests), `report_seconds` (finite 1..60 seconds), and `frame_budget_ms` (finite 1..1000 milliseconds). Build generation and catalog validate/generate consume it. The authored 16.667 ms budget is a proposed 60 Hz frame target, not a measured GMod baseline or an achieved result. It does not alter simulation time. `performance_cases.csv` is a review-only scenario ledger, included in workbook export. The dependency optimization profile is build configuration in Cargo.toml, not gameplay data.

@@ -46,7 +46,7 @@ impl Plugin for SourcePlayerPlugin {
         app.add_plugins(crate::source_effects::SourceEffectsPlugin);
         app.add_systems(Update, input.before(source_play::update_play))
             .add_systems(FixedUpdate, walk.before(PhysicsSet::SyncBackend))
-            .add_systems(Update, visuals.after(source_play::update_play));
+            .add_systems(Update, visuals.after(source_play::tools::input));
     }
 }
 pub fn spawn(commands: &mut Commands, eye: Vec3, forward: Vec3) {
@@ -57,6 +57,7 @@ pub fn spawn(commands: &mut Commands, eye: Vec3, forward: Vec3) {
             Name::new("Local player hull"),
             RigidBody::KinematicPositionBased,
             Collider::capsule_y(c.height * 0.5 - c.radius, c.radius),
+            CollisionGroups::new(Group::GROUP_3, Group::ALL),
             Transform::from_translation(eye + Vec3::Y * (c.height * 0.5 - c.eye_height)),
             KinematicCharacterController {
                 offset: CharacterLength::Absolute(0.005),
@@ -373,29 +374,51 @@ fn create_weapons(
     } else {
         world.resource::<PlayState>().config.toolgun_model.clone()
     };
-    let mut view = actor(world, &path, 1, Some(camera))?;
-    add_clip(
-        world,
-        &mut view,
-        &path,
-        if physgun {
-            &c.physgun_idle
-        } else {
-            &c.toolgun_idle
-        },
-    )?;
-    let hands = actor(world, &c.hands, 1, Some(camera))?;
-    let held = actor(
-        world,
-        if physgun {
-            &c.world_physgun
-        } else {
-            &c.world_toolgun
-        },
-        0,
-        None,
-    )?;
-    Ok((view, hands, held))
+    let mut created = Vec::new();
+    let result = (|| -> Result<_> {
+        let mut view = actor(world, &path, 1, Some(camera))?;
+        created.push(view.root);
+        add_clip(
+            world,
+            &mut view,
+            &path,
+            if physgun {
+                &c.physgun_idle
+            } else {
+                &c.toolgun_idle
+            },
+        )?;
+        if !physgun {
+            let fire = world
+                .resource::<PlayState>()
+                .tools
+                .catalog
+                .gun
+                .fire_clip
+                .clone();
+            add_clip(world, &mut view, &path, &fire)?;
+        }
+        let hands = actor(world, &c.hands, 1, Some(camera))?;
+        created.push(hands.root);
+        let held = actor(
+            world,
+            if physgun {
+                &c.world_physgun
+            } else {
+                &c.world_toolgun
+            },
+            0,
+            None,
+        )?;
+        created.push(held.root);
+        Ok((view, hands, held))
+    })();
+    if result.is_err() {
+        for entity in created {
+            world.despawn(entity);
+        }
+    }
+    result
 }
 pub(crate) fn visuals(world: &mut World) {
     if !world.contains_resource::<PlayerState>() {
@@ -431,7 +454,12 @@ pub(crate) fn visuals(world: &mut World) {
                     scene.physgun = physgun;
                 }
                 Err(e) => {
-                    world.resource_mut::<PlayState>().status = format!("Weapon failed: {e}");
+                    let mut play = world.resource_mut::<PlayState>();
+                    play.physgun = scene.physgun;
+                    play.tools.stage = None;
+                    play.tools.shot = None;
+                    play.status = format!("Weapon failed: {e}");
+                    eprintln!("{}", play.status);
                     return;
                 }
             }
@@ -566,8 +594,23 @@ pub(crate) fn visuals(world: &mut World) {
             update_effect_attachments(world, &scene.held, &held_globals, transform);
             return;
         }
-        let clip = scene.view.clips.values().next().unwrap();
-        let view_globals = scene.view.skeleton.globals(&clip.sample(time));
+        let play = world.resource::<PlayState>();
+        let idle = if physgun {
+            &c.physgun_idle
+        } else {
+            &c.toolgun_idle
+        };
+        let pose = if !physgun {
+            let fire = &scene.view.clips[&play.tools.catalog.gun.fire_clip];
+            if let Some(shot) = play.tools.shot.filter(|s| time - s.time < fire.duration()) {
+                fire.sample_mode(time - shot.time, false)
+            } else {
+                scene.view.clips[idle].sample(time)
+            }
+        } else {
+            scene.view.clips[idle].sample(time)
+        };
+        let view_globals = scene.view.skeleton.globals(&pose);
         skin(world, &scene.view, &view_globals);
         update_effect_attachments(world, &scene.view, &view_globals, eye.compute_matrix());
         if let Some((_, bone, local)) = scene

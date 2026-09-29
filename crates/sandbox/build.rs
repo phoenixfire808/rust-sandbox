@@ -14,6 +14,10 @@ fn main() {
         "source_layout.csv",
         "source_animation_states.csv",
         "source_performance.csv",
+        "source_toolgun.csv",
+        "source_tools.csv",
+        "source_tool_options.csv",
+        "source_physics_materials.csv",
     ] {
         println!("cargo:rerun-if-changed={}", sheets.join(name).display());
     }
@@ -32,6 +36,9 @@ fn main() {
         &presentation.1,
     ));
     let out = std::path::PathBuf::from(std::env::var_os("OUT_DIR").unwrap());
+    generated.push_str(&sandbox_catalog::toolgun::generate(
+        &sandbox_catalog::toolgun::load(&sheets).expect("invalid tool spreadsheets"),
+    ));
     generated.push_str(&sandbox_catalog::performance::generate(
         &sandbox_catalog::performance::load(&sheets).expect("invalid performance spreadsheet"),
     ));

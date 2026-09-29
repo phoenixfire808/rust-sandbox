@@ -1,0 +1,25 @@
+id,tools,scenario,current_implementation,remaining,acceptance_owner,result
+screen_switch,all,Switch selected tools in Q and inspect held screen,Shared original screen surface with scrolling selected title,Original font and custom DrawToolScreen overrides,Drew,not_run
+fire_clip,all,Use accepted and rejected actions in first person,Original fire clip sampled on accepted hits with merged hands,Compare animation timing muzzle origin and return to idle,Drew,not_run
+fire_effect,all,Fire on near far and moving targets,Transient attachment-to-hit tracer,Native effect colour lifetime impact rings and sound,Drew,not_run
+third_person,all,Use toolgun in F4 view,World weapon attachment and tracer,Revolver hold and third-person attack gesture,Drew,not_run
+settings,all,Change enabled settings reopen Q and relaunch,Typed sliders choices toggles defaults and local persistence,Full native widgets presets option ranges and bindings,Drew,not_run
+cancel,weld|axis|ballsocket|rope|slider|elastic|nocollide,Select first target then R or change weapon or lose focus,Stage cancellation and prop-local stored hit,Stock ghost preview and exact cancellation semantics,Drew,not_run
+weld,weld,Join offset bodies and use aligned right-click variant,Rapier fixed joint and optional contact exclusion,Third-click rotation and force breaking,Drew,not_run
+axis,axis,Compare aligned and preserve-position two-click modes,Revolute axes hinge friction and no-collide option,Force torque breaking and Source friction scale,Drew,not_run
+ballsocket,ballsocket,Join two props and a prop to world,Free rotation around second hit,Per-bone support and force breaking,Drew,not_run
+rope,rope,Create slack rigid added-length and chained ropes,Distance-limit joint with straight coloured width-controlled cable,Segmented sag cable material and force breaking,Drew,not_run
+slider,slider,Use two anchors and surface-normal right-click trace,Prismatic joint with cable,Reference alignment and exact cable shader,Drew,not_run
+elastic,elastic,Compare compressed extended and stretch-only spring,Force-based coupled spring and compression disable,Source relative damping and numeric response,Drew,not_run
+nocollide,nocollide,Exclude a pair then toggle one prop to world-only,Pair contact suppression and separate collision memberships,Native group edge cases and per-bone exclusions,Drew,not_run
+colour,colour,Apply sample reset and undo RGBA on identical props,Independent per-prop materials preserve other instances,Render modes FX and shader fidelity,Drew,not_run
+material,material,Apply sample reset and undo mounted material override,Small selectable mounted material gallery,Complete gallery and Source envmap shader behavior,Drew,not_run
+physprop,physprop,Change gravity and physical surface then duplicate,Stored gravity friction and restitution settings,Original physical material constants and broad material list,Drew,not_run
+remover,remover,Remove single prop connected group or only constraints,Three distinct callbacks with snapshot undo,Original dissolve delay sounds and permissions,Drew,not_run
+duplicator,duplicator,Copy a multi-prop constrained coloured assembly and paste,Connected graph remapping with modifiers and world anchors,Stock dupe format rotation controls and ghost preview,Drew,not_run
+limits,duplicator|all,Create and paste at prop or constraint limit,Bounds checked before creation,Acceptance of queued spawn interaction and all malformed data,Drew,not_run
+undo,all,Edit then Z including deleted constrained groups,Whole-scene versioned snapshots retain modifiers and links,Per-operation undo without rewinding unrelated movement,Drew,not_run
+save_load,all,Save supported assembly load legacy file and reject bad scene,Version-2 local document and legacy prop-array reader,Stock format velocities full entities and transactional failure corpus,Drew,not_run
+cleanup,all,Remove constraints then undo and delete linked endpoints,Constraint cleanup and endpoint invalidation path,Per-player ownership and full cleanup categories,Drew,not_run
+asset_failure,all,Select weapon or material with unsupported installed data,Failed weapon switch cleans partial actors and retains prior weapon,User acceptance of diagnostics and retry flow,Drew,not_run
+missing_tools,motor|hydraulic|muscle|pulley|winch|wheel|balloon|button|camera|dynamite|emitter|hoverball|lamp|light|thruster|editentity|paint|trails|eyeposer|faceposer|finger|inflator,Review every missing tool and all native settings,Visible pending entries and reference metadata only,Full implementations remain required,Drew,not_implemented

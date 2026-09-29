@@ -199,7 +199,13 @@ fn update(world: &mut World) {
         let target = crate::source_play::beam_target(world);
         let play = world.resource::<PlayState>();
         let player = world.resource::<PlayerState>();
-        if !play.physgun || (!player.third_person && !play.weapon_visible) {
+        let physgun = play.physgun;
+        let beam_width = if physgun {
+            fx.config.beam_width
+        } else {
+            play.tools.catalog.gun.tracer_width
+        };
+        if (!physgun && target.is_none()) || (!player.third_person && !play.weapon_visible) {
             return;
         }
         let third = player.third_person;
@@ -227,7 +233,7 @@ fn update(world: &mut World) {
         let pulse = 1.
             + fx.config.pulse_depth * (seconds * fx.config.pulse_hz * std::f32::consts::TAU).sin();
         for (&entity, &(position, core)) in fx.glows.iter().zip(&points) {
-            if position.is_finite() {
+            if position.is_finite() && (physgun || core) {
                 show(
                     world,
                     entity,
@@ -249,8 +255,7 @@ fn update(world: &mut World) {
             } else {
                 world_muzzle(eye, muzzle, view_fov, fov)
             };
-            if let Some(positions) = ribbon(start, target, camera.translation, fx.config.beam_width)
-            {
+            if let Some(positions) = ribbon(start, target, camera.translation, beam_width) {
                 let scroll = (seconds * fx.config.beam_scroll).rem_euclid(1.);
                 let length = start.distance(target) / fx.config.beam_repeat;
                 let mut meshes = world.resource_mut::<Assets<Mesh>>();

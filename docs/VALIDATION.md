@@ -2,6 +2,16 @@
 
 Date: 2026-09-29 UTC. Windows x86_64, Rust 1.97.1. Build artifacts isolated in `D:\jcode-build\rust-sandbox-20260929`. No remote compilation or remote asset upload.
 
+## Toolgun and staged tools awaiting Drew's testing
+
+The current pass implements the original toolgun fire-clip path, selected-title screen render target, authored tool controls, twelve stock-tool subsets, supported Rapier constraints, prop modifiers, connected duplication and version-2 local scene state. Full tools/settings, original effects/audio and one-to-one parity remain unfinished. The exact scope and acceptance scenarios are in TOOL_IMPLEMENTATION_PLAN.md and tool_cases.csv.
+
+`cargo build --locked -p rust-sandbox --lib` succeeded after the final source changes (47.08s). The earlier compile found that ImpulseJoint requires TypedJoint::GenericJoint rather than an implicit GenericJoint conversion. That mismatch was corrected. Static review also corrected missing world-parent visibility for cable children, duplicate joint limits, failure cleanup for weapon actors, repeated held UI clicks and menu-closing click leakage. These are code inspections, not passing runtime tests. Final log: `local/toolgun-build-final.log`. The existing binrw future-compatibility warning remains.
+
+`cargo build --locked -p sandbox-catalog --features workbook` succeeded (37.48s), and the actual exporter produced `spreadsheets/rust-sandbox-catalog-20260929-toolgun.xlsx` with **94,942 data rows**. All prior workbooks remain. No independent workbook verification was run.
+
+At handoff the prior game, PID 50072, was still open and responding. It was not terminated. A one-shot local job waits for Drew to close it, then builds `source-map` and launches it normally with separate timestamped stdout/stderr logs. At this recording the executable build and new launch are **pending**, not claimed successful. The queued script is ignored local state, not a recurring supervisor. No automated tests, Clippy, benchmarks, gameplay input or screenshots were run. Drew owns all functional, visual, persistence and reference acceptance.
+
 ## Spawn performance implementation awaiting Drew's testing
 
 The reported spawn lag prompted dependency optimization, a bounded off-thread preparation queue, shared immutable cached geometry, exact duplicate hull-input removal, and reduced idle-frame change processing. Settings come from `source_performance.csv`. `performance_cases.csv` lists implemented and remaining scenarios without passing results.

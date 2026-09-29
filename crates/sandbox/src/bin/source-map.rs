@@ -152,7 +152,16 @@ fn setup(
                 .map(|t| [t[0], t[1], t[2]])
                 .collect();
             if let Ok(collider) = Collider::trimesh(vertices, indices) {
-                commands.spawn((RigidBody::Fixed, collider, Transform::default()));
+                commands.spawn((
+                    RigidBody::Fixed,
+                    collider,
+                    Transform::default(),
+                    Visibility::default(),
+                    bevy_rapier3d::prelude::CollisionGroups::new(
+                        bevy_rapier3d::prelude::Group::GROUP_1,
+                        bevy_rapier3d::prelude::Group::ALL,
+                    ),
+                ));
             }
         }
         let material = materials.add(StandardMaterial {
@@ -220,6 +229,7 @@ fn setup(
     rust_sandbox::source_player::spawn(&mut commands, map.spawn, map.forward);
     commands.spawn((
         SourceCamera,
+        IsDefaultUiCamera,
         Camera3d::default(),
         Tonemapping::None,
         bevy::render::camera::Exposure {

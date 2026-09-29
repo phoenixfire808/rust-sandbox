@@ -392,46 +392,149 @@ pub(super) fn rebuild(world: &mut World) {
     ));
     match tab {
         0 => {
-            text(world, list, "Construction", c.font_size);
-            for (id, label) in [
-                ("remover", "Remover"),
-                ("duplicator", "Duplicator"),
-                ("freeze", "Freeze"),
-            ] {
-                action(world, list, label, UiAction::Tool(id.into()), tool == id);
+            let catalog = world.resource::<PlayState>().tools.catalog.clone();
+            for category in ["Constraints", "Construction", "Render", "Poser", "Internal"] {
+                text(world, list, category, c.font_size);
+                for def in catalog.tools.iter().filter(|t| t.category == category) {
+                    let label = if def.status == "partial" {
+                        def.label.clone()
+                    } else {
+                        format!("{} (pending)", def.label)
+                    };
+                    action(
+                        world,
+                        list,
+                        label,
+                        UiAction::Tool(def.id.clone()),
+                        tool == def.id,
+                    );
+                }
             }
-            text(world, list, "Not implemented", c.font_size);
-            for spec in crate::compiled_behaviors()
-                .iter()
-                .filter(|s| s.id.starts_with("tool_"))
-            {
-                let id = spec.id.trim_start_matches("tool_");
-                if ["remover", "duplicator"].contains(&id) {
-                    continue;
+            if let Some(def) = catalog.tools.iter().find(|t| t.id == tool) {
+                text(world, controls, &def.label, c.font_size + 2.);
+                if def.status != "partial" {
+                    text(
+                        world,
+                        controls,
+                        "NOT IMPLEMENTED: reference entry only",
+                        c.font_size,
+                    );
+                }
+                text(
+                    world,
+                    controls,
+                    format!(
+                        "Left: {}\nRight: {}\nR: {}",
+                        def.left, def.right, def.reload
+                    ),
+                    c.font_size,
+                );
+                for option in catalog.options.iter().filter(|o| o.tool == tool) {
+                    let value = world
+                        .resource::<PlayState>()
+                        .tools
+                        .value(&tool, &option.key);
+                    world.spawn((
+                        Text::new(format!(
+                            "{}: {}{}",
+                            option.label,
+                            value,
+                            if option.enabled { "" } else { " (pending)" }
+                        )),
+                        TextFont {
+                            font_size: c.font_size,
+                            ..default()
+                        },
+                        TextColor(Color::srgb(0.12, 0.15, 0.2)),
+                        ToolValue {
+                            tool: tool.clone(),
+                            key: option.key.clone(),
+                            label: option.label.clone(),
+                            enabled: option.enabled,
+                        },
+                        ChildOf(controls),
+                    ));
+                    if !option.enabled {
+                        continue;
+                    }
+                    if option.kind == "number" {
+                        let slider = container(
+                            world,
+                            controls,
+                            Node {
+                                width: Val::Percent(100.),
+                                height: Val::Px(c.row_height),
+                                flex_shrink: 0.,
+                                ..default()
+                            },
+                        );
+                        world.entity_mut(slider).insert((
+                            Button,
+                            RelativeCursorPosition::default(),
+                            ToolSlider {
+                                tool: tool.clone(),
+                                key: option.key.clone(),
+                            },
+                            BackgroundColor(Color::srgb(0.65, 0.67, 0.7)),
+                        ));
+                        let fraction = ((value.parse::<f32>().unwrap_or(option.min) - option.min)
+                            / (option.max - option.min))
+                            .clamp(0., 1.);
+                        world.spawn((
+                            Node {
+                                width: Val::Percent(fraction * 100.),
+                                height: Val::Percent(100.),
+                                ..default()
+                            },
+                            BackgroundColor(Color::srgb(0.2, 0.5, 0.75)),
+                            bevy::ui::FocusPolicy::Pass,
+                            SliderFill {
+                                tool: tool.clone(),
+                                key: option.key.clone(),
+                            },
+                            ChildOf(slider),
+                        ));
+                    }
+                    let r = row(world, controls, c.row_height);
+                    if option.kind != "bool" {
+                        action(
+                            world,
+                            r,
+                            "-",
+                            UiAction::ToolSetting(option.key.clone(), -1),
+                            false,
+                        );
+                    }
+                    action(
+                        world,
+                        r,
+                        if option.kind == "bool" {
+                            if value == "1" {
+                                "[x] Enabled"
+                            } else {
+                                "[ ] Disabled"
+                            }
+                        } else {
+                            "+"
+                        },
+                        UiAction::ToolSetting(option.key.clone(), 1),
+                        false,
+                    );
                 }
                 action(
                     world,
-                    list,
-                    format!("{id} (pending)"),
-                    UiAction::Unavailable(id.into()),
+                    controls,
+                    "Restore tool defaults",
+                    UiAction::ToolDefaults,
                     false,
                 );
+                text(
+                    world,
+                    controls,
+                    format!("Remaining parity: {}", def.remaining),
+                    c.font_size,
+                );
             }
-            text(world, controls, &tool, c.font_size + 2.);
-            let description = match tool.as_str() {
-                "remover" => "Left click: remove the targeted prop.",
-                "duplicator" => {
-                    "Left click: duplicate one prop. Constrained assemblies are not supported yet."
-                }
-                _ => "Left click: freeze the targeted prop.",
-            };
-            text(world, controls, description, c.font_size);
-            text(
-                world,
-                controls,
-                "Right click: freeze.\n\nFull stock tool options are still pending.",
-                c.font_size,
-            );
         }
         1 => {
             text(world, list, "Player", c.font_size);
@@ -473,11 +576,108 @@ pub(super) fn rebuild(world: &mut World) {
             );
             action(world, controls, "Save scene", UiAction::Save, false);
             action(world, controls, "Load scene", UiAction::Load, false);
+            action(
+                world,
+                controls,
+                "Remove all constraints (Z undoes)",
+                UiAction::CleanupConstraints,
+                false,
+            );
         }
     }
     let bottom = row(world, tools, c.row_height);
     action(world, bottom, "Close", UiAction::Close, false);
     text(world, bottom, "Hold Q to build", c.font_size);
+}
+#[derive(Component)]
+struct ToolSlider {
+    tool: String,
+    key: String,
+}
+#[derive(Component)]
+struct SliderFill {
+    tool: String,
+    key: String,
+}
+#[derive(Resource)]
+struct SliderEditing;
+#[derive(Component)]
+struct ToolValue {
+    tool: String,
+    key: String,
+    label: String,
+    enabled: bool,
+}
+pub(super) fn tool_sliders(world: &mut World) {
+    let pressed = world
+        .resource::<ButtonInput<MouseButton>>()
+        .pressed(MouseButton::Left);
+    let edits: Vec<_> = world
+        .query::<(&ToolSlider, &RelativeCursorPosition, &Interaction)>()
+        .iter(world)
+        .filter(|(_, _, i)| pressed && **i == Interaction::Pressed)
+        .filter_map(|(s, c, _)| c.normalized.map(|v| (s.tool.clone(), s.key.clone(), v.x)))
+        .collect();
+    for (tool, key, value) in &edits {
+        tools::set_fraction(world, tool, key, *value);
+    }
+    if !edits.is_empty() {
+        world.insert_resource(SliderEditing);
+        let labels: Vec<_> = world
+            .query::<(Entity, &ToolValue)>()
+            .iter(world)
+            .map(|(e, label)| {
+                (
+                    e,
+                    format!(
+                        "{}: {}{}",
+                        label.label,
+                        world
+                            .resource::<PlayState>()
+                            .tools
+                            .value(&label.tool, &label.key),
+                        if label.enabled { "" } else { " (pending)" }
+                    ),
+                )
+            })
+            .collect();
+        for (e, value) in labels {
+            if let Some(mut text) = world.get_mut::<Text>(e) {
+                if text.0 != value {
+                    text.0 = value;
+                }
+            }
+        }
+    }
+    let values: Vec<_> = world
+        .query::<(Entity, &SliderFill)>()
+        .iter(world)
+        .filter_map(|(e, s)| {
+            let p = world.resource::<PlayState>();
+            let o = p
+                .tools
+                .catalog
+                .options
+                .iter()
+                .find(|o| o.tool == s.tool && o.key == s.key)?;
+            Some((
+                e,
+                (p.tools.number(&s.tool, &s.key) - o.min) / (o.max - o.min),
+            ))
+        })
+        .collect();
+    for (e, f) in values {
+        if let Some(mut n) = world.get_mut::<Node>(e) {
+            let width = Val::Percent(f.clamp(0., 1.) * 100.);
+            if n.width != width {
+                n.width = width;
+            }
+        }
+    }
+    if !pressed && world.remove_resource::<SliderEditing>().is_some() {
+        tools::persist_settings(world);
+        world.resource_mut::<PlayState>().dirty = true;
+    }
 }
 pub(super) fn scroll(
     mut wheel: EventReader<MouseWheel>,

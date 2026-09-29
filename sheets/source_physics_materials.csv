@@ -1,0 +1,8 @@
+id,friction,restitution,evidence
+metal_bouncy,0.3,0.8,independent_Rapier_approximation_not_Source_match
+metal,0.4,0.1,independent_Rapier_approximation_not_Source_match
+wood,0.6,0.1,independent_Rapier_approximation_not_Source_match
+glass,0.3,0.1,independent_Rapier_approximation_not_Source_match
+ice,0.02,0.05,independent_Rapier_approximation_not_Source_match
+rubber,0.9,0.8,independent_Rapier_approximation_not_Source_match
+concrete_block,0.8,0.05,independent_Rapier_approximation_not_Source_match

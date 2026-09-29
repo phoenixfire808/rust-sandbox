@@ -19,8 +19,17 @@ use sandbox_catalog::{play::PlayConfig, Result};
 use std::collections::BTreeMap;
 #[path = "source_menu.rs"]
 mod menu;
+#[path = "source_scene.rs"]
+mod scene;
 #[path = "source_spawn.rs"]
 mod spawn;
+#[path = "source_tool_screen.rs"]
+mod tool_screen;
+#[path = "source_tools.rs"]
+pub(crate) mod tools;
+use scene::{
+    remember, restore, snapshot, snapshot_selection, spawn_scene, validate_scene, SavedScene,
+};
 
 #[derive(Component)]
 pub struct SourceCamera;
@@ -41,6 +50,9 @@ enum UiAction {
     Page(i32),
     Spawn(String),
     Tool(String),
+    ToolSetting(String, i32),
+    ToolDefaults,
+    CleanupConstraints,
     Setting(&'static str, f32),
     Save,
     Load,
@@ -50,6 +62,7 @@ enum UiAction {
 struct MenuRoot;
 #[derive(Resource)]
 pub struct PlayState {
+    pub tools: tools::ToolState,
     pub config: PlayConfig,
     pub layout: sandbox_catalog::presentation::LayoutConfig,
     pub search_focus: bool,
@@ -76,7 +89,7 @@ pub struct PlayState {
     pub weapon_visible: bool,
     pub storage_root: std::path::PathBuf,
     weapon_attempted: bool,
-    undo: Vec<Vec<SavedModel>>,
+    undo: Vec<SavedScene>,
     cache: BTreeMap<String, GpuModel>,
     icons: BTreeMap<String, Option<Handle<Image>>>,
     last_save: Option<std::path::PathBuf>,
@@ -95,6 +108,8 @@ struct SavedModel {
     position: [f32; 3],
     rotation: [f32; 4],
     frozen: bool,
+    #[serde(default)]
+    properties: tools::Properties,
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 struct Preferences {
@@ -110,6 +125,7 @@ impl PlayState {
         let sensitivity = config.sensitivity;
         let distance = config.spawn_distance;
         let mut out = Self {
+            tools: tools::ToolState::default(),
             config,
             layout: crate::compiled_layout_config(),
             search_focus: false,
@@ -172,6 +188,10 @@ impl Plugin for SourcePlayPlugin {
             (
                 search_input,
                 update_play,
+                tools::input,
+                tool_screen::update,
+                tools::constraints::update,
+                menu::tool_sliders,
                 spawn::complete,
                 spawn::report,
                 adjust_hold_distance,
@@ -210,6 +230,7 @@ pub(crate) fn gpu_model_skin(world: &mut World, path: &str, skin: i32) -> Result
 }
 struct PreparedModel {
     parts: Vec<(
+        String,
         crate::source_assets::Geometry,
         Option<Image>,
         AlphaMode,
@@ -255,7 +276,7 @@ fn prepare_model(source: &MountedSource, path: &str, skin: i32) -> Result<Prepar
             } else {
                 AlphaMode::Opaque
             });
-        parts.push((geo, texture, alpha, mat.no_cull()));
+        parts.push((name, geo, texture, alpha, mat.no_cull()));
     }
     if points.is_empty() {
         return Err("model contains no render geometry".into());
@@ -279,8 +300,21 @@ fn prepare_model(source: &MountedSource, path: &str, skin: i32) -> Result<Prepar
 fn install_model(world: &mut World, cache_key: String, prepared: PreparedModel) -> GpuModel {
     let mut parts = Vec::new();
     let mut geometry = Vec::new();
-    for (geo, texture, alpha, nocull) in prepared.parts {
-        let tex = texture.map(|image| world.resource_mut::<Assets<Image>>().add(image));
+    for (name, geo, texture, alpha, nocull) in prepared.parts {
+        let mut tex = texture.map(|image| world.resource_mut::<Assets<Image>>().add(image));
+        if name.eq_ignore_ascii_case(
+            &world
+                .resource::<PlayState>()
+                .tools
+                .catalog
+                .gun
+                .screen_material,
+        ) {
+            match tool_screen::ensure(world) {
+                Ok(image) => tex = Some(image),
+                Err(e) => eprintln!("TOOL_SCREEN_ERROR {e}"),
+            }
+        }
         let material = world
             .resource_mut::<Assets<StandardMaterial>>()
             .add(StandardMaterial {
@@ -347,6 +381,8 @@ pub fn spawn_model(
                 angular_damping: 0.1,
             },
             Ccd::enabled(),
+            tools::Properties::default(),
+            CollisionGroups::new(Group::GROUP_2, Group::ALL),
         ))
         .id();
     for (mesh, material) in model.parts {
@@ -417,6 +453,16 @@ pub(crate) fn world_ray(
 }
 pub(crate) fn beam_target(world: &mut World) -> Option<Vec3> {
     let state = world.resource::<PlayState>();
+    if !state.physgun {
+        return state
+            .tools
+            .shot
+            .filter(|s| {
+                world.resource::<Time>().elapsed_secs() - s.time
+                    < state.tools.catalog.gun.tracer_seconds
+            })
+            .map(|s| s.point);
+    }
     if let Some(t) = state.held.and_then(|e| world.get::<Transform>(e)) {
         return Some(t.translation + t.rotation * state.held_anchor);
     }
@@ -457,63 +503,6 @@ pub fn aimed_prop(world: &mut World) -> Option<(Entity, f32)> {
             .map(|d| (e, d))
         })
         .min_by(|a, b| a.1.total_cmp(&b.1))
-}
-fn snapshot(world: &mut World) -> Vec<SavedModel> {
-    world
-        .query::<(&SpawnedProp, &Transform, &RigidBody)>()
-        .iter(world)
-        .map(|(p, t, b)| SavedModel {
-            model: p.model.clone(),
-            position: t.translation.to_array(),
-            rotation: t.rotation.to_array(),
-            frozen: *b == RigidBody::Fixed,
-        })
-        .collect()
-}
-fn remember(world: &mut World) {
-    let save = snapshot(world);
-    let mut s = world.resource_mut::<PlayState>();
-    if s.undo.len() == 32 {
-        s.undo.remove(0);
-    }
-    s.undo.push(save);
-}
-fn restore(world: &mut World, save: Vec<SavedModel>) -> Result<()> {
-    spawn::clear(world);
-    if save.len() > world.resource::<PlayState>().config.max_props {
-        return Err("save exceeds prop limit".into());
-    }
-    for p in &save {
-        crate::source_assets::virtual_path(&p.model)?;
-        if !p
-            .position
-            .iter()
-            .chain(p.rotation.iter())
-            .all(|v| v.is_finite())
-            || (Quat::from_array(p.rotation).length() - 1.).abs() > 0.01
-        {
-            return Err("invalid save transform".into());
-        }
-        gpu_model(world, &p.model)?;
-    }
-    let ids: Vec<_> = world
-        .query_filtered::<Entity, With<SpawnedProp>>()
-        .iter(world)
-        .collect();
-    for e in ids {
-        world.despawn(e);
-    }
-    world.resource_mut::<PlayState>().held = None;
-    for p in save {
-        spawn_model(
-            world,
-            &p.model,
-            Vec3::from_array(p.position),
-            Quat::from_array(p.rotation),
-            p.frozen,
-        )?;
-    }
-    Ok(())
 }
 fn set_weapon(world: &mut World) {
     // The player renderer owns posed view/world weapons and switches them atomically.
@@ -575,7 +564,7 @@ pub fn update_play(world: &mut World) {
     let mut actions: Vec<_> = world
         .query_filtered::<(&Interaction, &UiAction), Changed<Interaction>>()
         .iter(world)
-        .filter(|(i, _)| **i == Interaction::Pressed)
+        .filter(|(i, _)| mouse.just_pressed(MouseButton::Left) && **i == Interaction::Pressed)
         .map(|(_, a)| a.clone())
         .collect();
     let (focused, size) = world
@@ -586,6 +575,7 @@ pub fn update_play(world: &mut World) {
         .unwrap_or((true, Vec2::new(1280., 800.)));
     {
         let mut s = world.resource_mut::<PlayState>();
+        s.tools.input_blocked = s.menu_open || !focused;
         if s.menu_size != size {
             s.menu_size = size;
             s.dirty = true;
@@ -593,6 +583,8 @@ pub fn update_play(world: &mut World) {
         if !focused {
             s.held = None;
             s.beam_active = false;
+            s.tools.stage = None;
+            s.tools.shot = None;
         }
     }
     if keys.just_pressed(KeyCode::KeyQ) && !world.resource::<PlayState>().search_focus {
@@ -619,6 +611,8 @@ pub fn update_play(world: &mut World) {
     for (key, physgun) in [(KeyCode::Digit1, true), (KeyCode::Digit2, false)] {
         if keys.just_pressed(key) && !world.resource::<PlayState>().menu_open {
             world.resource_mut::<PlayState>().physgun = physgun;
+            world.resource_mut::<PlayState>().tools.stage = None;
+            world.resource_mut::<PlayState>().tools.shot = None;
             world.resource_mut::<PlayState>().held = None;
             set_weapon(world);
         }
@@ -645,7 +639,8 @@ pub fn update_play(world: &mut World) {
                 world.resource_mut::<PlayState>().undo.pop()
             };
             if let Some(save) = save {
-                if let Err(e) = restore(world, save) {
+                if let Err(e) = restore(world, save.clone()) {
+                    world.resource_mut::<PlayState>().undo.push(save);
                     world.resource_mut::<PlayState>().status = e.to_string();
                 }
             }
@@ -656,61 +651,34 @@ pub fn update_play(world: &mut World) {
         if keys.just_pressed(KeyCode::F6) {
             actions.push(UiAction::Load);
         }
-        let needs_target = mouse.just_pressed(MouseButton::Left)
-            || mouse.just_pressed(MouseButton::Right)
-            || keys.just_pressed(KeyCode::KeyR);
+        let needs_target = world.resource::<PlayState>().physgun
+            && (mouse.just_pressed(MouseButton::Left)
+                || mouse.just_pressed(MouseButton::Right)
+                || keys.just_pressed(KeyCode::KeyR));
         let focus = world.resource::<PlayState>().held.or_else(|| {
             needs_target
                 .then(|| aimed_prop(world))
                 .flatten()
                 .map(|p| p.0)
         });
-        if mouse.just_pressed(MouseButton::Left) {
+        if world.resource::<PlayState>().physgun && mouse.just_pressed(MouseButton::Left) {
             if let Some(e) = focus {
-                if world.resource::<PlayState>().physgun {
-                    remember(world);
-                    let distance = aimed_prop(world).map(|p| p.1).unwrap_or(5.).clamp(0.1, 50.);
-                    let eye = camera(world).unwrap();
-                    let hit = eye.translation + *eye.forward() * distance;
-                    let transform = *world.get::<Transform>(e).unwrap();
-                    let mut s = world.resource_mut::<PlayState>();
-                    s.held_anchor = transform.rotation.inverse() * (hit - transform.translation);
-                    s.held = Some(e);
-                    s.distance = distance;
-                    world.entity_mut(e).insert(RigidBody::Dynamic);
-                } else {
-                    let tool = world.resource::<PlayState>().tool.clone();
-                    remember(world);
-                    match tool.as_str() {
-                        "remover" => {
-                            world.despawn(e);
-                        }
-                        "duplicator" => {
-                            let p = world.get::<SpawnedProp>(e).unwrap().model.clone();
-                            let t = *world.get::<Transform>(e).unwrap();
-                            if let Err(err) =
-                                spawn_model(world, &p, t.translation + Vec3::Y, t.rotation, false)
-                            {
-                                world.resource_mut::<PlayState>().status = err.to_string();
-                            }
-                        }
-                        "freeze" => {
-                            world
-                                .entity_mut(e)
-                                .insert((RigidBody::Fixed, Velocity::zero()));
-                        }
-                        _ => {
-                            world.resource_mut::<PlayState>().status =
-                                format!("Tool {tool} is cataloged but not implemented");
-                        }
-                    }
-                }
+                remember(world);
+                let distance = aimed_prop(world).map(|p| p.1).unwrap_or(5.).clamp(0.1, 50.);
+                let eye = camera(world).unwrap();
+                let hit = eye.translation + *eye.forward() * distance;
+                let transform = *world.get::<Transform>(e).unwrap();
+                let mut s = world.resource_mut::<PlayState>();
+                s.held_anchor = transform.rotation.inverse() * (hit - transform.translation);
+                s.held = Some(e);
+                s.distance = distance;
+                world.entity_mut(e).insert(RigidBody::Dynamic);
             }
         }
         if mouse.just_released(MouseButton::Left) {
             world.resource_mut::<PlayState>().held = None;
         }
-        if mouse.just_pressed(MouseButton::Right) {
+        if world.resource::<PlayState>().physgun && mouse.just_pressed(MouseButton::Right) {
             if let Some(e) = focus {
                 world
                     .entity_mut(e)
@@ -718,7 +686,7 @@ pub fn update_play(world: &mut World) {
                 world.resource_mut::<PlayState>().held = None;
             }
         }
-        if keys.just_pressed(KeyCode::KeyR) {
+        if world.resource::<PlayState>().physgun && keys.just_pressed(KeyCode::KeyR) {
             if let Some(e) = focus {
                 remember(world);
                 world.entity_mut(e).insert(RigidBody::Dynamic);
@@ -843,11 +811,19 @@ fn perform(world: &mut World, action: UiAction) {
         }
         UiAction::Tool(tool) => {
             let mut s = world.resource_mut::<PlayState>();
+            s.tools.stage = None;
+            s.tools.shot = None;
             s.tool = tool;
             s.physgun = false;
-            s.status = "Left click: tool action. Right click: freeze.".into();
+            s.status = "Tool selected. Q shows left / right / reload controls and settings.".into();
             s.dirty = true;
             set_weapon(world);
+        }
+        UiAction::ToolSetting(key, direction) => tools::setting(world, key, direction),
+        UiAction::ToolDefaults => tools::reset_settings(world),
+        UiAction::CleanupConstraints => {
+            remember(world);
+            tools::constraints::clear(world);
         }
         UiAction::Setting(key, value) => {
             let mut s = world.resource_mut::<PlayState>();
@@ -907,7 +883,8 @@ fn perform(world: &mut World, action: UiAction) {
             });
             let result = (|| -> Result<()> {
                 let path = path.ok_or("No saved Source scene")?;
-                let save = serde_json::from_slice(&std::fs::read(path)?)?;
+                let save = scene::read(&std::fs::read(path)?)?;
+                validate_scene(world, &save)?;
                 remember(world);
                 restore(world, save)
             })();

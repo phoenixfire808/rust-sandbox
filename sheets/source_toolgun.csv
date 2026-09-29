@@ -1,0 +1,2 @@
+fire_clip,screen_material,screen_background,screen_size,font_size,scroll_speed,text_center_y,tracer_seconds,tracer_width,trace_range,max_constraints
+@fire01,models/weapons/v_toolgun/screen,models/weapons/v_toolgun/screen_bg,256,60,250,104,0.18,0.035,312.1152,1000

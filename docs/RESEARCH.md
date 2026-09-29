@@ -2,6 +2,18 @@
 
 Research date: 2026-09-29 UTC. Citation IDs are maintained in `sheets/sources.csv`.
 
+## Toolgun and stock tools, 2026-09-29
+
+Drew requested firing animation, a selected-tool screen, and complete tools/settings. The detailed execution plan and explicit unfinished scope are in [TOOL_IMPLEMENTATION_PLAN.md](TOOL_IMPLEMENTATION_PLAN.md). No claim of full tool or Source parity is made.
+
+Read the installed/public `gmod_tool/shared.lua`, `cl_viewscreen.lua`, `cl_init.lua`, and the axis, ballsocket, colour, elastic, material, nocollide, physprop, remover, rope, slider and weld stool callback bodies. Public root: <https://github.com/Facepunch/garrysmod/tree/master/garrysmod/gamemodes/sandbox/entities/weapons/gmod_tool>. Successful tool callback results trigger the original firing sequence/effects, rather than every input click. Stock hold type is revolver, and stock effects include ToolTracer, selection_indicator and Toolgun.Single. Our first-person fire clip is wired, but the original sound, exact effects and third-person gesture remain missing.
+
+The installed screen code specifies the `models/weapons/v_toolgun/screen` surface, screen_bg background, 256x256 target, 60px Helvetica weight 900, text center y=104, 250px/s scrolling and 64px gap. Current Bevy text uses its default font and lacks the original shadow, so source-derived dimensions do not establish pixel equivalence. Tool-specific DrawToolScreen overrides are not implemented. Read-only original model metadata identifies `@fire01` as a 20-frame toolgun animation. This metadata inspection is not a gameplay firing test.
+
+`scripts/catalog-tool-settings.ps1` inventories 170 literal ClientConVar defaults from the installed loose stools without copying Lua source. It does not evaluate Lua, dynamic registrations or full panel definitions. Missing-tool action descriptions in source_tools are planning summaries, not fully verified callback specifications. The 39 authored runtime settings distinguish enabled operations from pending options. Material ranges and Rapier physical coefficients are independently authored approximations, not measured Source values.
+
+Reused Bevy's version-matched UI render-target approach: <https://github.com/bevyengine/bevy/blob/v0.16.1/examples/ui/render_ui_to_texture.rs>. Reused the existing original model/clip decoder, mounted material/texture path, effect pool, UI controls, Rapier GenericJoint/ImpulseJoint child-body support and serde scene serialization. Rapier API source inspected from installed bevy_rapier3d 0.30.0 (`dynamics/joint.rs`, `generic_joint.rs`, `rope_joint.rs`, `spring_joint.rs`). No new package or proprietary payload was added. Tool physics, save documents and dispatch are independent Rust implementations, not copied Lua or native compatibility.
+
 ## Spawn responsiveness repair, 2026-09-29
 
 Drew reported continuing lag, especially spawning an item. Static inspection found unoptimized engine/physics/decoder dependencies in the dev build, synchronous model/VTF/mipmap/convex-hull preparation inside the exclusive game update, deep geometry copies on every model-cache hit, idle aim queries, and unchanged HUD/projection/config writes. These are observed code paths, not measured proportions of frame cost.

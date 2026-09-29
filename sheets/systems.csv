@@ -16,14 +16,14 @@ context_menu,ui,Expose entity properties bodygroups skins and contextual actions
 physics,physics,Simulate rigid bodies collision friction mass sleep and contact response,server,entity_lifecycle,Rapier rigid bodies,prototype,Drop and stack fixtures settle without floor penetration,R4
 physics_parity,physics,Match Source units solver tolerances damping buoyancy and collision groups,server,physics,PhysicsCompatibility,not_started,Repeated reference trajectories fit explicit tolerances,R4
 ragdolls,physics,Simulate articulated skeletons with per-bone collision and constraints,server,physics|models,Ragdoll,not_started,Grab and pose multiple bones with stable joints,R2
-constraints,physics,Connect rigid bodies with breakable joints and collision exclusions,server,physics,ConstraintGraph,not_started,Joint type fixtures maintain anchors and obey break thresholds,R1
+constraints,physics,Connect rigid bodies with breakable joints and collision exclusions,server,physics,ConstraintGraph,prototype,Joint type fixtures maintain anchors and obey break thresholds,R1
 physgun,sandbox,Trace grab move rotate freeze and unfreeze props or ragdoll bones,server_client,physics,Action Grab and Freeze,prototype,Hold tracks aim and freeze stops motion with undo support,R3
 physgun_snap,sandbox,Apply configurable rotation snapping and double-reload unfreeze all,server_client,physgun,PhysgunState,not_started,45 degree snap and double reload match reference behavior,R3
 gravity_gun,sandbox,Pick up pull punt and launch eligible objects with mass rules,server_client,physics,GravityGun,not_started,Mass eligibility and launch impulse match reference tests,R2
-toolgun,sandbox,Route selected tool clicks reload stages ghost previews and settings,server_client,entity_lifecycle|constraints,ToolStateMachine,not_started,Canceling staged tool clears previews and selected targets,R1
+toolgun,sandbox,Route selected tool clicks reload stages ghost previews and settings,server_client,entity_lifecycle|constraints,ToolStateMachine,prototype,Canceling staged tool clears previews and selected targets,R1
 undo,sandbox,Reverse player edits and created entity groups,server,entity_lifecycle,Session undo snapshots,prototype,Spawn remove freeze and duplicate can be undone,R1
 cleanup,sandbox,Remove owned entities by category or reset sandbox,server,entity_ownership,Action Reset,prototype,Prototype reset restores authored scene and can be undone,R1
-duplicator,sandbox,Serialize constrained assemblies modifiers transforms and entity types,server,constraints|entity_lifecycle,AssemblyDocument,not_started,Copy paste a constrained machine with entity reference remapping,R1
+duplicator,sandbox,Serialize constrained assemblies modifiers transforms and entity types,server,constraints|entity_lifecycle,AssemblyDocument,prototype,Copy paste a constrained machine with entity reference remapping,R1
 save_load,persistence,Save world state and restore validated versioned scene data,local,entity_lifecycle,SavedScene,prototype,JSON roundtrip preserves prop transforms velocities and frozen state,R1
 movement,player,Walk jump crouch sprint swim climb ladders and collide with world,server_client,physics|bsp,CharacterController,not_started,Movement fixture and predicted input traces match reference,R4
 noclip,player,Fly through world with free camera movement,client,none,FlyCamera,prototype,Camera moves with WASD and vertical controls without normal player collision,R1

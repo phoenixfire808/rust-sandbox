@@ -1,0 +1,39 @@
+id,label,category,status,left,right,reload,remaining
+axis,Axis,Constraints,partial,Select two targets and align first surface to second,Select two targets without moving first,Remove target axis joints,Force and torque break thresholds; ghost preview; Source friction matching
+balloon,Balloons,Construction,missing,Create or update balloon,Create balloon without rope,Not specified,Entity lifecycle lift rope and model controls
+ballsocket,Ball Socket,Constraints,partial,Select two bodies with pivot at second hit,No secondary action,Remove target ball socket joints,Force breaking and original bone-specific constraints
+button,Buttons,Construction,missing,Create or update button,Create without weld,Not specified,Use interaction key groups toggle and entity lifecycle
+camera,Camera,Construction,missing,Create camera,Create tracking camera,Not specified,Camera activation keys locked tracking and duplication
+colour,Colour,Render,partial,Apply RGBA,Sample target RGBA,Reset target to white,Source render modes and render FX beyond normal alpha
+creator,Creator,Internal,reference_only,Dispatch selected content,Tool-dependent,Tool-dependent,Native content dispatch permissions and NPC or entity classes
+duplicator,Duplicator,Construction,partial,Paste copied prop assembly at hit,Copy connected prop assembly,Clear clipboard,Stock dupe file compatibility modifiers and ghost preview
+dynamite,Dynamite,Construction,missing,Create or update explosive,Create without weld,Not specified,Damage lifecycle key control fuse sound and explosion
+editentity,Edit Entity,Construction,missing,Select editable entity,Not specified,Not specified,Typed entity network properties and permissions
+elastic,Elastic,Constraints,partial,Select two spring anchors,No secondary action,Remove target elastic joints,Relative damping stretch-only native response and cable materials
+emitter,Emitter,Construction,missing,Create or update emitter,Create without weld,Not specified,Particle runtime effects catalog key toggles and timing
+example,Example,Internal,reference_only,Research only,Research only,Research only,Not advertised as stock playable functionality
+eyeposer,Eye Poser,Poser,missing,Set eye target,Sample target,Reset eyes,Model eye shader and look-target support
+faceposer,Face Poser,Poser,missing,Apply expression,Select face,Reset expression,Flex decoding sliders expressions and persistence
+finger,Finger Poser,Poser,missing,Apply hand pose,Select hand,Reset pose,Ragdoll skeleton posing finger axes and presets
+hoverball,Hoverball,Construction,missing,Create or update hoverball,Create without weld,Not specified,Altitude controller key groups drag strength and persistence
+hydraulic,Hydraulic,Constraints,missing,Select moving anchors,Tool-dependent stage,Remove hydraulic constraints,Actuator length speed toggle and key settings
+inflator,Inflator,Poser,missing,Inflate bone,Deflate bone,Reset scale,Ragdoll bone selection nonuniform scale and reset
+lamp,Lamps,Construction,missing,Create projected lamp,Create without weld,Not specified,Projected texture light FOV distance keys and attached physics
+leafblower,Leaf Blower,Internal,reference_only,Research only,Research only,Research only,Legacy availability and actual semantics remain unresolved
+light,Lights,Construction,missing,Create point light,Create without rope,Not specified,Light entity brightness size colour keys and rope attachment
+material,Material,Render,partial,Apply selected mounted material,Sample material override,Restore original materials,Complete allowed-material gallery and Source shader fidelity
+motor,Motor,Constraints,missing,Select motor anchors,Alternate placement,Remove motors,Key-bound torque friction direction and axis controls
+muscle,Muscle,Constraints,missing,Select oscillating anchors,Tool-dependent stage,Remove muscles,Oscillation length period activation and constraints
+nocollide,No Collide,Construction,partial,Select pair to disable their collision,Toggle world-only collisions on target,Remove target pair exclusions,Source collision-group edge cases and bone filters
+paint,Paint,Render,missing,Paint surface decal,Alternate decal,Not specified,Original decal projection materials lifetime and networking
+physprop,Physical Properties,Construction,partial,Apply gravity and selected physical material,No secondary action,No reload action,Rapier material coefficients are independent approximations
+pulley,Pulley,Constraints,missing,Select body and pulley anchors,Tool-dependent stage,Remove pulleys,Four-anchor rope routing gearing rigidity and breaking
+remover,Remover,Construction,partial,Remove target prop and attached constraints,Remove connected prop assembly,Remove all target constraints,Original removal visual dissolve timing and achievements
+rope,Rope,Constraints,partial,Select two rope anchors,Connect and keep last anchor for chain,Remove target ropes,Force breaking exact rope material and flexible segment simulation
+slider,Slider,Constraints,partial,Select two anchors for linear travel,Trace surface normal for second anchor,Remove target sliders,Exact cable material and Source solver matching
+thruster,Thruster,Construction,missing,Create or update thruster,Create without weld,Not specified,Surface placement force keys toggle sound effects and liquid rules
+trails,Trails,Render,missing,Attach selected trail,Remove trail,Not specified,Historical ribbon geometry textures width fade and persistence
+weld,Weld,Constraints,partial,Select two bodies preserving placement,Select two surfaces to align and weld immediately,Remove target welds,Stock easy weld third-click rotation stage preview and force breaking
+wheel,Wheel,Construction,missing,Create and attach motor wheel,Update wheel,Not specified,Wheel placement key-driven torque direction friction and models
+winch,Winch,Constraints,missing,Select rope anchors,Tool-dependent stage,Remove winches,Key-bound extension contraction rope and sound
+freeze,Freeze (custom),Construction,partial,Freeze target,Unfreeze target,Unfreeze target,Convenience extension not a stock GMod tool

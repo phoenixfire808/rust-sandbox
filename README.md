@@ -6,13 +6,17 @@ Independent **Bevy 0.16.1 + Rapier 0.30** sandbox foundation, with spreadsheet-a
 
 ## Continue development
 
-- **[Download the complete review workbook](spreadsheets/rust-sandbox-catalog-20260929-performance.xlsx)**: includes the full parity backlog, placement/animation sheets, spawn performance settings and scenario acceptance ledger. Use GitHub's **Download raw file** button for Excel/LibreOffice.
+- **[Download the complete review workbook](spreadsheets/rust-sandbox-catalog-20260929-toolgun.xlsx)**: includes the full parity backlog, placement/animation sheets, performance records, all 37 stock-tool entries, 170 literal reference defaults and tool acceptance cases. Use GitHub's **Download raw file** button for Excel/LibreOffice.
 - **[Spreadsheet contributor guide](spreadsheets/README.md)**: where to edit, validate, rebuild and regenerate the workbook.
 - **[Remaining feature inventory](sheets/parity_gaps.csv)**: 169 missing/partial/unverified entries covering every cataloged system and tool, with priorities and acceptance checks. Includes nonmatching menus and remaining physgun fidelity gaps.
 - **[Ordered implementation queue](sheets/work_queue.csv)**: dependency-ordered work packages assign every known gap exactly once. The first effects slice is implemented, not reference-equivalent.
 - **[Authored CSV sheets](sheets/)** and **[public metadata catalogs](catalogs/stock-20260929/)**: all workbook inputs are tracked. No private local files or original game payloads are needed to inspect or export the data.
 
 The gap inventory covers the current stock-game discovery catalog, not every possible native option or community addon. A reference row is not proof of implemented behavior or one-to-one parity.
+
+### Current toolgun implementation
+
+[Detailed tool plan](docs/TOOL_IMPLEMENTATION_PLAN.md), [runtime tool matrix](sheets/source_tools.csv), [editable settings](sheets/source_tool_options.csv), and [Drew's acceptance cases](sheets/tool_cases.csv). This pass adds the original toolgun firing clip, a scrolling selected-tool screen, authored settings, staged Rapier constraints, per-prop modifiers, connected assembly duplication and versioned local scenes. **Twelve stock tools have partial implementations, not full parity**: axis, ball socket, colour, duplicator, elastic, material, no-collide, physical properties, remover, rope, slider and weld. Freeze is an explicitly custom extension. Other tools and unsupported settings remain visibly pending. Exact effects/sounds, all native settings, actuators, spawned tool entities and posers remain unfinished. Drew performs all testing.
 
 ### Current spawn performance repair
 

@@ -1,0 +1,40 @@
+tool,key,label,kind,default,min,max,step,choices,enabled
+colour,r,Red,number,255,0,255,1,,true
+colour,g,Green,number,255,0,255,1,,true
+colour,b,Blue,number,255,0,255,1,,true
+colour,a,Alpha,number,255,0,255,1,,true
+colour,mode,Render mode,choice,0,0,9,1,0|1|2|3|4|5|8|9,false
+colour,fx,Render FX,choice,0,0,24,1,0|1|2|3|4|5|6|7|8|9|10|11|12|13|15|16|24,false
+material,override,Material,choice,debug/env_cubemap_model,0,0,1,debug/env_cubemap_model|models/debug/debugwhite|models/props_c17/frostedglass_01a|models/props_c17/FurnitureFabric003a|models/props_c17/FurnitureMetal001a|models/props_c17/paper01,true
+physprop,gravity_toggle,Enable gravity,bool,1,0,1,1,,true
+physprop,material,Physical material,choice,metal_bouncy,0,0,1,metal_bouncy|metal|wood|glass|ice|rubber|concrete_block,true
+weld,forcelimit,Force limit (pending),number,0,0,1000,1,,false
+weld,nocollide,No collision,bool,0,0,1,1,,true
+axis,forcelimit,Force limit (pending),number,0,0,50000,1,,false
+axis,torquelimit,Torque limit (pending),number,0,0,50000,1,,false
+axis,hingefriction,Hinge friction,number,0,0,100,0.1,,true
+axis,nocollide,No collision,bool,0,0,1,1,,true
+ballsocket,forcelimit,Force limit (pending),number,0,0,50000,1,,false
+ballsocket,nocollide,No collision,bool,0,0,1,1,,true
+rope,forcelimit,Force limit (pending),number,0,0,50000,1,,false
+rope,addlength,Added length (Source units),number,0,-100,1000,1,,true
+rope,width,Width (Source units),number,2,0.1,10,0.1,,true
+rope,rigid,Rigid length,bool,0,0,1,1,,true
+rope,material,Rope material (pending),choice,cable/rope,0,0,1,cable/rope|cable/cable,false
+rope,color_r,Red,number,255,0,255,1,,true
+rope,color_g,Green,number,255,0,255,1,,true
+rope,color_b,Blue,number,255,0,255,1,,true
+slider,width,Width (Source units),number,1.5,0.1,10,0.1,,true
+slider,material,Cable material (pending),choice,cable/cable,0,0,1,cable/cable|cable/rope,false
+slider,color_r,Red,number,255,0,255,1,,true
+slider,color_g,Green,number,255,0,255,1,,true
+slider,color_b,Blue,number,255,0,255,1,,true
+elastic,constant,Spring constant,number,500,0,4000,1,,true
+elastic,damping,Damping,number,3,0,50,0.1,,true
+elastic,rdamping,Relative damping (pending),number,0.01,0,1,0.01,,false
+elastic,stretch_only,Stretch only,bool,1,0,1,1,,true
+elastic,width,Width (Source units),number,2,0.1,10,0.1,,true
+elastic,material,Cable material (pending),choice,cable/cable,0,0,1,cable/cable|cable/rope,false
+elastic,color_r,Red,number,255,0,255,1,,true
+elastic,color_g,Green,number,255,0,255,1,,true
+elastic,color_b,Blue,number,255,0,255,1,,true
