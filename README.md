@@ -6,13 +6,17 @@ Independent **Bevy 0.16.1 + Rapier 0.30** sandbox foundation, with spreadsheet-a
 
 ## Continue development
 
-- **[Download the complete review workbook](spreadsheets/rust-sandbox-catalog-20260929-toolgun.xlsx)**: includes the full parity backlog, placement/animation sheets, performance records, all 37 stock-tool entries, 170 literal reference defaults and tool acceptance cases. Use GitHub's **Download raw file** button for Excel/LibreOffice.
+- **[Download the complete review workbook](spreadsheets/rust-sandbox-catalog-20260929-frontend.xlsx)**: includes the full parity backlog, placement/animation sheets, performance records, all 37 stock-tool entries, 170 literal reference defaults and tool acceptance cases. Use GitHub's **Download raw file** button for Excel/LibreOffice.
 - **[Spreadsheet contributor guide](spreadsheets/README.md)**: where to edit, validate, rebuild and regenerate the workbook.
 - **[Remaining feature inventory](sheets/parity_gaps.csv)**: 169 missing/partial/unverified entries covering every cataloged system and tool, with priorities and acceptance checks. Includes nonmatching menus and remaining physgun fidelity gaps.
 - **[Ordered implementation queue](sheets/work_queue.csv)**: dependency-ordered work packages assign every known gap exactly once. The first effects slice is implemented, not reference-equivalent.
 - **[Authored CSV sheets](sheets/)** and **[public metadata catalogs](catalogs/stock-20260929/)**: all workbook inputs are tracked. No private local files or original game payloads are needed to inspect or export the data.
 
 The gap inventory covers the current stock-game discovery catalog, not every possible native option or community addon. A reference row is not proof of implemented behavior or one-to-one parity.
+
+### Current placement, feedback and menu implementation
+
+[Detailed plan](docs/FRONTEND_PLAN.md), [runtime dimensions](sheets/source_frontend.csv), and [38 acceptance scenarios](sheets/frontend_cases.csv). Prop origins are offset using model support points at the aimed surface. Normal launch opens the main menu, with Start New Game and authored map selection. Escape opens a separate pause menu. **F8 / Detailed Feedback** records local drafts and structured reports under `local/feedback/*.json` for Jcode to review on your next request. Nothing is uploaded automatically. Menu/F10 exits offer scene saving or cancellation. Stock appearance, complete options and full one-to-one behavior remain unfinished. Drew performs all testing.
 
 ### Current toolgun implementation
 
@@ -40,9 +44,9 @@ call play.cmd gm_flatgrass
 
 The launcher builds first, so spreadsheet edits cannot silently leave you running an old binary. First build requires Rust, MSVC build tools, dependency downloads, and a supported graphics adapter. The selected versions are a deliberately verified compatible pair, not a claim to be the latest Bevy release.
 
-**Normal launch now loads the original installed `gm_construct` in Bevy**, not the box demo. It reads BSP geometry/displacements/lightmaps, VPK-mounted VMT/VTF textures, six sky faces, and placed MDL/VVD/VTX static models. Set `GMOD_DIR` if your Steam `GarrysMod` root differs from `D:\SteamLibrary\steamapps\common\GarrysMod`. First content decode takes a short time, with per-asset progress in the console. No Steam files are changed.
+**Normal launch now opens the main menu.** Choose Start New Game and a supported map. Passing `gm_construct` or `gm_flatgrass` explicitly still loads that original installed map directly in Bevy, not the box demo. It reads BSP geometry/displacements/lightmaps, VPK-mounted VMT/VTF textures, six sky faces, and placed MDL/VVD/VTX static models. Set `GMOD_DIR` if your Steam `GarrysMod` root differs from `D:\SteamLibrary\steamapps\common\GarrysMod`. First content decode takes a short time, with per-asset progress in the console. No Steam files are changed.
 
-Click to capture the mouse. **WASD walks**, **Space jumps**, **Shift runs**, **F4 toggles third person**, and **V toggles noclip** (Space/Ctrl moves vertically only in noclip). Esc releases the mouse and F10 quits. The player uses the original Kleiner model, original idle/walk/run clips, bone-merged first-person hands, and attached world weapons. Grounded movement uses Rapier, not an exact Source physics solver.
+Click to capture the mouse. **WASD walks**, **Space jumps**, **Shift runs**, **F4 toggles third person**, and **V toggles noclip** (Space/Ctrl moves vertically only in noclip). Esc opens/resumes the pause menu, F8 opens detailed feedback, and F10 requests quit confirmation. The player uses the original Kleiner model, original idle/walk/run clips, bone-merged first-person hands, and attached world weapons. Grounded movement uses Rapier, not an exact Source physics solver.
 
 The physgun now has mounted additive attachment glows and a scrolling textured beam with a release/switch-cleaned endpoint flare. Color and presentation parameters come from `sheets/source_effects.csv`. These are approximations, not matched stock lighting, claw animation or sound.
 

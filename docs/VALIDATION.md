@@ -2,6 +2,16 @@
 
 Date: 2026-09-29 UTC. Windows x86_64, Rust 1.97.1. Build artifacts isolated in `D:\jcode-build\rust-sandbox-20260929`. No remote compilation or remote asset upload.
 
+## Spawn clearance and frontend awaiting Drew's testing
+
+`cargo build --locked -p rust-sandbox --bin source-map` succeeded in 56.70s after the final source changes. Log: `local/frontend-executable-build.log`. The first library build caught a JSON macro expression error in feedback category selection, fixed before successful library and executable builds. Static review added degenerate-normal fallback, F10 confirmation routing, page-scroll reset and the spreadsheet-authored map-settings column. These are implementation/build observations, not passing gameplay checks. The existing binrw future-compatibility warning remains.
+
+The normal no-argument executable was launched without automated input. PID 8492 reported a responding `Rust Workshop | Main Menu` window. Logs `local/frontend-launch-20260929-133548.log` and `.err.log` were empty at inspection. No prior running source-map process was present and none was terminated. The startup window existing does not verify map handoff, rendered appearance, prop placement or feedback persistence. Drew owns those acceptance cases.
+
+The catalog exporter build succeeded and produced `spreadsheets/rust-sandbox-catalog-20260929-frontend.xlsx` with **94,981 data rows**, including source_frontend and 38 frontend_cases rows. Earlier workbooks remain. No independent workbook verification, tests, Clippy, benchmarks, screenshots or gameplay automation were run. Full one-to-one menus/settings and the wider parity backlog remain unfinished.
+
+The previous toolgun handoff subsequently completed normally and launched PID 44640 after Drew closed PID 50072. That historical launch supersedes the pending status recorded below, without constituting tool acceptance.
+
 ## Toolgun and staged tools awaiting Drew's testing
 
 The current pass implements the original toolgun fire-clip path, selected-title screen render target, authored tool controls, twelve stock-tool subsets, supported Rapier constraints, prop modifiers, connected duplication and version-2 local scene state. Full tools/settings, original effects/audio and one-to-one parity remain unfinished. The exact scope and acceptance scenarios are in TOOL_IMPLEMENTATION_PLAN.md and tool_cases.csv.

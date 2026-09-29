@@ -36,6 +36,10 @@ fn main() {
 }
 fn run() -> Result<()> {
     let args: Vec<_> = std::env::args().skip(1).collect();
+    if args.is_empty() {
+        rust_sandbox::source_frontend::run();
+        return Ok(());
+    }
     let name = args
         .iter()
         .find(|a| !a.starts_with('-'))
@@ -101,6 +105,11 @@ fn run() -> Result<()> {
         })
         .insert_resource(PendingMap(Some(loaded)))
         .insert_resource(play)
+        .insert_resource(rust_sandbox::source_frontend::Frontend::new(
+            false,
+            def.id.clone(),
+        ))
+        .add_plugins(rust_sandbox::source_frontend::FrontendPlugin)
         .add_plugins((
             SourcePlayPlugin,
             rust_sandbox::source_player::SourcePlayerPlugin,

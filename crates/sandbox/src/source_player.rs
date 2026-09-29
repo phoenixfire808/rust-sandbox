@@ -102,6 +102,7 @@ pub fn input(
     play: Res<PlayState>,
     state: Option<ResMut<PlayerState>>,
     mut window: Query<&mut Window, With<PrimaryWindow>>,
+    frontend: Option<Res<crate::source_frontend::Frontend>>,
     mut exit: EventWriter<AppExit>,
 ) {
     let delta = motion.read().fold(Vec2::ZERO, |a, e| a + e.delta);
@@ -109,7 +110,7 @@ pub fn input(
     let Ok(mut w) = window.single_mut() else {
         return;
     };
-    if keys.just_pressed(KeyCode::F10) {
+    if keys.just_pressed(KeyCode::F10) && frontend.is_none() {
         exit.write(AppExit::Success);
     }
     if keys.just_pressed(KeyCode::Escape) || !w.focused || play.menu_open {

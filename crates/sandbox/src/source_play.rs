@@ -554,6 +554,17 @@ fn search_input(mut events: EventReader<KeyboardInput>, mut state: ResMut<PlaySt
 }
 
 pub fn update_play(world: &mut World) {
+    if crate::source_frontend::active(world) {
+        let menus: Vec<_> = world
+            .query_filtered::<Entity, With<MenuRoot>>()
+            .iter(world)
+            .collect();
+        for menu in menus {
+            world.despawn(menu);
+        }
+        world.resource_mut::<PlayState>().dirty = true;
+        return;
+    }
     let keys = world.resource::<ButtonInput<KeyCode>>().clone();
     let mouse = world.resource::<ButtonInput<MouseButton>>().clone();
     if !world.resource::<PlayState>().weapon_attempted
@@ -600,7 +611,9 @@ pub fn update_play(world: &mut World) {
             s.dirty = true;
         }
     }
-    if keys.just_pressed(KeyCode::Escape) {
+    if keys.just_pressed(KeyCode::Escape)
+        && !world.contains_resource::<crate::source_frontend::Frontend>()
+    {
         let mut s = world.resource_mut::<PlayState>();
         s.menu_open = !s.menu_open;
         s.search_focus = false;
@@ -768,6 +781,16 @@ pub fn update_play(world: &mut World) {
         rebuild_menu(world);
     }
 }
+pub fn menu_save(world: &mut World) -> bool {
+    perform(world, UiAction::Save);
+    world.resource::<PlayState>().status.starts_with("Saved ")
+}
+pub fn menu_load(world: &mut World) {
+    perform(world, UiAction::Load);
+}
+pub fn menu_setting(world: &mut World, key: &'static str, delta: f32) {
+    perform(world, UiAction::Setting(key, delta));
+}
 fn perform(world: &mut World, action: UiAction) {
     if !matches!(action, UiAction::Search) {
         world.resource_mut::<PlayState>().search_focus = false;
@@ -806,7 +829,11 @@ fn perform(world: &mut World, action: UiAction) {
         UiAction::Spawn(path) => {
             if let Some(cam) = camera(world) {
                 let d = world.resource::<PlayState>().config.spawn_distance;
-                spawn::enqueue(world, path, cam.translation + *cam.forward() * d);
+                let hit = tools::trace(world, cam, None);
+                let (position, normal) = hit
+                    .map(|h| (h.point, h.normal.try_normalize().unwrap_or(Vec3::Y)))
+                    .unwrap_or((cam.translation + *cam.forward() * d, Vec3::Y));
+                spawn::enqueue(world, path, position, normal);
             }
         }
         UiAction::Tool(tool) => {

@@ -1,5 +1,11 @@
 # Spreadsheet and generated-struct contract
 
+## Frontend and local feedback authoring
+
+`source_frontend.csv` has exactly one row generating FrontendConfig. `margin`, `sidebar_width`, `settings_width`, `map_icon`, `font_size` and `row_height` are logical UI pixels. `spawn_clearance` is meters outside the traced support plane. All are finite and positive with an upper bound of 1024. `feedback_limit` is a UTF-8 byte limit per field in 256..32768. Build generation and catalog validate/generate consume the sheet. `frontend_cases.csv` is non-executable review metadata with Drew-owned acceptance marked not_run.
+
+Private local feedback uses version-1 JSON with created_unix_nanos, category, title, observed, expected, steps_and_notes, map, optional eye_position and selected_tool, prop_count, optional game_status and review_status. Each submission gets a unique file and sync_all before clearing the draft. `local/feedback-draft.json` retains four string fields but not category. These files are ignored user data, not workbook input. No automatic upload or agent execution occurs.
+
 ## Toolgun and tool authoring
 
 `source_toolgun.csv` has one ToolgunConfig row. It authors fire_clip, safe relative screen material/background paths, power-of-two screen_size (64..1024), finite positive font/scroll/center/tracer/range values, and max_constraints (1..10000). Screen units are texture pixels, tracer dimensions/range are meters and tracer duration is seconds. The stock-derived values and independently chosen approximations are distinguished in RESEARCH.md.

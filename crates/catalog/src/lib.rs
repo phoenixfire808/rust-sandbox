@@ -3,6 +3,7 @@ pub mod content;
 pub mod effects;
 pub mod performance;
 pub mod toolgun;
+pub mod frontend;
 pub mod presentation;
 pub mod inventory;
 pub mod play;

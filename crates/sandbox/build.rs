@@ -15,6 +15,7 @@ fn main() {
         "source_animation_states.csv",
         "source_performance.csv",
         "source_toolgun.csv",
+        "source_frontend.csv",
         "source_tools.csv",
         "source_tool_options.csv",
         "source_physics_materials.csv",
@@ -36,6 +37,9 @@ fn main() {
         &presentation.1,
     ));
     let out = std::path::PathBuf::from(std::env::var_os("OUT_DIR").unwrap());
+    generated.push_str(&sandbox_catalog::frontend::generate(
+        &sandbox_catalog::frontend::load(&sheets).expect("invalid frontend spreadsheet"),
+    ));
     generated.push_str(&sandbox_catalog::toolgun::generate(
         &sandbox_catalog::toolgun::load(&sheets).expect("invalid tool spreadsheets"),
     ));

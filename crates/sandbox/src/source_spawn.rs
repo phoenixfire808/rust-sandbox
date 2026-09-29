@@ -47,6 +47,7 @@ pub(super) fn report(
 struct Request {
     path: String,
     position: Vec3,
+    normal: Vec3,
     submitted: Instant,
 }
 #[derive(Resource)]
@@ -64,7 +65,7 @@ impl Default for PendingSpawns {
         }
     }
 }
-pub(super) fn enqueue(world: &mut World, path: String, position: Vec3) {
+pub(super) fn enqueue(world: &mut World, path: String, position: Vec3, normal: Vec3) {
     let count = world.query::<&SpawnedProp>().iter(world).count();
     let queue = world.resource::<PendingSpawns>();
     if queue.requests.len() >= queue.limit
@@ -85,6 +86,7 @@ pub(super) fn enqueue(world: &mut World, path: String, position: Vec3) {
         .push_back(Request {
             path,
             position,
+            normal,
             submitted: Instant::now(),
         });
 }
@@ -107,6 +109,9 @@ pub(super) fn clear(world: &mut World) {
     }
 }
 pub(super) fn complete(world: &mut World) {
+    if crate::source_frontend::active(world) {
+        return;
+    }
     world.resource_scope(|world, mut queue: Mut<PendingSpawns>| {
         if let Some((_, task)) = queue.active.as_mut() {
             let Some(result) = block_on(poll_once(task)) else {
@@ -165,13 +170,18 @@ pub(super) fn complete(world: &mut World) {
             return;
         }
         remember(world);
-        match spawn_model(
-            world,
-            &request.path,
-            request.position,
-            Quat::IDENTITY,
-            false,
-        ) {
+        // Place the lowest support point outside the hit plane, not the model origin.
+        // Source models frequently have off-centre origins or extend below local zero.
+        let model = &world.resource::<PlayState>().cache[&format!("{}#0", request.path)];
+        let support = model
+            .geometry
+            .iter()
+            .flat_map(|g| &g.positions)
+            .map(|p| Vec3::from_array(*p).dot(request.normal))
+            .fold(f32::INFINITY, f32::min);
+        let position = request.position
+            + request.normal * (crate::compiled_frontend_config().spawn_clearance - support);
+        match spawn_model(world, &request.path, position, Quat::IDENTITY, false) {
             Ok(_) => {
                 world.resource_mut::<PlayState>().status = format!("Spawned {}", request.path);
                 println!(

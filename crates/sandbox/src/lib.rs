@@ -5,6 +5,7 @@ pub mod source_animation;
 pub mod source_catalog;
 pub mod source_models;
 pub mod source_play;
+pub mod source_frontend;
 pub mod source_player;
 mod source_pose;
 use bevy_rapier3d::prelude::*;

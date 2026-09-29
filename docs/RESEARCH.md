@@ -2,6 +2,12 @@
 
 Research date: 2026-09-29 UTC. Citation IDs are maintained in `sheets/sources.csv`.
 
+## Startup, pause, feedback and spawn placement, 2026-09-29
+
+Read the installed `html/css/menu/Menu.css`, `html/css/menu/NewGame.css` and `resource/localization/en/main_menu.properties` under the unmodified Garry's Mod installation. NewGame.css specifies 128px thumbnails, 6px card padding, 2px card margin, 16px outer inset, 190px controls and a 226px game-settings region. Menu.css specifies the Helvetica/Arial family, 32px category titles and a 50px footer exclusion. These observations are references, not proof that the current independent Bevy layout matches them. `source_frontend.csv` authors the reused dimensions alongside independently chosen font size, row height, feedback limit and spawn clearance. Stock typography, map images, footer and full options remain pending.
+
+Reused existing Rapier surface traces and cached decoded model vertices for support-plane spawn placement, existing local scene serialization for menu saves, Bevy UI/input/virtual time, and standard-library child processes for startup/map handoff. No new package or proprietary payload was introduced. Feedback reports are local JSON in ignored `local/feedback`, not an upload or automatic agent turn. See FRONTEND_PLAN.md and frontend_cases.csv for precise implementation and open requirements.
+
 ## Toolgun and stock tools, 2026-09-29
 
 Drew requested firing animation, a selected-tool screen, and complete tools/settings. The detailed execution plan and explicit unfinished scope are in [TOOL_IMPLEMENTATION_PLAN.md](TOOL_IMPLEMENTATION_PLAN.md). No claim of full tool or Source parity is made.
