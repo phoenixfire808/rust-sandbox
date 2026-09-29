@@ -1,0 +1,6 @@
+prop_id,x,y,z,frozen
+crate,0,2,0,false
+crate,0,4,0,false
+beam,3,2,0,false
+panel,-3,1,0,false
+block,0,1,-4,false

@@ -1,0 +1,38 @@
+id,domain,behavior,authority,dependencies,rust_target,status,acceptance,source
+tool_axis,constraint,Join two targets around a hinge with friction and force limits,server,constraints,AxisTool,not_started,Hinge permits one rotation axis and respects nocollide,R9
+tool_balloon,construction,Spawn a buoyant balloon optionally attached with a rope,server,physics|constraints,BalloonTool,not_started,Force and rope length control lift and attachment,R9
+tool_ballsocket,constraint,Attach targets at a freely rotating point joint,server,constraints,BallSocketTool,not_started,Anchors coincide while rotation remains free,R9
+tool_button,construction,Spawn a key-bound momentary or toggle button,server,entity_lifecycle,ButtonTool,not_started,Use input toggles or pulses the configured key group,R9
+tool_camera,render,Spawn a camera and bind view activation to a key,server_client,entity_lifecycle,CameraTool,not_started,Locked and unlocked cameras activate correctly,R9
+tool_colour,render,Apply sample or reset entity color alpha render mode and effects,server_client,materials,ColourTool,not_started,RGBA edits replicate and sample and reset are reversible,R9
+tool_creator,internal,Spawn selected content through the sandbox creator dispatch,server,prop_spawn,CreatorTool,not_started,Creator routes type and name with permission checks,R9
+tool_duplicator,construction,Copy and paste selected entity assemblies and stored modifiers,server,duplicator,DuplicatorTool,not_started,Constrained multi-prop assembly survives duplication,R9
+tool_dynamite,construction,Spawn key-triggered delayed explosive with damage and removal options,server,damage,DynamiteTool,not_started,Delay damage and removal follow configured values,R9
+tool_editentity,construction,Select an entity and expose editable properties,server_client,context_menu,EntityEditorTool,not_started,Property changes validate type and permissions,R9
+tool_elastic,constraint,Connect two anchors using spring constant and damping,server,constraints,ElasticTool,not_started,Stretch-only and bidirectional spring cases match recorded behavior,R9
+tool_emitter,construction,Spawn key-controlled repeating effect emitter,server_client,particles,EmitterTool,not_started,Delay scale toggle and start-on settings are honored,R9
+tool_example,reference,Installed example tool illustrates callbacks and client settings,reference,toolgun,ExampleTool,reference_only,Keep separate from claims about player-facing stock tools,R9
+tool_eyeposer,poser,Set eye target and strabismus for compatible models,server_client,animation,EyePoserTool,not_started,Selected model tracks authored eye target,R9
+tool_faceposer,poser,Edit facial flex weights and expression scale,server_client,animation,FacePoserTool,not_started,Flex weights survive save and replication,R9
+tool_finger,poser,Edit hand and finger bone poses on compatible skeletons,server_client,animation,FingerPoserTool,not_started,Left and right hand poses remain independent,R9
+tool_hoverball,construction,Apply controlled vertical lift with speed resistance and strength,server,physics,HoverballTool,not_started,Up down and enabled controls preserve target altitude,R9
+tool_hydraulic,constraint,Change constraint length toward target using configured speed,server,constraints,HydraulicTool,not_started,Toggle and added length change anchors at expected rate,R9
+tool_inflator,poser,Scale selected ragdoll bone with reset behavior,server_client,ragdolls|animation,InflatorTool,not_started,Selected bone scale changes without corrupting skeleton,R9
+tool_lamp,construction,Spawn projected textured light with color FOV distance and key toggle,server_client,lighting,LampTool,not_started,Projection cone texture and toggle match settings,R9
+tool_leafblower,internal,Legacy installed tool entry requiring behavioral verification,server,toolgun,LeafblowerTool,reference_only,Inspect callback body before assigning player-facing semantics,R9
+tool_light,construction,Spawn a configurable point light optionally attached by rope,server_client,lighting|constraints,LightTool,not_started,Light brightness size color and key toggle work,R9
+tool_material,render,Apply sample or reset an entity material override,server_client,materials,MaterialTool,not_started,Material override persists and reset restores original,R9
+tool_motor,constraint,Apply key-controlled rotational torque through a motor joint,server,constraints,MotorTool,not_started,Forward backward and friction settings affect motor rotation,R9
+tool_muscle,constraint,Oscillate constraint length with period and key control,server,constraints,MuscleTool,not_started,Period and added length produce expected cycle,R9
+tool_nocollide,construction,Disable collision between selected bodies with restore behavior,server,constraints,NoCollideTool,not_started,Selected pair stops colliding without disabling unrelated contacts,R9
+tool_paint,render,Apply selected surface decal at traced location,server_client,particles,PaintTool,not_started,Decals align to hit normal and obey lifetime rules,R9
+tool_physprop,construction,Set gravity participation and physical surface material,server,physics,PhysicalPropertiesTool,not_started,Gravity toggle and physical material affect selected body,R9
+tool_pulley,constraint,Connect bodies through pulley anchors with force and rigidity controls,server,constraints,PulleyTool,not_started,Linked travel and anchor constraints match reference fixtures,R9
+tool_remover,construction,Remove selected entity or related entity group with reload variants,server,entity_lifecycle,Action Remove,prototype,Single prop removal and undo work but group variants are not implemented,R9
+tool_rope,constraint,Connect anchors with configurable rope length appearance and force limit,server_client,constraints,RopeTool,not_started,Slack taut and breaking cases match reference recordings,R9
+tool_slider,constraint,Restrict relative body movement along a selected linear axis,server,constraints,SliderTool,not_started,Body translates only along configured axis,R9
+tool_thruster,construction,Spawn key-controlled force actuator with effects and sound,server_client,physics|audio|particles,ThrusterTool,not_started,Forward reverse toggle and applied force follow configuration,R9
+tool_trails,render,Attach colored material trail with width and lifetime settings,server_client,particles,TrailTool,not_started,Trail widths and fade length match authored settings,R9
+tool_weld,constraint,Fix relative transform between selected targets with break force,server,constraints,WeldTool,not_started,Welded assembly preserves transform and releases above force limit,R9
+tool_wheel,construction,Spawn and attach motorized wheel with torque friction and key bindings,server,constraints|vehicles,WheelTool,not_started,Wheel rotates around selected axis and drives a fixture,R9
+tool_winch,constraint,Shorten or extend a rope using independent key speeds,server,constraints,WinchTool,not_started,Forward and backward controls change length at configured rates,R9

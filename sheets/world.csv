@@ -1,0 +1,2 @@
+id,gravity,fixed_hz,ground_half_size,move_speed,spawn_distance,grab_distance,max_props
+workshop,-9.81,60,50,8,5,5,500

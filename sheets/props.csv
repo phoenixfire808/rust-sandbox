@@ -1,0 +1,5 @@
+id,label,size_x,size_y,size_z,mass,friction,restitution,red,green,blue,provenance
+crate,Workshop crate,1,1,1,20,0.7,0.05,0.68,0.37,0.14,original_procedural
+beam,Steel beam,3,0.3,0.3,35,0.6,0.02,0.3,0.44,0.56,original_procedural
+panel,Building panel,2,0.2,2,25,0.8,0.02,0.28,0.65,0.53,original_procedural
+block,Heavy block,1.2,1.2,1.2,100,0.9,0,0.55,0.58,0.64,original_procedural

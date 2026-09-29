@@ -1,0 +1,65 @@
+id,domain,behavior,authority,dependencies,rust_target,status,acceptance,source
+content_pipeline,authoring,Validate spreadsheet rows and generate typed Rust literals,build,none,Content and build.rs,prototype,Changing a prop dimension changes the compiled collider and mesh,R10
+inventory,content,Enumerate installed loose files and VPK directory entries,offline,none,AssetRow,catalog_only,Compare filesystem count and VPK metadata against inventory output,R7
+mounts,content,Resolve base game and addon search paths with override precedence,server_client,inventory,ContentMount,not_started,Conflicting virtual paths resolve like pinned GMod build,R2
+gma,content,Load addon archives and metadata without path traversal,server_client,mounts,AddonManifest,not_started,Valid GMA loads and corrupt archive fails safely,R2
+models,content,Decode model mesh companions materials bones and collision,server_client,mounts,SourceModel,not_started,Render reference model with matching collision and bodygroups,R2
+materials,content,Resolve VMT shader parameters and VTF texture variants,client,mounts,SourceMaterial,not_started,Reference material corpus has reviewed image comparisons,R2
+bsp,world,Load map geometry entities collision visibility and embedded assets,server_client,mounts,MapAsset,not_started,Load gm_construct and gm_flatgrass without missing required entities,R2
+map_io,world,Dispatch map entity inputs outputs delays and target names,server,bsp,MapIoGraph,not_started,Timed door and trigger interaction matches reference trace,R2
+map_lighting,render,Support lightmaps skybox cubemaps fog and water rendering,client,bsp|materials,MapLighting,not_started,Approved reference views pass visual review,R2
+entity_lifecycle,entities,Spawn initialize think remove entities with stable identifiers,server_client,none,Prop and Bevy Entity,prototype,Spawn and despawn clean up physics and render entities,R1
+entity_ownership,entities,Track spawning player ownership permissions and limits,server,entity_lifecycle,Ownership,not_started,Another player cannot modify protected props,R1
+prop_spawn,sandbox,Spawn selected model at trace with limits and undo registration,server,entity_lifecycle|physics,Action Spawn,prototype,Authored procedural props spawn with matching mass and dimensions,R1
+spawn_menu,ui,Browse props entities weapons NPCs vehicles and tool categories,client,prop_spawn,SpawnButton,prototype,Prototype buttons spawn listed rows and full categories remain tracked,R1
+context_menu,ui,Expose entity properties bodygroups skins and contextual actions,client,entity_lifecycle,ContextMenu,not_started,Context actions respect permissions and replicate state,R1
+physics,physics,Simulate rigid bodies collision friction mass sleep and contact response,server,entity_lifecycle,Rapier rigid bodies,prototype,Drop and stack fixtures settle without floor penetration,R4
+physics_parity,physics,Match Source units solver tolerances damping buoyancy and collision groups,server,physics,PhysicsCompatibility,not_started,Repeated reference trajectories fit explicit tolerances,R4
+ragdolls,physics,Simulate articulated skeletons with per-bone collision and constraints,server,physics|models,Ragdoll,not_started,Grab and pose multiple bones with stable joints,R2
+constraints,physics,Connect rigid bodies with breakable joints and collision exclusions,server,physics,ConstraintGraph,not_started,Joint type fixtures maintain anchors and obey break thresholds,R1
+physgun,sandbox,Trace grab move rotate freeze and unfreeze props or ragdoll bones,server_client,physics,Action Grab and Freeze,prototype,Hold tracks aim and freeze stops motion with undo support,R3
+physgun_snap,sandbox,Apply configurable rotation snapping and double-reload unfreeze all,server_client,physgun,PhysgunState,not_started,45 degree snap and double reload match reference behavior,R3
+gravity_gun,sandbox,Pick up pull punt and launch eligible objects with mass rules,server_client,physics,GravityGun,not_started,Mass eligibility and launch impulse match reference tests,R2
+toolgun,sandbox,Route selected tool clicks reload stages ghost previews and settings,server_client,entity_lifecycle|constraints,ToolStateMachine,not_started,Canceling staged tool clears previews and selected targets,R1
+undo,sandbox,Reverse player edits and created entity groups,server,entity_lifecycle,Session undo snapshots,prototype,Spawn remove freeze and duplicate can be undone,R1
+cleanup,sandbox,Remove owned entities by category or reset sandbox,server,entity_ownership,Action Reset,prototype,Prototype reset restores authored scene and can be undone,R1
+duplicator,sandbox,Serialize constrained assemblies modifiers transforms and entity types,server,constraints|entity_lifecycle,AssemblyDocument,not_started,Copy paste a constrained machine with entity reference remapping,R1
+save_load,persistence,Save world state and restore validated versioned scene data,local,entity_lifecycle,SavedScene,prototype,JSON roundtrip preserves prop transforms velocities and frozen state,R1
+movement,player,Walk jump crouch sprint swim climb ladders and collide with world,server_client,physics|bsp,CharacterController,not_started,Movement fixture and predicted input traces match reference,R4
+noclip,player,Fly through world with free camera movement,client,none,FlyCamera,prototype,Camera moves with WASD and vertical controls without normal player collision,R1
+player_state,player,Manage health armor damage death respawn inventory and teams,server,entity_lifecycle,PlayerState,not_started,Damage death respawn and weapon inventory tests pass,R4
+weapons,combat,Support SWEP lifecycle primary secondary reload ammo and viewmodels,server_client,player_state|models,WeaponDefinition,not_started,Stock weapon action timings and damage traces are recorded,R2
+damage,combat,Route hitgroups damage types blast fall and physics damage,server,player_state|physics,DamageEvent,not_started,Representative damage fixtures match pinned reference values,R4
+npcs,ai,Support dispositions schedules senses navigation combat and animation,server,models|damage|navigation,NpcBrain,not_started,Stock NPC behavior fixtures have expected target and schedule transitions,R4
+nextbot,ai,Run coroutine-like locomotion sensing pathfinding and scripted behavior,server,navigation|scripting,NextBotAgent,not_started,Reference pursuit behavior completes same navigation cases,R2
+navigation,ai,Load or generate navigation meshes and node networks,server,bsp,NavigationMap,not_started,Path fixtures cover obstacles ladders and unreachable goals,R2
+vehicles,vehicles,Support seats driving suspension steering engines and passenger interaction,server_client,physics|player_state,VehicleController,not_started,Vehicle braking steering and enter exit scenarios match reference,R2
+animation,render,Handle skeletal sequences poses gestures flexes skins and bodygroups,client,models,AnimationState,not_started,Sequence and pose parameter corpus renders expected frames,R2
+audio,audio,Play spatial sounds loops soundscapes pitch volume and DSP,client,entity_lifecycle,SpatialAudio,not_started,Listener and occlusion tests cover looping and one-shot sounds,R2
+particles,render,Emit particles beams trails decals and scripted effects,client,materials,EffectDefinition,not_started,Effect lifetime and attachment tests pass,R2
+lighting,render,Provide dynamic lights projected lamps shadows and flashlight,client,entity_lifecycle,Bevy lights,prototype,Prototype scene renders directional shadows but Source lamp parity remains open,R2
+postprocess,render,Apply bloom color modification depth of field motion blur and overlays,client,materials,PostProcessStack,not_started,Effect settings produce reviewed reference screenshots,R2
+render_hooks,render,Expose ordered world HUD overlay stencil and render-target hooks,client,scripting,RenderHooks,not_started,Hook order and state restoration are conformance tested,R2
+derma,ui,Provide panels layout input focus fonts skins and HTML-backed widgets,client,scripting,UiCompatibility,not_started,Representative stock panel interactions match expected behavior,R2
+console,configuration,Register commands convars flags defaults permissions and persistence,server_client,scripting,ConsoleRegistry,not_started,Convar replication validation and command permissions are tested,R2
+localization,ui,Resolve language tokens and addon translations,client,mounts,LocalizationCatalog,not_started,Missing tokens fall back and stock labels resolve,R1
+scripting,scripting,Provide compatible GMod Lua dialect libraries userdata and error behavior,server_client_menu,entity_lifecycle,LuaCompatibility,not_started,Explicit supported API subset passes a conformance suite,R2
+lua_realms,scripting,Separate client server and menu Lua states and shared file delivery,server_client_menu,scripting,LuaRealm,not_started,Realm isolation and shared-file execution match loading rules,R2
+lua_hooks,scripting,Dispatch hooks with defined ordering arguments and return semantics,server_client,scripting,HookRegistry,not_started,Hook return short circuit and gamemode fallback match documented behavior,R2
+lua_timers,scripting,Run named timers coroutines file refresh and error recovery,server_client,scripting,ScriptScheduler,not_started,Timer pause remove and reload cases preserve documented semantics,R2
+lua_storage,scripting,Provide sandboxed files JSON tables SQLite and persistent addon data,server_client,scripting,ScriptStorage,not_started,Path escape denied and persistence roundtrip matches supported API,R2
+networking,network,Replicate authoritative entities snapshots and game events,server,entity_lifecycle,Replication,not_started,Two clients converge after spawning editing and removing props,R2
+prediction,network,Predict local input and reconcile authoritative simulation,server_client,networking|movement,PredictionHistory,not_started,Latency and packet loss tests bound correction error,R2
+lua_net,network,Implement reliable net messages limits strings and networked variables,server_client,networking|scripting,ScriptNet,not_started,Serialization limits and entity variable replication pass conformance,R2
+server,network,Provide dedicated server lifecycle map changes administration and limits,server,networking,ServerRuntime,not_started,Headless server supports connect disconnect and map rotation,R2
+steam,platform,Integrate authorized Steam identity lobbies server lists and authentication,server_client,server,SteamAdapter,not_started,Authorized API integration tests run without credential leakage,R2
+workshop,platform,Discover subscribe download mount and update addons with permissions,client,mounts|gma|steam,WorkshopAdapter,not_started,Authorized addon lifecycle handles update and missing dependencies,R2
+gamemodes,gameplay,Load base sandbox and TTT gamemode inheritance and callbacks,server_client,scripting|lua_hooks,GamemodeRegistry,not_started,Stock gamemode lifecycle and inheritance tests pass,R1
+community_modes,gameplay,Support separately authored addon modes and their dependencies,server_client,gamemodes|workshop,AddonCompatibility,not_started,Each explicitly scoped licensed addon passes its own tests,R2
+multiplayer_ui,ui,Provide chat voice scoreboard friends and server browser,client,networking|steam,MultiplayerUi,not_started,Chat permissions voice routing and player list remain consistent,R2
+achievements,platform,Track game-specific achievements and platform persistence,client,steam,AchievementRegistry,not_started,Recorded achievement triggers match documented requirements,R2
+demos,diagnostics,Record playback screenshots saves and debugging telemetry,local,networking,ReplayRecorder,not_started,Recorded inputs and snapshots replay with bounded divergence,R2
+addon_security,security,Restrict filesystem network resource access and malicious content,server_client,scripting|mounts,CapabilityPolicy,not_started,Malicious addon corpus cannot escape assigned capabilities,R2
+binary_modules,compatibility,Support or explicitly reject native GMod binary modules,server_client,scripting,NativeModuleBoundary,not_started,Compatibility policy refuses unsupported ABI safely,R5
+performance,quality,Measure entity counts frame time memory loading and physics budgets,local,physics|models,PerformanceHarness,not_started,Repeated 100 and 500 prop benchmarks report median and slow tail,R10
+parity_harness,quality,Compare pinned GMod reference recordings with independent implementation,offline,none,ParityCase,not_started,Each claimed parity row links to repeated reference and Bevy observations,R10

@@ -1,0 +1,13 @@
+id,title,depends_on,deliverable,exit_gate,state
+M0,Reference baseline,none,Read-only installed content and stock tool inventory,Reproducible inventory and traceable stock scope,initial_baseline
+M1,Spreadsheet Bevy foundation,M0,Typed codegen procedural props physics editing saves and viewport,Actual spreadsheet to runtime workflow passes,prototype
+M2,Measured reference corpus,M0,Recorded stock input state timing and settings cases,Repeated paired reference observations for core interactions,planned
+M3,Player and tool framework,M1|M2,Colliding player permissions staged tools and previews,Movement cancel undo and permission cases pass,planned
+M4,Constraint tools,M3,Weld hinge socket rope springs slider and actuator family,Joint and assembly save tests pass,planned
+M5,Content adapters,M2,Safe mounts archives models materials maps and map I/O,Licensed local corpus loads with explicit format coverage,planned
+M6,Construction and presentation,M4|M5,Remaining tools ragdolls posing animation lights effects and audio,All scoped tool actions and settings have direct tests,planned
+M7,Authoritative multiplayer,M3,Server stable IDs replication prediction and ownership,Two clients converge under latency loss and late join,planned
+M8,Lua compatibility,M3|M7,Realms userdata hooks timers net storage and UI API subset,Conformance suite and resource boundaries pass,planned
+M9,Stock gameplay,M5|M6|M8,Weapons NPCs vehicles gamemodes and TTT,Scoped stock scenarios pass,planned
+M10,Platform and packaging,M7|M8,Authorized Steam Workshop addon lifecycle and distribution review,Integration and cleared-content packaging verified,planned
+M11,Parity release gate,M9|M10,Repeated comparative behavior visuals audio and performance evidence,Every supported parity claim has reviewed evidence,planned

@@ -1,0 +1,12 @@
+id,title,url_or_path,evidence,limitations
+R1,Public Garrys Mod game scripts,https://github.com/Facepunch/garrysmod,README and local file structure inspected,Native engine implementation is not included
+R2,Official Garrys Mod Wiki,https://wiki.facepunch.com/gmod/,Documentation index and Lua folder architecture inspected,Reference categories are not complete behavioral verification
+R3,Official physics gun behavior,https://wiki.facepunch.com/gmod/Using_your_Physgun,Targeting movement rotation freeze and unfreeze documented,Prototype does not match snapping ragdolls or double reload
+R4,Valve Source SDK 2013,https://github.com/ValveSoftware/source-sdk-2013,README and license inspected,Game code for HL2 HL2DM and TF2 rather than full GMod engine
+R5,Official GMod native module interfaces,https://github.com/Facepunch/gmod-module-base,README inspected,Interfaces are not native engine source
+R6,Steam subscriber agreement,https://store.steampowered.com/subscriber_agreement/,Ownership and license context inspected,Game purchase does not transfer content copyright
+R7,ValvePython VPK directory reference,https://github.com/ValvePython/vpk/blob/master/vpk/__init__.py,Directory header and entry format researched,No code copied and no payload conversion implemented
+R8,Bevy Rapier 0.30 integration,https://github.com/dimforge/bevy_rapier/tree/v0.30.0,Manifest confirms Bevy 0.16 compatibility and fixed schedule API,Not Source physics equivalent
+R9,Installed stock tool declarations,garrysmod/gamemodes/sandbox/entities/weapons/gmod_tool/stools,37 files and categories callbacks client defaults inspected,File presence and declarations do not prove full semantics
+R10,Independent implementation,crates/sandbox and crates/catalog,Original implementation and executable tests,Acceptance checks are prototype checks unless explicitly compared to GMod
+R11,Rust XLSX writer,https://github.com/jmcnamara/rust_xlsxwriter,Workbook and worksheet example inspected,Workbook export is a review view and CSV remains authoritative
