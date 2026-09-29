@@ -1,0 +1,1167 @@
+source,line,api,literal_arguments,implementation_status,evidence_kind
+gamemodes/base/entities/entities/prop_effect.lua,5,CreateConVar,cl_draweffectrings | 1 | Should the green effect rings be visible?,unverified,lexical_reference_not_runtime_registration
+gamemodes/base/entities/entities/prop_effect.lua,87,GetConVar,cl_draweffectrings,unverified,lexical_reference_not_runtime_registration
+gamemodes/base/gamemode/cl_deathnotice.lua,2,CreateConVar,hud_deathnotice_time | 6 | Amount of time to show death notice (kill feed) for,unverified,lexical_reference_not_runtime_registration
+gamemodes/base/gamemode/cl_deathnotice.lua,3,GetConVar,cl_drawhud,unverified,lexical_reference_not_runtime_registration
+gamemodes/base/gamemode/cl_init.lua,173,GetConVar,cl_chatfilters,unverified,lexical_reference_not_runtime_registration
+gamemodes/base/gamemode/cl_pickteam.lua,21,RunConsoleCommand,changeteam,unverified,lexical_reference_not_runtime_registration
+gamemodes/base/gamemode/cl_pickteam.lua,39,RunConsoleCommand,autoteam,unverified,lexical_reference_not_runtime_registration
+gamemodes/base/gamemode/cl_scoreboard.lua,272,AddItem,,unverified,lexical_reference_not_runtime_registration
+gamemodes/base/gamemode/player.lua,718,GetConVar,mp_falldamage,unverified,lexical_reference_not_runtime_registration
+gamemodes/base/gamemode/player.lua,745,GetConVar,sv_alltalk,unverified,lexical_reference_not_runtime_registration
+gamemodes/base/gamemode/player.lua,829,GetConVar,player_old_armor,unverified,lexical_reference_not_runtime_registration
+gamemodes/base/gamemode/player.lua,836,GetConVar,player_old_armor,unverified,lexical_reference_not_runtime_registration
+gamemodes/base/gamemode/player_class/taunt_camera.lua,4,GetConVar,m_pitch,unverified,lexical_reference_not_runtime_registration
+gamemodes/base/gamemode/player_class/taunt_camera.lua,5,GetConVar,m_yaw,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/effects/entity_remove.lua,4,GetConVar,gmod_drawtooleffects,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/effects/inflator_magic.lua,12,GetConVar,gmod_drawtooleffects,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/effects/phys_freeze.lua,2,CreateClientConVar,effects_freeze | 1 | Whether to display Physics Gun freeze effects?,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/effects/phys_unfreeze.lua,2,CreateClientConVar,effects_unfreeze | 1 | Whether to display Physics Gun unfreeze effects?,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/effects/propspawn.lua,2,CreateConVar,cl_drawspawneffect | 1 | Whether to draw the spawn effect when spawning objects.,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/entities/gmod_cameraprop.lua,5,CreateConVar,cl_drawcameras | 1 | Should Sandbox cameras be visible?,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/entities/gmod_cameraprop.lua,217,GetConVar,cl_drawcameras,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/entities/gmod_thruster.lua,8,CreateConVar,cl_drawthrusterseffects | 1 | Should Sandbox Thruster effects be visible?,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/entities/gmod_thruster.lua,103,GetConVar,cl_drawthrusterseffects,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_camera.lua,96,RunConsoleCommand,jpeg,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_camera.lua,98,RunConsoleCommand,jpeg,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/cl_init.lua,2,CreateClientConVar,gmod_drawhelp | 1 | Should the tool HUD be displayed when the tool gun is active?,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/cl_init.lua,3,CreateClientConVar,gmod_toolmode | rope | Currently selected tool mode for the Tool Gun.,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/cl_init.lua,4,CreateClientConVar,gmod_drawtooleffects | 1 | Should tools draw certain UI elements or effects? (Will not work for all tools),unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/cl_viewscreen.lua,4,GetConVar,gmod_toolmode,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/init.lua,27,GetConVar,toolmode_allow_,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/object.lua,163,GetConVar,#tool. | gmod_toolmode | .,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/shared.lua,190,GetConVar,gmod_drawtooleffects,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stool.lua,33,CreateConVar,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stool.lua,37,CreateConVar,toolmode_allow_ | 1 | Set to 0 to disallow players being able to use the \ |  .. mode ..  |  tool.,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stool.lua,44,CreateClientConVar,_ | Tool specific client setting ( | ),unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stool.lua,50,CreateConVar,_ | Tool specific server setting ( | ),unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stool.lua,63,GetConVar,_,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stool.lua,161,CreateConVar,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stool.lua,185,AddToolMenuOption,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stool.lua,241,GetConVar,sbox_search_maxresults,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/axis.lua,228,NumSlider,#tool.forcelimit | axis_forcelimit,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/axis.lua,231,NumSlider,#tool.torquelimit | axis_torquelimit,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/axis.lua,234,NumSlider,#tool.hingefriction | axis_hingefriction,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/axis.lua,237,CheckBox,#tool.nocollide | axis_nocollide,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/balloon.lua,226,NumSlider,#tool.balloon.ropelength | balloon_ropelength,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/balloon.lua,228,NumSlider,#tool.balloon.force | balloon_force,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/ballsocket.lua,98,NumSlider,#tool.forcelimit | ballsocket_forcelimit,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/ballsocket.lua,104,CheckBox,#tool.nocollide | ballsocket_nocollide,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/button.lua,181,CheckBox,#tool.button.toggle | button_toggle,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/camera.lua,143,CheckBox,#tool.camera.static | camera_locked,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/camera.lua,146,CheckBox,#tool.toggle | camera_toggle,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/colour.lua,106,ComboBox,#tool.colour.mode | RenderModes,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/colour.lua,107,ComboBox,#tool.colour.fx | RenderFX,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/duplicator.lua,240,AddItem,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/dynamite.lua,171,NumSlider,#tool.dynamite.damage | dynamite_damage,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/dynamite.lua,174,NumSlider,#tool.dynamite.delay | dynamite_delay,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/dynamite.lua,177,CheckBox,#tool.dynamite.remove | dynamite_remove,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/elastic.lua,114,NumSlider,#tool.elastic.constant | elastic_constant,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/elastic.lua,117,NumSlider,#tool.elastic.damping | elastic_damping,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/elastic.lua,120,NumSlider,#tool.elastic.rdamping | elastic_rdamping,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/elastic.lua,123,CheckBox,#tool.elastic.stretchonly | elastic_stretch_only,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/elastic.lua,126,NumSlider,#tool.elastic.width | elastic_width,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/emitter.lua,191,NumSlider,#tool.emitter.delay | emitter_delay,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/emitter.lua,193,NumSlider,#tool.emitter.scale | emitter_scale,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/emitter.lua,196,CheckBox,#tool.emitter.toggle | emitter_toggle,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/emitter.lua,197,CheckBox,#tool.emitter.starton | emitter_starton,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/emitter.lua,204,AddItem,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/eyeposer.lua,306,AddItem,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/eyeposer.lua,315,SetConVar,eyeposer_x,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/eyeposer.lua,316,SetConVar,eyeposer_y,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/eyeposer.lua,328,NumSlider,#tool.eyeposer.strabismus | eyeposer_strabismus,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/eyeposer.lua,332,NumSlider,#tool.eyeposer.size_eyes | r_eyesize,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/faceposer.lua,333,AddItem,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/faceposer.lua,335,NumSlider,#tool.faceposer.scale | faceposer_scale,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/faceposer.lua,376,AddItem,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/faceposer.lua,379,NumSlider,faceposer_flex,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/faceposer.lua,417,AddItem,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/faceposer.lua,423,AddItem,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/faceposer.lua,447,GetConVar,gmod_drawtooleffects,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/finger.lua,604,CheckBox,#tool.finger.restrict_axis | finger_restrict,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/finger.lua,613,GetConVar,gmod_drawtooleffects,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/hoverball.lua,228,NumSlider,#tool.hoverball.speed | hoverball_speed,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/hoverball.lua,231,NumSlider,#tool.hoverball.resistance | hoverball_resistance,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/hoverball.lua,234,NumSlider,#tool.hoverball.strength | hoverball_strength,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/hydraulic.lua,237,NumSlider,#tool.hydraulic.addlength | hydraulic_addlength,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/hydraulic.lua,240,NumSlider,#tool.hydraulic.speed | hydraulic_speed,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/hydraulic.lua,243,CheckBox,#tool.hydraulic.fixed | hydraulic_fixed,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/hydraulic.lua,246,CheckBox,#tool.toggle | hydraulic_toggle,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/hydraulic.lua,249,NumSlider,#tool.hydraulic.width | hydraulic_width,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/lamp.lua,245,NumSlider,#tool.lamp.fov | lamp_fov,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/lamp.lua,246,NumSlider,#tool.lamp.distance | lamp_distance,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/lamp.lua,247,NumSlider,#tool.lamp.brightness | lamp_brightness,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/lamp.lua,249,CheckBox,#tool.lamp.toggle | lamp_toggle,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/light.lua,224,NumSlider,#tool.light.ropelength | light_ropelength,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/light.lua,225,NumSlider,#tool.light.brightness | light_brightness,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/light.lua,226,NumSlider,#tool.light.size | light_size,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/light.lua,228,CheckBox,#tool.light.toggle | light_toggle,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/motor.lua,151,NumSlider,#tool.motor.torque | motor_torque,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/motor.lua,153,NumSlider,#tool.forcelimit | motor_forcelimit,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/motor.lua,156,NumSlider,#tool.hingefriction | motor_friction,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/motor.lua,159,NumSlider,#tool.motor.forcetime | motor_forcetime,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/motor.lua,162,CheckBox,#tool.nocollide | motor_nocollide,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/motor.lua,165,CheckBox,#tool.toggle | motor_toggle,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/muscle.lua,249,NumSlider,#tool.muscle.length | muscle_addlength,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/muscle.lua,252,NumSlider,#tool.muscle.period | muscle_period,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/muscle.lua,255,CheckBox,#tool.muscle.fixed | muscle_fixed,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/muscle.lua,258,CheckBox,#tool.muscle.starton | muscle_starton,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/muscle.lua,261,NumSlider,#tool.muscle.width | muscle_width,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/paint.lua,158,RunConsoleCommand,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/paint.lua,165,GetConVar,paint_decal,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/paint.lua,167,AddItem,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/physprop.lua,45,ComboBox,#tool.physprop.material | PhysicsMaterials,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/physprop.lua,47,CheckBox,#tool.physprop.gravity | physprop_gravity_toggle,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/pulley.lua,114,NumSlider,#tool.forcelimit | pulley_forcelimit,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/pulley.lua,117,CheckBox,#tool.pulley.rigid | pulley_rigid,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/pulley.lua,120,NumSlider,#tool.pulley.width | pulley_width,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/rope.lua,186,NumSlider,#tool.forcelimit | rope_forcelimit,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/rope.lua,189,NumSlider,#tool.rope.addlength | rope_addlength,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/rope.lua,192,CheckBox,#tool.rope.rigid | rope_rigid,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/rope.lua,195,NumSlider,#tool.rope.width | rope_width,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/slider.lua,195,NumSlider,#tool.slider.width | slider_width,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/thruster.lua,230,NumSlider,#tool.thruster.force | thruster_force,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/thruster.lua,232,ComboBox,#tool.thruster.effect,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/thruster.lua,234,AddOption,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/thruster.lua,237,ComboBox,#tool.thruster.sound | ThrusterSounds,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/thruster.lua,239,CheckBox,#tool.thruster.toggle | thruster_toggle,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/thruster.lua,240,CheckBox,#tool.thruster.collision | thruster_collision,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/thruster.lua,241,CheckBox,#tool.thruster.damagable | thruster_damageable,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/trails.lua,156,NumSlider,#tool.trails.length | trails_length,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/trails.lua,157,NumSlider,#tool.trails.startsize | trails_startsize,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/trails.lua,158,NumSlider,#tool.trails.endsize | trails_endsize,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/weld.lua,297,NumSlider,#tool.forcelimit | weld_forcelimit,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/weld.lua,300,CheckBox,#tool.nocollide | weld_nocollide,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/wheel.lua,257,NumSlider,#tool.wheel.torque | wheel_torque,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/wheel.lua,258,NumSlider,#tool.wheel.forcelimit | wheel_forcelimit,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/wheel.lua,259,NumSlider,#tool.wheel.friction | wheel_friction,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/wheel.lua,261,CheckBox,#tool.wheel.nocollide | wheel_nocollide,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/wheel.lua,262,CheckBox,#tool.wheel.toggle | wheel_toggle,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/winch.lua,212,NumSlider,#tool.winch.fspeed | winch_fwd_speed,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/winch.lua,215,NumSlider,#tool.winch.bspeed | winch_bwd_speed,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/entities/weapons/gmod_tool/stools/winch.lua,218,NumSlider,#tool.winch.width | winch_rope_width,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/cl_hints.lua,3,CreateClientConVar,cl_showhints | 1 | Whether to display popup hints.,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/cl_init.lua,24,CreateConVar,physgun_halo | 1 | Draw the Physics Gun grab effect?,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/cl_search_models.lua,2,CreateClientConVar,"sbox_search_maxresults | 1024 | The maximum amount of results the spawnmenu search should show. Model amount limited to 1/2 of this value, entities are limited to 1/4",unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/cl_search_models.lua,87,RunConsoleCommand,gm_spawn,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/cl_spawnmenu.lua,72,AddToolMenuOption,Main,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/cl_spawnmenu.lua,85,AddToolTab,Main | #spawnmenu.tools_tab | icon16/wrench.png,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/cl_spawnmenu.lua,86,AddToolTab,Utilities | #spawnmenu.utilities_tab | icon16/page_white_wrench.png,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/cl_spawnmenu.lua,104,AddToolCategory,Main | Constraints | #spawnmenu.tools.constraints,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/cl_spawnmenu.lua,105,AddToolCategory,Main | Construction | #spawnmenu.tools.construction,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/cl_spawnmenu.lua,106,AddToolCategory,Main | Poser | #spawnmenu.tools.posing,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/cl_spawnmenu.lua,107,AddToolCategory,Main | Render | #spawnmenu.tools.render,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/cl_worldtips.lua,9,CreateConVar,cl_drawworldtooltips | 1 | Whether tooltips should draw when looking at certain Sandbox entities.,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/editor_player.lua,7,GetConVar,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/editor_player.lua,100,AddOption,#spawnmenu.menu.copy | icon16/page_copy.png,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/editor_player.lua,145,GetConVar,cl_weaponcolor,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/editor_player.lua,187,GetConVar,  | cl_playerbodygroups,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/editor_player.lua,190,RunConsoleCommand,cl_playerbodygroups |  ,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/editor_player.lua,195,RunConsoleCommand,cl_playerskin,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/editor_player.lua,207,NumSlider,DNumSlider,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/editor_player.lua,214,GetConVar,cl_playerskin,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/editor_player.lua,218,AddItem,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/editor_player.lua,220,GetConVar,cl_playerskin,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/editor_player.lua,225,GetConVar,  | cl_playerbodygroups,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/editor_player.lua,229,NumSlider,DNumSlider,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/editor_player.lua,241,AddItem,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/editor_player.lua,259,GetConVar,cl_playercolor,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/editor_player.lua,261,GetConVar,cl_playercolor,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/editor_player.lua,262,GetConVar,cl_weaponcolor,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/editor_player.lua,271,RunConsoleCommand,cl_playercolor,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/editor_player.lua,272,RunConsoleCommand,cl_weaponcolor,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/editor_player.lua,284,RunConsoleCommand,cl_playerbodygroups | 0,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/editor_player.lua,285,RunConsoleCommand,cl_playerskin | 0,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/gui/iconeditor.lua,225,AddOption,#spawnmenu.menu.copy,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/gui/iconeditor.lua,280,CheckBox,DCheckBoxLabel,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/gui/iconeditor.lua,288,CheckBox,DCheckBoxLabel,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/gui/iconeditor.lua,295,NumSlider,DNumSlider,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/gui/iconeditor.lua,305,NumSlider,DNumSlider,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/gui/iconeditor.lua,346,NumSlider,DNumSlider,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/gui/iconeditor.lua,735,NumSlider,DNumSlider,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/gui/iconeditor.lua,764,NumSlider,DNumSlider,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/init.lua,52,GetConVar,sbox_persist | ,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/persistence.lua,8,GetConVar,sbox_persist,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/persistence.lua,19,GetConVar,sbox_persist,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/player.lua,16,GetConVar,sbox_persist | ,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/player_class/player_sandbox.lua,7,CreateConVar,cl_playercolor | 0.24 0.34 0.41 | The value is a Vector - so between 0-1 - not between 0-255,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/player_class/player_sandbox.lua,8,CreateConVar,cl_weaponcolor | 0.30 1.80 2.10 | The value is a Vector - so between 0-1 - not between 0-255,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/player_class/player_sandbox.lua,9,CreateConVar,"cl_playerskin | 0 | The skin to use, if the model has any",unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/player_class/player_sandbox.lua,10,CreateConVar,"cl_playerbodygroups | 0 | The bodygroups to use, if the model has any",unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/shared.lua,45,CreateConVar,physgun_limited | 0 | Prevent the Physics Gun from picking up certain map entities.,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/shared.lua,118,GetConVar,sbox_persist | ,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/shared.lua,193,GetConVar,sbox_noclip,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/shared.lua,231,GetConVar,sbox_bonemanip_npc,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/shared.lua,232,GetConVar,sbox_bonemanip_player,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/shared.lua,234,GetConVar,sbox_bonemanip_misc,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/contextmenu.lua,53,AddItem,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/contextmenu.lua,230,GetConVar,spawnmenu_toggle,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/controlpanel.lua,31,AddItem,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/controlpanel.lua,41,SetConVar,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/controlpanel.lua,62,SetConVar,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/controlpanel.lua,73,SetConVar,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/controlpanel.lua,105,AddOption,#preset.default,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/controlpanel.lua,111,AddItem,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/controlpanel.lua,122,SetConVar,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/controlpanel.lua,126,SetConVar,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/controlpanel.lua,142,SetConVar,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/controlpanel.lua,143,SetConVar,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/controlpanel.lua,144,SetConVar,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/controlpanel.lua,147,SetConVar,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/controlpanel.lua,149,SetConVar,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/controlpanel.lua,158,ComboBox,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/controlpanel.lua,169,AddOption,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/controlpanel.lua,173,AddItem,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/controlpanel.lua,212,AddControl,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/controlpanel.lua,245,CheckBox,Untitled,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/controlpanel.lua,260,NumSlider,Untitled,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/controlpanel.lua,298,SetConVar,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/controlpanel.lua,325,SetConVar,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/controlpanel.lua,326,SetConVar,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/controlpanel.lua,339,SetConVar,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/controlpanel.lua,340,SetConVar,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/controlpanel.lua,341,SetConVar,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/controlpanel.lua,342,SetConVar,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/controlpanel.lua,358,AddOption,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/controlpanel.lua,395,GetConVar,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/controlpanel.lua,409,RunConsoleCommand,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/controlpanel.lua,413,AddItem,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/controlpanel.lua,428,AddOption,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/controlpanel.lua,432,AddItem,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/controlpanel.lua,448,SetConVar,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/controls/control_presets.lua,8,ComboBox,DComboBox,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/controls/control_presets.lua,48,AddOption,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/controls/control_presets.lua,67,RunConsoleCommand,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/controls/control_presets.lua,74,GetConVar,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/controls/control_presets.lua,75,GetConVar,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/controls/control_presets.lua,105,SetConVar,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/controls/control_presets.lua,105,GetConVar,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/controls/control_presets.lua,116,GetConVar,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/controls/control_presets.lua,134,AddOption,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/controls/ctrlcolor.lua,40,SetConVar,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/controls/ctrlcolor.lua,41,SetConVar,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/controls/ctrlcolor.lua,42,SetConVar,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/controls/ctrlcolor.lua,43,SetConVar,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/controls/ctrlcolor.lua,44,GetConVar,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/controls/ctrlcolor.lua,45,GetConVar,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/controls/ctrlcolor.lua,46,GetConVar,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/controls/ctrlcolor.lua,47,GetConVar,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/controls/ctrllistbox.lua,11,AddOption,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/controls/ctrllistbox.lua,25,RunConsoleCommand,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/controls/ctrllistbox.lua,42,GetConVar,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/controls/ctrllistbox.lua,56,GetConVar,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/controls/ctrllistbox.lua,71,GetConVar,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/controls/ctrllistbox.lua,85,ComboBox,CtrlListBox | DComboBox,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/controls/ctrlnumpad.lua,43,SetConVar,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/controls/ctrlnumpad.lua,45,SetConVar,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/controls/ctrlnumpad.lua,46,SetConVar,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/controls/ctrlnumpad.lua,51,SetConVar,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/controls/ctrlnumpad.lua,53,SetConVar,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/controls/ctrlnumpad.lua,54,SetConVar,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/controls/preset_editor.lua,188,GetConVar,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/controls/preset_editor.lua,230,GetConVar,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/controls/preset_editor.lua,231,GetConVar,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/controls/preset_editor.lua,246,GetConVar,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/content.lua,290,AddCreationTab,#spawnmenu.content_tab | icon16/application_view_tile.png,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contentcontainer.lua,38,AddOption,#spawnmenu.newlabel,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contentcontainer.lua,192,AddOption,spawnmenu.menu.rerenderx,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contentcontainer.lua,202,AddOption,spawnmenu.menu.deletex,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contentheader.lua,112,AddOption,#spawnmenu.menu.delete | SpawnlistContentChanged | icon16/bin_closed.png,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenticon.lua,25,AddOption,#spawnmenu.menu.copy | icon16/page_copy.png,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenticon.lua,36,AddOption,#spawnmenu.menu.delete,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenticon.lua,167,GetConVar,gmod_npcweapon,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenticon.lua,287,RunConsoleCommand,gm_spawnsent,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenticon.lua,291,AddOption,#spawnmenu.menu.spawn_with_toolgun,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenticon.lua,292,RunConsoleCommand,gmod_tool | creator,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenticon.lua,293,RunConsoleCommand,creator_type | 0,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenticon.lua,294,RunConsoleCommand,creator_name,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenticon.lua,335,RunConsoleCommand,gm_spawnvehicle,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenticon.lua,339,AddOption,#spawnmenu.menu.spawn_with_toolgun,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenticon.lua,340,RunConsoleCommand,gmod_tool | creator,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenticon.lua,341,RunConsoleCommand,creator_type | 1,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenticon.lua,342,RunConsoleCommand,creator_name,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenticon.lua,355,CreateConVar,gmod_npcweapon |  | Overrides the weapon all spawnmenu NPCs will spawn with. Set to \ |  to not override.,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenticon.lua,392,RunConsoleCommand,gmod_spawnnpc,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenticon.lua,398,AddOption,#spawnmenu.menu.spawn_with_toolgun,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenticon.lua,399,RunConsoleCommand,gmod_tool | creator,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenticon.lua,400,RunConsoleCommand,creator_type | 2,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenticon.lua,401,RunConsoleCommand,creator_name,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenticon.lua,402,RunConsoleCommand,creator_override | ,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenticon.lua,419,AddOption,gmod_spawnnpc,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenticon.lua,419,RunConsoleCommand,gmod_spawnnpc,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenticon.lua,424,AddOption,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenticon.lua,425,RunConsoleCommand,gmod_tool | creator,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenticon.lua,426,RunConsoleCommand,creator_type | 2,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenticon.lua,427,RunConsoleCommand,creator_name,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenticon.lua,428,RunConsoleCommand,creator_override,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenticon.lua,505,RunConsoleCommand,gm_giveswep,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenticon.lua,512,RunConsoleCommand,gm_spawnswep,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenticon.lua,518,AddOption,#spawnmenu.menu.spawn_with_toolgun,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenticon.lua,519,RunConsoleCommand,gmod_tool | creator,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenticon.lua,520,RunConsoleCommand,creator_type | 3,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenticon.lua,521,RunConsoleCommand,creator_name,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenticon.lua,525,AddOption,#spawnmenu.menu.use_as_npc_gun | gmod_npcweapon,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenticon.lua,525,RunConsoleCommand,#spawnmenu.menu.use_as_npc_gun | gmod_npcweapon,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenticon.lua,526,GetConVar,gmod_npcweapon,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contentsearch.lua,116,GetConVar,sbox_search_maxresults,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenttypes/addonprops.lua,81,AddOption,#spawnmenu.openaddononworkshop,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenttypes/addonprops.lua,85,AddOption,#spawnmenu.createautospawnlist,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenttypes/custom.lua,50,AddOption,#spawnmenu.menu.edit | OpenToolbox | icon16/folder_edit.png,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenttypes/custom.lua,51,AddOption,#spawnmenu.menu.add_subcategory | New Category |  | SpawnlistContentChanged | icon16/folder_add.png,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenttypes/custom.lua,53,AddOption,#spawnmenu.menu.delete | SpawnlistContentChanged | icon16/folder_delete.png,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenttypes/custom.lua,209,AddOption,#spawnmenu.menu.new_category | #spawnmenu.menu.new_category |  | SpawnlistContentChanged | icon16/folder_add.png,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenttypes/dupes.lua,5,AddCreationTab,#spawnmenu.category.dupes,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenttypes/dupes.lua,48,RunConsoleCommand,dupe_arm,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenttypes/dupes.lua,70,RunConsoleCommand,dupe_publish,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenttypes/entities.lua,32,AddCreationTab,#spawnmenu.category.entities,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenttypes/gameprops.lua,47,AddOption,#spawnmenu.createautospawnlist,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenttypes/npcs.lua,37,CheckBox,DCheckBoxLabel,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenttypes/npcs.lua,41,SetConVar,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenttypes/npcs.lua,62,ComboBox,DComboBox,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenttypes/npcs.lua,63,ComboBox,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenttypes/npcs.lua,64,ComboBox,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenttypes/npcs.lua,65,SetConVar,gmod_npcweapon,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenttypes/npcs.lua,65,ComboBox,gmod_npcweapon,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenttypes/npcs.lua,66,ComboBox,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenttypes/npcs.lua,68,ComboBox,#menubar.npcs.defaultweapon |  | icon16/gun.png,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenttypes/npcs.lua,69,ComboBox,#menubar.npcs.noweapon | none | icon16/cross.png,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenttypes/npcs.lua,81,ComboBox,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenttypes/npcs.lua,83,ComboBox,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenttypes/npcs.lua,87,ComboBox,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenttypes/npcs.lua,100,AddCreationTab,#spawnmenu.category.npcs,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenttypes/postprocess.lua,31,AddCreationTab,#spawnmenu.category.postprocess,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenttypes/saves.lua,4,AddCreationTab,#spawnmenu.category.saves,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenttypes/saves.lua,59,RunConsoleCommand,gm_load,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenttypes/saves.lua,65,RunConsoleCommand,gm_load,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenttypes/saves.lua,73,RunConsoleCommand,gm_load,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenttypes/saves.lua,79,RunConsoleCommand,saves.dialog_load | gm_load,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenttypes/saves.lua,85,RunConsoleCommand,save_publish,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenttypes/vehicles.lua,27,AddCreationTab,#spawnmenu.category.vehicles,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenttypes/weapons.lua,41,AddCreationTab,#spawnmenu.category.weapons,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/postprocessicon.lua,57,CheckBox,DCheckBox,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/postprocessicon.lua,58,SetConVar,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/postprocessicon.lua,66,CheckBox,DCheckBox,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/postprocessicon.lua,75,RunConsoleCommand,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/postprocessicon.lua,77,RunConsoleCommand,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/postprocessicon.lua,90,GetConVar,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/spawnmenu.lua,2,CreateConVar,spawnmenu_border | 0.1 | Amount of empty space around the Sandbox spawn menu.,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/spawnmenu.lua,3,CreateConVar,"spawnmenu_toggle | 0 | Tapping Q or C will toggle spawnmenu or contextmenu on and off, without having to hold the button.",unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/toolpanel.lua,4,CreateClientConVar,spawnmenu_hide_disabled_tools | 0,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/toolpanel.lua,38,CheckBox,DCheckBox,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/toolpanel.lua,42,SetConVar,,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/toolpanel.lua,85,GetConVar,toolmode_allow_,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/toolpanel.lua,247,GetConVar,gmod_toolmode,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/toolpanel.lua,259,AddOption,#spawnmenu.menu.copy | icon16/page_copy.png,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/toolpanel.lua,268,GetConVar,toolmode_allow_,unverified,lexical_reference_not_runtime_registration
+gamemodes/sandbox/gamemode/spawnmenu/toolpanel.lua,309,AddItem,,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/entities/entities/ttt_c4/cl_init.lua,44,AddItem,,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/entities/entities/ttt_c4/cl_init.lua,48,NumSlider,DNumSlider,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/entities/entities/ttt_c4/cl_init.lua,67,AddItem,,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/entities/entities/ttt_c4/cl_init.lua,83,AddItem,,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/entities/entities/ttt_c4/cl_init.lua,105,RunConsoleCommand,ttt_c4_pickup,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/entities/entities/ttt_c4/cl_init.lua,124,RunConsoleCommand,ttt_c4_destroy,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/entities/entities/ttt_c4/cl_init.lua,139,RunConsoleCommand,ttt_c4_config,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/entities/entities/ttt_c4/cl_init.lua,363,RunConsoleCommand,ttt_c4_pickup,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/entities/entities/ttt_c4/cl_init.lua,381,RunConsoleCommand,ttt_c4_destroy,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/entities/entities/ttt_c4/cl_init.lua,451,RunConsoleCommand,ttt_c4_disarm,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/entities/entities/ttt_confgrenade_proj.lua,8,CreateConVar,ttt_allow_discomb_jump | 0,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/entities/entities/ttt_flame.lua,22,CreateConVar,ttt_fire_fallback | 0,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/entities/entities/ttt_flame.lua,34,GetConVar,ttt_fire_fallback,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/entities/entities/ttt_hat_deerstalker.lua,38,CreateConVar,ttt_detective_hats_reclaim | 1,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/entities/entities/ttt_hat_deerstalker.lua,39,CreateConVar,ttt_detective_hats_reclaim_any | 1,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/entities/entities/ttt_health_station.lua,151,CreateConVar,ttt_damage_own_healthstation | 0,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/entities/weapons/weapon_ttt_beacon.lua,193,RunConsoleCommand,lastinv,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/entities/weapons/weapon_ttt_binoculars.lua,171,RunConsoleCommand,lastinv,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/entities/weapons/weapon_ttt_c4.lua,170,RunConsoleCommand,lastinv,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/entities/weapons/weapon_ttt_cse.lua,80,RunConsoleCommand,lastinv,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/entities/weapons/weapon_ttt_decoy.lua,164,RunConsoleCommand,lastinv,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/entities/weapons/weapon_ttt_health_station.lua,103,RunConsoleCommand,lastinv,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/entities/weapons/weapon_ttt_knife.lua,271,RunConsoleCommand,lastinv,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/entities/weapons/weapon_ttt_radio.lua,149,RunConsoleCommand,lastinv,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/entities/weapons/weapon_ttt_teleport.lua,50,CreateConVar,ttt_teleport_telefrags | 1,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/entities/weapons/weapon_ttt_wtester.lua,71,CreateClientConVar,ttt_dna_scan_repeat,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/entities/weapons/weapon_ttt_wtester.lua,172,AddItem,,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/entities/weapons/weapon_ttt_wtester.lua,201,AddItem,,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/entities/weapons/weapon_ttt_wtester.lua,552,RunConsoleCommand,ttt_wtester_remove,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/entities/weapons/weapon_ttt_wtester.lua,609,RunConsoleCommand,ttt_wtester_scan,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/entities/weapons/weapon_ttt_wtester.lua,616,CheckBox,DCheckBoxLabel,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/entities/weapons/weapon_ttt_wtester.lua,621,SetConVar,ttt_dna_scan_repeat,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/entities/weapons/weapon_tttbase.lua,127,CreateConVar,ttt_crazy_sparks | 0,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/entities/weapons/weapon_tttbase.lua,131,CreateConVar,ttt_ironsights_crosshair_opacity | 0.8,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/entities/weapons/weapon_tttbase.lua,132,CreateConVar,ttt_crosshair_brightness | 1.0,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/entities/weapons/weapon_tttbase.lua,133,CreateConVar,ttt_crosshair_size | 1.0,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/entities/weapons/weapon_tttbase.lua,134,CreateConVar,ttt_disable_crosshair | 0,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/entities/weapons/weapon_tttbase.lua,136,CreateConVar,ttt_crosshair_color_enable | 0,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/entities/weapons/weapon_tttbase.lua,137,CreateConVar,ttt_crosshair_color_r | 255,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/entities/weapons/weapon_tttbase.lua,138,CreateConVar,ttt_crosshair_color_g | 255,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/entities/weapons/weapon_tttbase.lua,139,CreateConVar,ttt_crosshair_color_b | 255,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/entities/weapons/weapon_tttbase.lua,141,CreateConVar,ttt_crosshair_opacity | 1,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/entities/weapons/weapon_tttbase.lua,142,CreateConVar,ttt_crosshair_thickness | 1,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/entities/weapons/weapon_tttbase.lua,143,CreateConVar,ttt_crosshair_outlinethickness | 0,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/entities/weapons/weapon_tttbase.lua,145,GetConVar,mat_antialias,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/entities/weapons/weapon_tttbase.lua,648,CreateConVar,ttt_ironsights_lowered | 1,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/entities/weapons/weapon_tttbase.lua,649,GetConVar,host_timescale,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/entities/weapons/weapon_tttbasegrenade.lua,50,CreateConVar,ttt_no_nade_throw_during_prep | 1,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/entities/weapons/weapon_tttbasegrenade.lua,60,GetConVar,ttt_no_nade_throw_during_prep,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/entities/weapons/weapon_tttbasegrenade.lua,260,RunConsoleCommand,use | weapon_ttt_unarmed,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/entities/weapons/weapon_zm_carry.lua,48,CreateConVar,ttt_ragdoll_carrying | 1,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/entities/weapons/weapon_zm_carry.lua,49,CreateConVar,ttt_prop_carrying_force | 60000,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/entities/weapons/weapon_zm_carry.lua,50,CreateConVar,ttt_no_prop_throwing | 0,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/entities/weapons/weapon_zm_carry.lua,51,CreateConVar,ttt_ragdoll_pinning | 1,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/entities/weapons/weapon_zm_carry.lua,52,CreateConVar,ttt_ragdoll_pinning_innocents | 0,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/entities/weapons/weapon_zm_carry.lua,57,CreateConVar,ttt_weapon_carrying | 0,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/entities/weapons/weapon_zm_carry.lua,58,CreateConVar,ttt_weapon_carrying_range | 50,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/entities/weapons/weapon_zm_improvised.lua,52,CreateConVar,ttt_crowbar_unlocks | 1,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/entities/weapons/weapon_zm_improvised.lua,53,CreateConVar,ttt_crowbar_pushforce | 395,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/entities/weapons/weapon_zm_improvised.lua,84,GetConVar,ttt_crowbar_unlocks,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/entities/weapons/weapon_zm_improvised.lua,234,GetConVar,ttt_crowbar_pushforce,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/admin.lua,95,CreateConVar,ttt_highlight_admins | 1,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/admin.lua,102,CreateConVar,ttt_log_damage_for_console | 1,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/admin.lua,103,CreateConVar,ttt_damagelog_save | 0,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/admin.lua,161,CreateConVar,ttt_ban_type | autodetect,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/admin.lua,178,RunConsoleCommand,banid,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_disguise.lua,19,CheckBox,DCheckBoxLabel,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_disguise.lua,24,RunConsoleCommand,ttt_set_disguise | 1 | 0,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_disguise.lua,26,AddItem,,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_equip.lua,9,CreateClientConVar,ttt_equipment_sorting | default,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_equip.lua,10,CreateClientConVar,ttt_equipment_ascending | 1,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_equip.lua,11,CreateClientConVar,ttt_equipment_hide_unbuyable | 0,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_equip.lua,348,ComboBox,DComboBox,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_equip.lua,558,RunConsoleCommand,ttt_order_equipment,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_equip.lua,606,RunConsoleCommand,ttt_cl_traitorpopup,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_equip.lua,646,RunConsoleCommand,ttt_resend_bought,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_help.lua,5,CreateConVar,ttt_spectator_mode | 0,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_help.lua,6,CreateConVar,ttt_mute_team_check | 0,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_help.lua,8,CreateClientConVar,ttt_avoid_detective | 0,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_help.lua,61,CheckBox,set_tips | ttt_tips_enable,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_help.lua,63,NumSlider,set_startpopup | ttt_startpopup_duration,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_help.lua,69,CheckBox,set_minimal_id | ttt_minimal_targetid,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_help.lua,71,CheckBox,set_healthlabel | ttt_health_label,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_help.lua,73,CheckBox,set_lowsights | ttt_ironsights_lowered,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_help.lua,76,CheckBox,set_fastsw | ttt_weaponswitcher_fast,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_help.lua,79,CheckBox,set_fastsw_menu | ttt_weaponswitcher_displayfast,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_help.lua,82,CheckBox,set_wswitch | ttt_weaponswitcher_stay,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_help.lua,85,CheckBox,set_cues | ttt_cl_soundcues,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_help.lua,87,CheckBox,set_msg_cue | ttt_cl_msg_soundcue,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_help.lua,89,CheckBox,set_hide_unbuyable | ttt_equipment_hide_unbuyable,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_help.lua,91,AddItem,,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_help.lua,98,CheckBox,set_avoid_det | ttt_avoid_detective,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_help.lua,101,CheckBox,set_specmode | ttt_spectator_mode,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_help.lua,106,CheckBox,set_mute | ttt_mute_team_check,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_help.lua,107,GetConVar,ttt_mute_team_check,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_help.lua,110,AddItem,,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_help.lua,116,ComboBox,DComboBox,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_help.lua,124,GetConVar,ttt_language,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_help.lua,129,RunConsoleCommand,ttt_language,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_help.lua,133,AddItem,,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_help.lua,135,AddItem,,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_help.lua,142,CheckBox,set_cross_disable | ttt_disable_crosshair,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_help.lua,144,CheckBox,set_cross_color_enable | ttt_crosshair_color_enable,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_help.lua,152,SetConVar,ttt_crosshair_color_r,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_help.lua,153,SetConVar,ttt_crosshair_color_g,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_help.lua,154,SetConVar,ttt_crosshair_color_b,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_help.lua,155,AddItem,,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_help.lua,157,NumSlider,set_hip_cross_opacity | ttt_crosshair_opacity,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_help.lua,162,NumSlider,set_cross_opacity | ttt_ironsights_crosshair_opacity,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_help.lua,167,NumSlider,set_cross_brightness | ttt_crosshair_brightness,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_help.lua,172,NumSlider,set_cross_size | ttt_crosshair_size,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_help.lua,177,NumSlider,set_cross_thickness | ttt_crosshair_thickness,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_help.lua,182,NumSlider,set_cross_outlinethickness | ttt_crosshair_outlinethickness,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_help.lua,187,AddItem,,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_help.lua,207,RunConsoleCommand,ttt_spectate,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_help.lua,215,RunConsoleCommand,ttt_mute_team,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_hud.lua,205,CreateClientConVar,ttt_health_label | 0,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_init.lua,59,GetConVar,ttt_spectator_mode,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_init.lua,74,RunConsoleCommand,_ttt_request_serverlang,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_init.lua,75,RunConsoleCommand,_ttt_request_rolelist,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_init.lua,90,CreateConVar,ttt_karma | 1,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_init.lua,102,GetConVar,ttt_spectator_mode,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_init.lua,107,RunConsoleCommand,_ttt_request_serverlang,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_init.lua,120,RunConsoleCommand,r_cleardecals,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_init.lua,124,RunConsoleCommand,ttt_cl_traitorpopup_close,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_init.lua,148,CreateConVar,ttt_cl_soundcues | 0,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_init.lua,155,GetConVar,ttt_cl_soundcues,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_init.lua,241,RunConsoleCommand,ttt_mute_team_check | 0,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_init.lua,335,CreateConVar,ttt_idle_limit | 180,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_init.lua,371,RunConsoleCommand,say | (AUTOMATED MESSAGE) I have been moved to the Spectator team because I was idle/AFK.,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_init.lua,374,RunConsoleCommand,ttt_spectator_mode,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_init.lua,378,RunConsoleCommand,ttt_cl_idlepopup,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_keys.lua,4,RunConsoleCommand,ttt_dropweapon,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_keys.lua,44,RunConsoleCommand,tvog | 0,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_keys.lua,48,RunConsoleCommand,ttt_spec_use,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_keys.lua,73,RunConsoleCommand,ttt_mute_team,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_keys.lua,86,GetConVar,sv_cheats,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_keys.lua,87,RunConsoleCommand,ttt_equipswitch,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_keys.lua,91,RunConsoleCommand,ttt_dropammo,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_keys.lua,94,RunConsoleCommand,ttt_quickslot | 5,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_lang.lua,12,CreateConVar,ttt_language | auto,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_lang.lua,175,GetConVar,gmod_language,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_msgstack.lua,67,CreateClientConVar,ttt_cl_msg_soundcue | 0,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_popups.lua,45,CreateConVar,ttt_startpopup_duration | 17,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_popups.lua,108,GetConVar,ttt_idle_limit,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_popups.lua,128,RunConsoleCommand,ttt_spectator_mode | 0,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_radar.lua,40,RunConsoleCommand,ttt_radar_scan,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_radar.lua,66,RunConsoleCommand,ttt_radar_scan,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_radar.lua,282,RunConsoleCommand,ttt_radar_scan,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_radar.lua,285,AddItem,,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_radar.lua,291,AddItem,,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_radar.lua,293,CheckBox,DCheckBoxLabel,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_radar.lua,300,AddItem,,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_radio.lua,17,RunConsoleCommand,ttt_radio_play,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_search.lua,337,RunConsoleCommand,ttt_confirm_death,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_search.lua,349,RunConsoleCommand,ttt_call_detective,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_targetid.lua,135,CreateConVar,ttt_minimal_targetid | 0,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_tbuttons.lua,42,RunConsoleCommand,ttt_use_tbutton,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_tips.lua,3,CreateConVar,ttt_tips_enable | 1,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_tips.lua,236,GetConVar,ttt_tips_enable,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_transfer.lua,23,ComboBox,DComboBox,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_transfer.lua,46,RunConsoleCommand,ttt_transfer_credits | 1,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_transfer.lua,56,AddItem,,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_transfer.lua,57,AddItem,,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_voice.lua,142,RunConsoleCommand,_deathrec,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_voice.lua,243,AddItem,,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_voice.lua,266,RunConsoleCommand,ttt_radio,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_voice.lua,376,RunConsoleCommand,_ttt_radio_send,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_voice.lua,448,CreateConVar,ttt_locational_voice | 0,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_voice.lua,450,CreateConVar,ttt_voice_drain | 0,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_voice.lua,451,CreateConVar,ttt_voice_drain_normal | 0.2,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_voice.lua,452,CreateConVar,ttt_voice_drain_admin | 0,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_voice.lua,453,CreateConVar,ttt_voice_drain_recharge | 0.05,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_voice.lua,489,RunConsoleCommand,tvog | 1,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_voice.lua,492,RunConsoleCommand,tvog | 0,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_voice.lua,671,RunConsoleCommand,-voicerecord,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_wepswitch.lua,17,CreateConVar,ttt_weaponswitcher_stay | 0,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_wepswitch.lua,18,CreateConVar,ttt_weaponswitcher_fast | 0,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_wepswitch.lua,19,CreateConVar,ttt_weaponswitcher_displayfast | 0,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_wepswitch.lua,328,RunConsoleCommand,lastinv,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/cl_wepswitch.lua,338,RunConsoleCommand,ttt_quickslot,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/corpse.lua,37,CreateConVar,ttt_announce_body_found | 1,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/corpse.lua,306,GetConVar,ttt_killer_dna_range,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/corpse.lua,313,GetConVar,ttt_killer_dna_basetime,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/corpse.lua,368,CreateConVar,ttt_ragdoll_collide | 0,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/ent_replace.lua,396,GetConVar,ttt_weapon_spawn_count,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/ent_replace.lua,562,GetConVar,ttt_use_weapon_spawn_scripts,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/gamemsg.lua,92,CreateConVar,ttt_limit_spectator_chat | 1,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/gamemsg.lua,93,CreateConVar,ttt_limit_spectator_voice | 1,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/gamemsg.lua,109,GetConVar,ttt_limit_spectator_chat,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/gamemsg.lua,167,CreateConVar,ttt_locational_voice | 0,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/gamemsg.lua,181,GetConVar,ttt_limit_spectator_voice,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/gamemsg.lua,261,CreateConVar,ttt_lastwords_chatprint | 0,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/init.lua,61,CreateConVar,ttt_roundtime_minutes | 10,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/init.lua,62,CreateConVar,ttt_preptime_seconds | 30,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/init.lua,63,CreateConVar,ttt_posttime_seconds | 30,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/init.lua,64,CreateConVar,ttt_firstpreptime | 60,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/init.lua,67,CreateConVar,ttt_haste_starting_minutes | 5,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/init.lua,68,CreateConVar,ttt_haste_minutes_per_death | 0.5,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/init.lua,71,CreateConVar,ttt_spawn_wave_interval | 0,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/init.lua,73,CreateConVar,ttt_traitor_pct | 0.25,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/init.lua,74,CreateConVar,ttt_traitor_max | 32,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/init.lua,76,CreateConVar,ttt_detective_pct | 0.13,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/init.lua,77,CreateConVar,ttt_detective_max | 32,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/init.lua,78,CreateConVar,ttt_detective_min_players | 8,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/init.lua,79,CreateConVar,ttt_detective_karma_min | 600,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/init.lua,83,CreateConVar,ttt_credits_starting | 2,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/init.lua,84,CreateConVar,ttt_credits_award_pct | 0.35,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/init.lua,85,CreateConVar,ttt_credits_award_size | 1,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/init.lua,86,CreateConVar,ttt_credits_award_repeat | 1,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/init.lua,87,CreateConVar,ttt_credits_detectivekill | 1,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/init.lua,89,CreateConVar,ttt_credits_alonebonus | 1,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/init.lua,92,CreateConVar,ttt_det_credits_starting | 1,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/init.lua,93,CreateConVar,ttt_det_credits_traitorkill | 0,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/init.lua,94,CreateConVar,ttt_det_credits_traitordead | 1,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/init.lua,97,CreateConVar,ttt_use_weapon_spawn_scripts | 1,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/init.lua,98,CreateConVar,ttt_weapon_spawn_count | 0,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/init.lua,100,CreateConVar,ttt_round_limit | 6,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/init.lua,101,CreateConVar,ttt_time_limit_minutes | 75,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/init.lua,103,CreateConVar,ttt_idle_limit | 180,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/init.lua,105,GetConVar,ttt_locational_voice,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/init.lua,107,CreateConVar,ttt_voice_drain | 0,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/init.lua,108,CreateConVar,ttt_voice_drain_normal | 0.2,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/init.lua,109,CreateConVar,ttt_voice_drain_admin | 0,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/init.lua,110,CreateConVar,ttt_voice_drain_recharge | 0.05,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/init.lua,112,GetConVar,ttt_highlight_admins,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/init.lua,114,CreateConVar,ttt_namechange_kick | 1,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/init.lua,115,CreateConVar,ttt_namechange_bantime | 10,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/init.lua,117,CreateConVar,ttt_minimum_players | 2,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/init.lua,120,CreateConVar,ttt_debug_preventwin | 0,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/init.lua,169,RunConsoleCommand,mp_friendlyfire | 1,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/init.lua,209,RunConsoleCommand,sv_alltalk | 0,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/init.lua,219,GetConVar,ttt_rounds_left | ttt_round_limit,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/init.lua,321,GetConVar,ttt_namechange_kick,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/init.lua,330,GetConVar,ttt_namechange_bantime,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/init.lua,346,GetConVar,ttt_namechange_kick,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/init.lua,485,GetConVar,ttt_preptime_seconds,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/init.lua,487,GetConVar,ttt_firstpreptime,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/init.lua,552,GetConVar,ttt_spawn_wave_interval,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/init.lua,621,GetConVar,ttt_roundtime_minutes,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/init.lua,623,GetConVar,ttt_haste_starting_minutes,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/init.lua,739,GetConVar,ttt_posttime_seconds,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/init.lua,818,GetConVar,ttt_traitor_pct,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/init.lua,820,GetConVar,ttt_traitor_max,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/init.lua,827,GetConVar,ttt_detective_min_players,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/init.lua,829,GetConVar,ttt_detective_pct,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/init.lua,831,GetConVar,ttt_detective_max,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/karma.lua,10,CreateConVar,ttt_karma | 1,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/karma.lua,11,CreateConVar,ttt_karma_strict | 1,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/karma.lua,12,CreateConVar,ttt_karma_starting | 1000,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/karma.lua,13,CreateConVar,ttt_karma_max | 1000,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/karma.lua,14,CreateConVar,ttt_karma_ratio | 0.001,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/karma.lua,15,CreateConVar,ttt_karma_kill_penalty | 15,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/karma.lua,16,CreateConVar,ttt_karma_round_increment | 5,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/karma.lua,17,CreateConVar,ttt_karma_clean_bonus | 30,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/karma.lua,18,CreateConVar,ttt_karma_traitorkill_bonus | 40,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/karma.lua,19,CreateConVar,ttt_karma_traitordmg_ratio | 0.0003,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/karma.lua,20,CreateConVar,ttt_karma_debugspam | 0,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/karma.lua,22,CreateConVar,ttt_karma_persist | 0,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/karma.lua,23,CreateConVar,ttt_karma_clean_half | 0.25,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/karma.lua,25,CreateConVar,ttt_karma_low_autokick | 1,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/karma.lua,26,CreateConVar,ttt_karma_low_amount | 450,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/karma.lua,27,CreateConVar,ttt_karma_low_ban | 1,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/karma.lua,28,CreateConVar,ttt_karma_low_ban_minutes | 60,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/lang_shd.lua,73,CreateConVar,ttt_lang_serverdefault | english,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/lang_shd.lua,108,GetConVar,ttt_language,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/player.lua,10,CreateConVar,ttt_bots_are_spectators | 0,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/player.lua,11,CreateConVar,ttt_dyingshot | 0,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/player.lua,13,CreateConVar,ttt_killer_dna_range | 550,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/player.lua,14,CreateConVar,ttt_killer_dna_basetime | 100,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/player.lua,40,GetConVar,ttt_bots_are_spectators,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/player.lua,512,GetConVar,ttt_det_credits_traitordead,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/player.lua,524,GetConVar,ttt_credits_award_repeat,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/player.lua,551,GetConVar,ttt_credits_award_pct,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/player.lua,553,GetConVar,ttt_credits_award_size,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/player.lua,576,GetConVar,ttt_dyingshot,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/player.lua,646,GetConVar,ttt_credits_detectivekill,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/player.lua,648,GetConVar,ttt_det_credits_traitorkill,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/player.lua,682,GetConVar,ttt_haste_minutes_per_death,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/player.lua,870,CreateConVar,ttt_postround_dm | 0,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/player_ext.lua,55,GetConVar,ttt_credits_starting,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/player_ext.lua,57,GetConVar,ttt_credits_alonebonus,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/player_ext.lua,61,GetConVar,ttt_det_credits_starting,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/player_ext_shd.lua,189,CreateConVar,ttt_show_gestures | 1,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/propspec.lua,8,CreateConVar,ttt_spec_prop_control | 1,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/propspec.lua,10,CreateConVar,ttt_spec_prop_base | 8,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/propspec.lua,11,CreateConVar,ttt_spec_prop_maxpenalty | -6,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/propspec.lua,12,CreateConVar,ttt_spec_prop_maxbonus | 16,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/propspec.lua,71,CreateConVar,ttt_spec_prop_force | 110,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/propspec.lua,136,CreateConVar,ttt_spec_prop_rechargetime | 1,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/shared.lua,97,CreateConVar,ttt_sherlock_mode | 1,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/shared.lua,100,CreateConVar,ttt_haste | 1,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/shared.lua,154,CreateConVar,ttt_playercolor_mode | 1,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/util.lua,167,RunConsoleCommand,jpeg,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/util.lua,333,CreateConVar,ttt_karma_max | 1000,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/vgui/sb_main.lua,25,CreateClientConVar,ttt_scoreboard_sorting | name | name | role | karma | score | deaths | ping,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/vgui/sb_main.lua,26,CreateClientConVar,ttt_scoreboard_ascending | 1 | Should scoreboard ordering be in ascending order,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/vgui/sb_main.lua,28,CreateConVar,ttt_time_limit_minutes | 75,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/vgui/sb_main.lua,197,GetConVar,ttt_scoreboard_sorting,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/vgui/sb_main.lua,198,GetConVar,ttt_scoreboard_ascending,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/vgui/sb_main.lua,385,GetConVar,ttt_scoreboard_sorting,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/vgui/sb_row.lua,8,CreateConVar,ttt_highlight_admins | 1,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/vgui/sb_team.lua,114,GetConVar,ttt_scoreboard_sorting,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/vgui/sb_team.lua,130,GetConVar,ttt_scoreboard_ascending,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/weaponry.lua,113,CreateConVar,ttt_detective_hats | 1,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/weaponry.lua,116,GetConVar,ttt_detective_hats,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/weaponry_shd.lua,26,RunConsoleCommand,ttt_set_disguise | 1,unverified,lexical_reference_not_runtime_registration
+gamemodes/terrortown/gamemode/weaponry_shd.lua,28,RunConsoleCommand,ttt_set_disguise | 0,unverified,lexical_reference_not_runtime_registration
+lua/autorun/client/demo_recording.lua,17,RunConsoleCommand,pp_fb | 0,unverified,lexical_reference_not_runtime_registration
+lua/autorun/client/demo_recording.lua,19,RunConsoleCommand,pp_fb | 1,unverified,lexical_reference_not_runtime_registration
+lua/autorun/client/demo_recording.lua,20,RunConsoleCommand,pp_fb_frames,unverified,lexical_reference_not_runtime_registration
+lua/autorun/client/demo_recording.lua,21,RunConsoleCommand,pp_fb_shutter,unverified,lexical_reference_not_runtime_registration
+lua/autorun/client/gm_demo.lua,5,RunConsoleCommand,stop,unverified,lexical_reference_not_runtime_registration
+lua/autorun/client/gm_demo.lua,11,RunConsoleCommand,record | demos/ | .dem,unverified,lexical_reference_not_runtime_registration
+lua/autorun/client/gm_demo.lua,12,RunConsoleCommand,record_screenshot,unverified,lexical_reference_not_runtime_registration
+lua/autorun/client/gm_demo.lua,17,CreateConVar,"gm_demo_icon | If set to 1, display a 'RECORDING' icon during gm_demo.",unverified,lexical_reference_not_runtime_registration
+lua/autorun/developer_functions.lua,123,RunConsoleCommand,_cl,unverified,lexical_reference_not_runtime_registration
+lua/autorun/menubar.lua,7,GetConVar,cheat | #menubar.cheatstip | sv_cheats,unverified,lexical_reference_not_runtime_registration
+lua/autorun/menubar.lua,8,GetConVar,cheatSP | #menubar.cheatstip | sv_cheats,unverified,lexical_reference_not_runtime_registration
+lua/autorun/menubar.lua,64,RunConsoleCommand,#menubar.drawing.minecraftify | mat_showlowresimage | 1 | 0 | mat_reloadallmaterials,unverified,lexical_reference_not_runtime_registration
+lua/autorun/properties/bodygroups.lua,63,AddOption,,unverified,lexical_reference_not_runtime_registration
+lua/autorun/properties/bodygroups.lua,84,AddOption,,unverified,lexical_reference_not_runtime_registration
+lua/autorun/properties/kinect_controller.lua,6,CreateConVar,sensor_debugragdoll | 0,unverified,lexical_reference_not_runtime_registration
+lua/autorun/properties/kinect_controller.lua,7,CreateConVar,sensor_stretchragdoll | 0,unverified,lexical_reference_not_runtime_registration
+lua/autorun/properties/persist.lua,12,GetConVar,sbox_persist | ,unverified,lexical_reference_not_runtime_registration
+lua/autorun/properties/persist.lua,51,GetConVar,sbox_persist | ,unverified,lexical_reference_not_runtime_registration
+lua/autorun/properties/skin.lua,37,AddOption,skinX,unverified,lexical_reference_not_runtime_registration
+lua/autorun/server/admin_functions.lua,13,RunConsoleCommand,kickid | %s (%s),unverified,lexical_reference_not_runtime_registration
+lua/autorun/server/admin_functions.lua,31,RunConsoleCommand,banid,unverified,lexical_reference_not_runtime_registration
+lua/autorun/utilities_menu.lua,10,GetConVar,,unverified,lexical_reference_not_runtime_registration
+lua/autorun/utilities_menu.lua,46,CheckBox,#utilities.kickerrornum | sv_kickerrornum,unverified,lexical_reference_not_runtime_registration
+lua/autorun/utilities_menu.lua,47,CheckBox,#utilities.allowcslua | sv_allowcslua,unverified,lexical_reference_not_runtime_registration
+lua/autorun/utilities_menu.lua,49,CheckBox,#utilities.sticktoground | sv_sticktoground,unverified,lexical_reference_not_runtime_registration
+lua/autorun/utilities_menu.lua,52,CheckBox,#utilities.epickupallowed | sv_playerpickupallowed,unverified,lexical_reference_not_runtime_registration
+lua/autorun/utilities_menu.lua,53,CheckBox,#utilities.falldamage | mp_falldamage,unverified,lexical_reference_not_runtime_registration
+lua/autorun/utilities_menu.lua,54,CheckBox,#utilities.gmod_suit | gmod_suit,unverified,lexical_reference_not_runtime_registration
+lua/autorun/utilities_menu.lua,57,NumSlider,#utilities.gravity | sv_gravity,unverified,lexical_reference_not_runtime_registration
+lua/autorun/utilities_menu.lua,58,NumSlider,#utilities.friction | sv_friction,unverified,lexical_reference_not_runtime_registration
+lua/autorun/utilities_menu.lua,59,NumSlider,#utilities.timescale | phys_timescale,unverified,lexical_reference_not_runtime_registration
+lua/autorun/utilities_menu.lua,60,NumSlider,#utilities.deployspeed | sv_defaultdeployspeed,unverified,lexical_reference_not_runtime_registration
+lua/autorun/utilities_menu.lua,61,NumSlider,#utilities.noclipspeed | sv_noclipspeed,unverified,lexical_reference_not_runtime_registration
+lua/autorun/utilities_menu.lua,63,NumSlider,#utilities.maxammo | gmod_maxammo,unverified,lexical_reference_not_runtime_registration
+lua/autorun/utilities_menu.lua,66,NumSlider,#utilities.max_ragdolls | g_ragdoll_maxcount,unverified,lexical_reference_not_runtime_registration
+lua/autorun/utilities_menu.lua,70,NumSlider,#utilities.iterations | gmod_physiterations,unverified,lexical_reference_not_runtime_registration
+lua/autorun/utilities_menu.lua,71,NumSlider,#utilities.sv_timeout | sv_timeout,unverified,lexical_reference_not_runtime_registration
+lua/autorun/utilities_menu.lua,95,NumSlider,#utilities.max_results | sbox_search_maxresults,unverified,lexical_reference_not_runtime_registration
+lua/autorun/utilities_menu.lua,98,CheckBox,#menubar.drawing.hud | cl_drawhud,unverified,lexical_reference_not_runtime_registration
+lua/autorun/utilities_menu.lua,99,CheckBox,#menubar.drawing.toolhelp | gmod_drawhelp,unverified,lexical_reference_not_runtime_registration
+lua/autorun/utilities_menu.lua,100,CheckBox,#menubar.drawing.toolui | gmod_drawtooleffects,unverified,lexical_reference_not_runtime_registration
+lua/autorun/utilities_menu.lua,101,CheckBox,#menubar.drawing.world_tooltips | cl_drawworldtooltips,unverified,lexical_reference_not_runtime_registration
+lua/autorun/utilities_menu.lua,102,CheckBox,#menubar.drawing.spawn_effect | cl_drawspawneffect,unverified,lexical_reference_not_runtime_registration
+lua/autorun/utilities_menu.lua,103,CheckBox,#menubar.drawing.effect_rings | cl_draweffectrings,unverified,lexical_reference_not_runtime_registration
+lua/autorun/utilities_menu.lua,104,CheckBox,#menubar.drawing.cameras | cl_drawcameras,unverified,lexical_reference_not_runtime_registration
+lua/autorun/utilities_menu.lua,105,CheckBox,#menubar.drawing.thrusters | cl_drawthrusterseffects,unverified,lexical_reference_not_runtime_registration
+lua/autorun/utilities_menu.lua,106,CheckBox,#menubar.drawing.hints | cl_showhints,unverified,lexical_reference_not_runtime_registration
+lua/autorun/utilities_menu.lua,108,CheckBox,#utilities.spawnmenu_toggle | spawnmenu_toggle,unverified,lexical_reference_not_runtime_registration
+lua/autorun/utilities_menu.lua,133,GetConVar,sbox_max,unverified,lexical_reference_not_runtime_registration
+lua/autorun/utilities_menu.lua,151,CheckBox,#enable_weapons | sbox_weapons,unverified,lexical_reference_not_runtime_registration
+lua/autorun/utilities_menu.lua,152,CheckBox,#allow_god_mode | sbox_godmode,unverified,lexical_reference_not_runtime_registration
+lua/autorun/utilities_menu.lua,156,CheckBox,#players_damage_players | sbox_playershurtplayers,unverified,lexical_reference_not_runtime_registration
+lua/autorun/utilities_menu.lua,157,CheckBox,#allow_noclip | sbox_noclip,unverified,lexical_reference_not_runtime_registration
+lua/autorun/utilities_menu.lua,159,CheckBox,#bone_manipulate_npcs | sbox_bonemanip_npc,unverified,lexical_reference_not_runtime_registration
+lua/autorun/utilities_menu.lua,160,CheckBox,#bone_manipulate_players | sbox_bonemanip_player,unverified,lexical_reference_not_runtime_registration
+lua/autorun/utilities_menu.lua,161,CheckBox,#bone_manipulate_others | sbox_bonemanip_misc,unverified,lexical_reference_not_runtime_registration
+lua/autorun/utilities_menu.lua,164,NumSlider,,unverified,lexical_reference_not_runtime_registration
+lua/autorun/utilities_menu.lua,186,CheckBox,#utilities.physgun_halo | physgun_halo,unverified,lexical_reference_not_runtime_registration
+lua/autorun/utilities_menu.lua,187,CheckBox,#utilities.physgun_drawbeams | physgun_drawbeams,unverified,lexical_reference_not_runtime_registration
+lua/autorun/utilities_menu.lua,188,CheckBox,#menubar.drawing.freeze | effects_freeze,unverified,lexical_reference_not_runtime_registration
+lua/autorun/utilities_menu.lua,189,CheckBox,#menubar.drawing.unfreeze | effects_unfreeze,unverified,lexical_reference_not_runtime_registration
+lua/autorun/utilities_menu.lua,191,NumSlider,#utilities.gm_snapgrid | gm_snapgrid,unverified,lexical_reference_not_runtime_registration
+lua/autorun/utilities_menu.lua,192,NumSlider,#utilities.gm_snapangles | gm_snapangles,unverified,lexical_reference_not_runtime_registration
+lua/autorun/utilities_menu.lua,194,NumSlider,#utilities.physgun_rotation_sensitivity | physgun_rotation_sensitivity,unverified,lexical_reference_not_runtime_registration
+lua/autorun/utilities_menu.lua,195,NumSlider,#utilities.physgun_wheelspeed | physgun_wheelspeed,unverified,lexical_reference_not_runtime_registration
+lua/autorun/utilities_menu.lua,215,CheckBox,#utilities.physgun_limited | physgun_limited,unverified,lexical_reference_not_runtime_registration
+lua/autorun/utilities_menu.lua,218,NumSlider,#utilities.physgun_maxrange | physgun_maxrange,unverified,lexical_reference_not_runtime_registration
+lua/autorun/utilities_menu.lua,219,NumSlider,#utilities.physgun_tpdist | physgun_teleportdistance,unverified,lexical_reference_not_runtime_registration
+lua/autorun/utilities_menu.lua,220,NumSlider,#utilities.physgun_maxspeed | physgun_maxspeed,unverified,lexical_reference_not_runtime_registration
+lua/autorun/utilities_menu.lua,221,NumSlider,#utilities.physgun_maxangular | physgun_maxangular,unverified,lexical_reference_not_runtime_registration
+lua/autorun/utilities_menu.lua,222,NumSlider,#utilities.physgun_timetoarrive | physgun_timetoarrive,unverified,lexical_reference_not_runtime_registration
+lua/autorun/utilities_menu.lua,223,NumSlider,#utilities.physgun_timetoarriveragdoll | physgun_timetoarriveragdoll,unverified,lexical_reference_not_runtime_registration
+lua/autorun/utilities_menu.lua,239,AddToolMenuOption,Utilities | User | PhysgunSettings | #spawnmenu.utilities.physgunsettings |  | ,unverified,lexical_reference_not_runtime_registration
+lua/autorun/utilities_menu.lua,240,AddToolMenuOption,Utilities | User | SandboxClientSettings | #spawnmenu.utilities.sandbox_settings |  | ,unverified,lexical_reference_not_runtime_registration
+lua/autorun/utilities_menu.lua,241,AddToolMenuOption,Utilities | User | PlayerModelSelector | #smwidget.playermodel_title |  | ,unverified,lexical_reference_not_runtime_registration
+lua/autorun/utilities_menu.lua,243,AddToolMenuOption,Utilities | Admin | ServerSettings | #spawnmenu.utilities.server_settings |  | ,unverified,lexical_reference_not_runtime_registration
+lua/autorun/utilities_menu.lua,244,AddToolMenuOption,Utilities | Admin | SandboxSettings | #spawnmenu.utilities.sandbox_settings |  | ,unverified,lexical_reference_not_runtime_registration
+lua/autorun/utilities_menu.lua,245,AddToolMenuOption,Utilities | Admin | PhysgunSVSettings | #spawnmenu.utilities.physgunsettings |  | ,unverified,lexical_reference_not_runtime_registration
+lua/autorun/utilities_menu.lua,252,AddToolCategory,Utilities | User | #spawnmenu.utilities.user,unverified,lexical_reference_not_runtime_registration
+lua/autorun/utilities_menu.lua,253,AddToolCategory,Utilities | Admin | #spawnmenu.utilities.admin,unverified,lexical_reference_not_runtime_registration
+lua/derma/derma_gwen.lua,164,ComboBox,DComboBox,unverified,lexical_reference_not_runtime_registration
+lua/derma/derma_gwen.lua,167,CheckBox,DCheckBoxLabel,unverified,lexical_reference_not_runtime_registration
+lua/derma/init.lua,82,SetConVar,,unverified,lexical_reference_not_runtime_registration
+lua/derma/init.lua,89,RunConsoleCommand,,unverified,lexical_reference_not_runtime_registration
+lua/derma/init.lua,98,GetConVar,,unverified,lexical_reference_not_runtime_registration
+lua/derma/init.lua,110,GetConVar,,unverified,lexical_reference_not_runtime_registration
+lua/includes/extensions/client/panel/dragdrop.lua,56,AddOption,,unverified,lexical_reference_not_runtime_registration
+lua/includes/modules/cleanup.lua,271,AddToolMenuOption,Utilities | User | User_Cleanup | #spawnmenu.utilities.cleanup |  | ,unverified,lexical_reference_not_runtime_registration
+lua/includes/modules/cleanup.lua,275,AddToolMenuOption,Utilities | Admin | Admin_Cleanup | #spawnmenu.utilities.cleanup |  | ,unverified,lexical_reference_not_runtime_registration
+lua/includes/modules/constraint.lua,8,CreateConVar,gmod_physiterations | 4 | Additional solver iterations make constraint systems more stable.,unverified,lexical_reference_not_runtime_registration
+lua/includes/modules/constraint.lua,67,GetConVar,gmod_physiterations,unverified,lexical_reference_not_runtime_registration
+lua/includes/modules/cvars.lua,8,GetConVar,,unverified,lexical_reference_not_runtime_registration
+lua/includes/modules/cvars.lua,19,GetConVar,,unverified,lexical_reference_not_runtime_registration
+lua/includes/modules/cvars.lua,22,GetConVar,,unverified,lexical_reference_not_runtime_registration
+lua/includes/modules/cvars.lua,40,GetConVar,,unverified,lexical_reference_not_runtime_registration
+lua/includes/modules/cvars.lua,64,GetConVar,,unverified,lexical_reference_not_runtime_registration
+lua/includes/modules/cvars.lua,93,GetConVar,,unverified,lexical_reference_not_runtime_registration
+lua/includes/modules/cvars.lua,110,GetConVar,,unverified,lexical_reference_not_runtime_registration
+lua/includes/modules/cvars.lua,125,GetConVar,,unverified,lexical_reference_not_runtime_registration
+lua/includes/modules/cvars.lua,140,GetConVar,,unverified,lexical_reference_not_runtime_registration
+lua/includes/modules/properties.lua,57,AddOption,,unverified,lexical_reference_not_runtime_registration
+lua/includes/modules/properties.lua,64,AddOption,,unverified,lexical_reference_not_runtime_registration
+lua/includes/modules/properties.lua,72,AddOption,,unverified,lexical_reference_not_runtime_registration
+lua/includes/modules/properties.lua,95,AddOption,,unverified,lexical_reference_not_runtime_registration
+lua/includes/modules/spawnmenu.lua,66,AddToolTab,,unverified,lexical_reference_not_runtime_registration
+lua/includes/modules/spawnmenu.lua,111,RunConsoleCommand, ,unverified,lexical_reference_not_runtime_registration
+lua/includes/modules/spawnmenu.lua,131,AddToolCategory,,unverified,lexical_reference_not_runtime_registration
+lua/includes/modules/spawnmenu.lua,147,AddToolMenuOption,,unverified,lexical_reference_not_runtime_registration
+lua/includes/modules/spawnmenu.lua,182,AddCreationTab,,unverified,lexical_reference_not_runtime_registration
+lua/includes/modules/spawnmenu.lua,275,AddItem,,unverified,lexical_reference_not_runtime_registration
+lua/includes/modules/undo.lua,33,ComboBox,,unverified,lexical_reference_not_runtime_registration
+lua/includes/modules/undo.lua,34,ComboBox,,unverified,lexical_reference_not_runtime_registration
+lua/includes/modules/undo.lua,38,ComboBox,,unverified,lexical_reference_not_runtime_registration
+lua/includes/modules/undo.lua,39,ComboBox,,unverified,lexical_reference_not_runtime_registration
+lua/includes/modules/undo.lua,40,ComboBox,,unverified,lexical_reference_not_runtime_registration
+lua/includes/modules/undo.lua,42,ComboBox,,unverified,lexical_reference_not_runtime_registration
+lua/includes/modules/undo.lua,49,ComboBox,,unverified,lexical_reference_not_runtime_registration
+lua/includes/modules/undo.lua,49,AddItem,,unverified,lexical_reference_not_runtime_registration
+lua/includes/modules/undo.lua,50,RunConsoleCommand,gmod_undonum,unverified,lexical_reference_not_runtime_registration
+lua/includes/modules/undo.lua,177,AddToolMenuOption,Utilities | User | Undo | #spawnmenu.utilities.undo |  | ,unverified,lexical_reference_not_runtime_registration
+lua/includes/util.lua,550,CreateClientConVar,,unverified,lexical_reference_not_runtime_registration
+lua/includes/util.lua,562,CreateConVar,,unverified,lexical_reference_not_runtime_registration
+lua/includes/util.lua,572,GetConVar,,unverified,lexical_reference_not_runtime_registration
+lua/includes/util.lua,575,GetConVar,,unverified,lexical_reference_not_runtime_registration
+lua/includes/util.lua,586,GetConVar,,unverified,lexical_reference_not_runtime_registration
+lua/includes/util.lua,588,GetConVar,,unverified,lexical_reference_not_runtime_registration
+lua/includes/util.lua,592,GetConVar,,unverified,lexical_reference_not_runtime_registration
+lua/includes/util.lua,594,GetConVar,,unverified,lexical_reference_not_runtime_registration
+lua/includes/util/javascript_util.lua,33,RunConsoleCommand,gmod | SaveDupe | dupe_save | spawnmenu,unverified,lexical_reference_not_runtime_registration
+lua/includes/util/javascript_util.lua,38,RunConsoleCommand,gmod | SaveSave | gm_save | spawnmenu,unverified,lexical_reference_not_runtime_registration
+lua/includes/vgui_base.lua,21,ComboBox,vgui/DComboBox.lua,unverified,lexical_reference_not_runtime_registration
+lua/includes/vgui_base.lua,23,CheckBox,vgui/DCheckBox.lua,unverified,lexical_reference_not_runtime_registration
+lua/includes/vgui_base.lua,42,NumSlider,vgui/DNumSlider.lua,unverified,lexical_reference_not_runtime_registration
+lua/menu/crosshair_setup.lua,16,GetConVar,cl_crosshaircolor_r,unverified,lexical_reference_not_runtime_registration
+lua/menu/crosshair_setup.lua,17,GetConVar,cl_crosshaircolor_g,unverified,lexical_reference_not_runtime_registration
+lua/menu/crosshair_setup.lua,18,GetConVar,cl_crosshaircolor_b,unverified,lexical_reference_not_runtime_registration
+lua/menu/crosshair_setup.lua,19,GetConVar,cl_crosshairalpha,unverified,lexical_reference_not_runtime_registration
+lua/menu/crosshair_setup.lua,24,GetConVar,cl_crosshair_drawoutline,unverified,lexical_reference_not_runtime_registration
+lua/menu/crosshair_setup.lua,25,GetConVar,cl_crosshair_outlinethickness,unverified,lexical_reference_not_runtime_registration
+lua/menu/crosshair_setup.lua,43,GetConVar,cl_crosshairusealpha,unverified,lexical_reference_not_runtime_registration
+lua/menu/crosshair_setup.lua,49,GetConVar,cl_crosshairsize,unverified,lexical_reference_not_runtime_registration
+lua/menu/crosshair_setup.lua,50,GetConVar,cl_crosshairthickness,unverified,lexical_reference_not_runtime_registration
+lua/menu/crosshair_setup.lua,51,GetConVar,cl_crosshairgap,unverified,lexical_reference_not_runtime_registration
+lua/menu/crosshair_setup.lua,70,GetConVar,cl_crosshair_t,unverified,lexical_reference_not_runtime_registration
+lua/menu/crosshair_setup.lua,76,GetConVar,cl_crosshairdot,unverified,lexical_reference_not_runtime_registration
+lua/menu/crosshair_setup.lua,110,GetConVar,cl_crosshairstyle,unverified,lexical_reference_not_runtime_registration
+lua/menu/crosshair_setup.lua,116,GetConVar,cl_crosshairstyle,unverified,lexical_reference_not_runtime_registration
+lua/menu/crosshair_setup.lua,121,GetConVar,cl_crosshairstyle,unverified,lexical_reference_not_runtime_registration
+lua/menu/crosshair_setup.lua,125,GetConVar,hud_quickinfo,unverified,lexical_reference_not_runtime_registration
+lua/menu/crosshair_setup.lua,152,GetConVar,cl_crosshairstyle,unverified,lexical_reference_not_runtime_registration
+lua/menu/crosshair_setup.lua,157,NumSlider,DNumSlider,unverified,lexical_reference_not_runtime_registration
+lua/menu/crosshair_setup.lua,159,CheckBox,DCheckBoxLabel,unverified,lexical_reference_not_runtime_registration
+lua/menu/crosshair_setup.lua,171,NumSlider,DNumSlider,unverified,lexical_reference_not_runtime_registration
+lua/menu/crosshair_setup.lua,173,GetConVar,,unverified,lexical_reference_not_runtime_registration
+lua/menu/crosshair_setup.lua,176,ComboBox,DComboBox,unverified,lexical_reference_not_runtime_registration
+lua/menu/crosshair_setup.lua,180,CheckBox,DCheckBoxLabel,unverified,lexical_reference_not_runtime_registration
+lua/menu/crosshair_setup.lua,184,SetConVar,,unverified,lexical_reference_not_runtime_registration
+lua/menu/crosshair_setup.lua,191,SetConVar,cl_crosshaircolor_r,unverified,lexical_reference_not_runtime_registration
+lua/menu/crosshair_setup.lua,192,SetConVar,cl_crosshaircolor_g,unverified,lexical_reference_not_runtime_registration
+lua/menu/crosshair_setup.lua,193,SetConVar,cl_crosshaircolor_b,unverified,lexical_reference_not_runtime_registration
+lua/menu/crosshair_setup.lua,194,SetConVar,cl_crosshairalpha,unverified,lexical_reference_not_runtime_registration
+lua/menu/crosshair_setup.lua,201,GetConVar,,unverified,lexical_reference_not_runtime_registration
+lua/menu/crosshair_setup.lua,202,RunConsoleCommand,,unverified,lexical_reference_not_runtime_registration
+lua/menu/demo_to_video.lua,155,RunConsoleCommand,sv_cheats,unverified,lexical_reference_not_runtime_registration
+lua/menu/demo_to_video.lua,156,RunConsoleCommand,host_framerate,unverified,lexical_reference_not_runtime_registration
+lua/menu/demo_to_video.lua,157,RunConsoleCommand,snd_fixed_rate,unverified,lexical_reference_not_runtime_registration
+lua/menu/demo_to_video.lua,158,RunConsoleCommand,progress_enable,unverified,lexical_reference_not_runtime_registration
+lua/menu/demo_to_video.lua,159,RunConsoleCommand,playdemo,unverified,lexical_reference_not_runtime_registration
+lua/menu/demo_to_video.lua,175,RunConsoleCommand,host_framerate,unverified,lexical_reference_not_runtime_registration
+lua/menu/demo_to_video.lua,176,RunConsoleCommand,sv_cheats,unverified,lexical_reference_not_runtime_registration
+lua/menu/demo_to_video.lua,177,RunConsoleCommand,snd_fixed_rate,unverified,lexical_reference_not_runtime_registration
+lua/menu/errors.lua,92,GetConVar,cl_drawhud,unverified,lexical_reference_not_runtime_registration
+lua/menu/loading.lua,96,GetConVar,host_map,unverified,lexical_reference_not_runtime_registration
+lua/menu/loading.lua,99,GetConVar,hostname | 127.0.0.1 |  | gamemode,unverified,lexical_reference_not_runtime_registration
+lua/menu/loading.lua,242,GetConVar,cl_enable_loadingurl | http | asset://,unverified,lexical_reference_not_runtime_registration
+lua/menu/loading.lua,257,GetConVar,snd_musicvolume | gmod_language,unverified,lexical_reference_not_runtime_registration
+lua/menu/mainmenu.lua,230,GetConVar,hostname,unverified,lexical_reference_not_runtime_registration
+lua/menu/mainmenu.lua,231,GetConVar,sv_lan,unverified,lexical_reference_not_runtime_registration
+lua/menu/mainmenu.lua,232,GetConVar,p2p_enabled,unverified,lexical_reference_not_runtime_registration
+lua/menu/mainmenu.lua,233,GetConVar,p2p_friendsonly,unverified,lexical_reference_not_runtime_registration
+lua/menu/mainmenu.lua,248,GetConVar,,unverified,lexical_reference_not_runtime_registration
+lua/menu/mainmenu.lua,683,GetConVar,gmod_language,unverified,lexical_reference_not_runtime_registration
+lua/menu/menu_demo.lua,49,RunConsoleCommand,progress_enable | 1,unverified,lexical_reference_not_runtime_registration
+lua/menu/menu_demo.lua,50,RunConsoleCommand,playdemo,unverified,lexical_reference_not_runtime_registration
+lua/menu/menu_demo.lua,68,RunConsoleCommand,gm_demo_to_video,unverified,lexical_reference_not_runtime_registration
+lua/menu/menu_save.lua,50,RunConsoleCommand,gm_load,unverified,lexical_reference_not_runtime_registration
+lua/menu/motionsensor.lua,2,CreateConVar,sensor_color_show | 0,unverified,lexical_reference_not_runtime_registration
+lua/menu/motionsensor.lua,3,CreateConVar,sensor_color_scale | 0.5,unverified,lexical_reference_not_runtime_registration
+lua/menu/motionsensor.lua,4,CreateConVar,sensor_color_x | 32,unverified,lexical_reference_not_runtime_registration
+lua/menu/motionsensor.lua,5,CreateConVar,sensor_color_y | -32,unverified,lexical_reference_not_runtime_registration
+lua/menu/openurl.lua,95,RunConsoleCommand,disconnect,unverified,lexical_reference_not_runtime_registration
+lua/menu/openurl.lua,113,CheckBox,DCheckBoxLabel,unverified,lexical_reference_not_runtime_registration
+lua/menu/problems/problems.lua,193,RunConsoleCommand,addons | menu_cleanupgmas,unverified,lexical_reference_not_runtime_registration
+lua/menu/problems/problems.lua,209,GetConVar,mat_hdr_level,unverified,lexical_reference_not_runtime_registration
+lua/menu/problems/problems.lua,210,RunConsoleCommand,mat_hdr_level | #problem.mat_hdr_level | config | mat_hdr_level | 2,unverified,lexical_reference_not_runtime_registration
+lua/menu/problems/problems.lua,215,GetConVar,mat_bumpmap,unverified,lexical_reference_not_runtime_registration
+lua/menu/problems/problems.lua,216,RunConsoleCommand,mat_bumpmap | #problem.mat_bumpmap | config | mat_bumpmap | 1,unverified,lexical_reference_not_runtime_registration
+lua/menu/problems/problems.lua,221,GetConVar,mat_specular,unverified,lexical_reference_not_runtime_registration
+lua/menu/problems/problems.lua,222,RunConsoleCommand,mat_specular | #problem.mat_specular | config | mat_specular | 1,unverified,lexical_reference_not_runtime_registration
+lua/menu/problems/problems.lua,227,GetConVar,gmod_mcore_test,unverified,lexical_reference_not_runtime_registration
+lua/menu/problems/problems.lua,233,GetConVar,voice_fadeouttime,unverified,lexical_reference_not_runtime_registration
+lua/menu/problems/problems.lua,234,RunConsoleCommand,voice_fadeouttime | #problem.voice_fadeouttime | config | voice_fadeouttime | 0.1 | voice_fadeouttime,unverified,lexical_reference_not_runtime_registration
+lua/menu/problems/problems.lua,239,GetConVar,mat_viewportscale,unverified,lexical_reference_not_runtime_registration
+lua/menu/problems/problems.lua,240,RunConsoleCommand,mat_viewportscale | #problem.mat_viewportscale | config | mat_viewportscale | 1 | mat_viewportscale,unverified,lexical_reference_not_runtime_registration
+lua/menu/problems/problems.lua,252,GetConVar,cl_forwardspeed | cl_sidespeed | cl_backspeed,unverified,lexical_reference_not_runtime_registration
+lua/menu/problems/problems.lua,254,RunConsoleCommand,cl_forwardspeed | 10000,unverified,lexical_reference_not_runtime_registration
+lua/menu/problems/problems.lua,255,RunConsoleCommand,cl_sidespeed | 10000,unverified,lexical_reference_not_runtime_registration
+lua/menu/problems/problems.lua,256,RunConsoleCommand,cl_backspeed | 10000,unverified,lexical_reference_not_runtime_registration
+lua/menu/problems/problems_pnl.lua,36,CheckBox,DCheckBoxLabel,unverified,lexical_reference_not_runtime_registration
+lua/menu/problems/problems_pnl.lua,39,SetConVar,lua_strict,unverified,lexical_reference_not_runtime_registration
+lua/menu/ugcpublish.lua,161,CheckBox,DCheckBoxLabel,unverified,lexical_reference_not_runtime_registration
+lua/menu/video.lua,2,CreateConVar,vid_width | 640 | Specifies the width of the recorded video. The height will be adjusted automatically based on your aspect ratio,unverified,lexical_reference_not_runtime_registration
+lua/menu/video.lua,3,CreateConVar,vid_fps | 30 | The FPS of the recorded video,unverified,lexical_reference_not_runtime_registration
+lua/menu/video.lua,4,CreateConVar,vid_sound | 1 | Enable sound recording,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/bloom.lua,11,CreateClientConVar,pp_bloom | 0,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/bloom.lua,12,CreateClientConVar,pp_bloom_darken | 0.65,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/bloom.lua,13,CreateClientConVar,pp_bloom_multiply | 1.0,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/bloom.lua,14,CreateClientConVar,pp_bloom_sizex | 4.0,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/bloom.lua,15,CreateClientConVar,pp_bloom_sizey | 4.0,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/bloom.lua,16,CreateClientConVar,pp_bloom_color | 2.0,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/bloom.lua,17,CreateClientConVar,pp_bloom_color_r | 255,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/bloom.lua,18,CreateClientConVar,pp_bloom_color_g | 255,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/bloom.lua,19,CreateClientConVar,pp_bloom_color_b | 255,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/bloom.lua,20,CreateClientConVar,pp_bloom_passes | 4,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/bloom.lua,85,CheckBox,#bloom_pp.enable | pp_bloom,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/bloom.lua,100,NumSlider,#bloom_pp.passes | pp_bloom_passes,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/bloom.lua,101,NumSlider,#bloom_pp.darken | pp_bloom_darken,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/bloom.lua,102,NumSlider,#bloom_pp.multiply | pp_bloom_multiply,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/bloom.lua,103,NumSlider,#bloom_pp.blurx | pp_bloom_sizex,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/bloom.lua,104,NumSlider,#bloom_pp.blury | pp_bloom_sizey,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/bloom.lua,105,NumSlider,#bloom_pp.multiplier | pp_bloom_color,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/bokeh_dof.lua,4,CreateClientConVar,pp_bokeh | 0,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/bokeh_dof.lua,5,CreateClientConVar,pp_bokeh_blur | 5,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/bokeh_dof.lua,6,CreateClientConVar,pp_bokeh_distance | 0.1,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/bokeh_dof.lua,7,CreateClientConVar,pp_bokeh_focus | 1.0,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/color_modify.lua,8,CreateClientConVar,pp_colormod | 0,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/color_modify.lua,9,CreateClientConVar,pp_colormod_addr | 0,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/color_modify.lua,10,CreateClientConVar,pp_colormod_addg | 0,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/color_modify.lua,11,CreateClientConVar,pp_colormod_addb | 0,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/color_modify.lua,12,CreateClientConVar,pp_colormod_brightness | 0,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/color_modify.lua,13,CreateClientConVar,pp_colormod_contrast | 1,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/color_modify.lua,14,CreateClientConVar,pp_colormod_color | 1,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/color_modify.lua,15,CreateClientConVar,pp_colormod_mulr | 0,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/color_modify.lua,16,CreateClientConVar,pp_colormod_mulg | 0,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/color_modify.lua,17,CreateClientConVar,pp_colormod_mulb | 0,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/color_modify.lua,18,CreateClientConVar,pp_colormod_inv | 0,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/color_modify.lua,66,CheckBox,#colormod_pp.enable | pp_colormod,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/color_modify.lua,82,NumSlider,#colormod_pp.brightness | pp_colormod_brightness,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/color_modify.lua,83,NumSlider,#colormod_pp.contrast | pp_colormod_contrast,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/color_modify.lua,84,NumSlider,#colormod_pp.color | pp_colormod_color,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/color_modify.lua,85,NumSlider,#colormod_pp.invert | pp_colormod_inv,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/dof.lua,2,CreateClientConVar,pp_dof | 0,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/dof.lua,4,CreateClientConVar,pp_dof_initlength | 256,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/dof.lua,5,CreateClientConVar,pp_dof_spacing | 512,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/dof.lua,77,CheckBox,#dof_pp.enable | pp_dof,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/dof.lua,81,NumSlider,#dof_pp.spacing | pp_dof_spacing,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/dof.lua,82,NumSlider,#dof_pp.start_distance | pp_dof_initlength,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/frame_blend.lua,5,CreateClientConVar,pp_fb | 0,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/frame_blend.lua,10,CreateClientConVar,pp_fb_frames | 16,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/frame_blend.lua,16,CreateClientConVar,pp_fb_shutter | 0.5,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/frame_blend.lua,199,CheckBox,#frame_blend_pp.enable | pp_fb,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/frame_blend.lua,203,NumSlider,#frame_blend_pp.frames | pp_fb_frames,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/frame_blend.lua,204,NumSlider,#frame_blend_pp.shutter | pp_fb_shutter,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/motion_blur.lua,9,CreateClientConVar,pp_motionblur | 0,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/motion_blur.lua,10,CreateClientConVar,pp_motionblur_addalpha | 0.2,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/motion_blur.lua,11,CreateClientConVar,pp_motionblur_drawalpha | 0.99,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/motion_blur.lua,12,CreateClientConVar,pp_motionblur_delay | 0.05,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/motion_blur.lua,77,CheckBox,#motion_blur_pp.enable | pp_motionblur,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/motion_blur.lua,86,NumSlider,#motion_blur_pp.add_alpha | pp_motionblur_addalpha,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/motion_blur.lua,87,NumSlider,#motion_blur_pp.draw_alpha | pp_motionblur_drawalpha,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/motion_blur.lua,88,NumSlider,#motion_blur_pp.delay | pp_motionblur_delay,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/overlay.lua,5,CreateClientConVar,pp_mat_overlay | ,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/overlay.lua,6,CreateClientConVar,pp_mat_overlay_refractamount | 0.3,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/overlay.lua,103,NumSlider,#overlay_pp.refract | pp_mat_overlay_refractamount,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/sharpen.lua,8,CreateClientConVar,pp_sharpen | 0,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/sharpen.lua,9,CreateClientConVar,pp_sharpen_contrast | 1,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/sharpen.lua,10,CreateClientConVar,pp_sharpen_distance | 1,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/sharpen.lua,42,CheckBox,#sharpen_pp.enable | pp_sharpen,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/sharpen.lua,46,NumSlider,#sharpen_pp.distance | pp_sharpen_distance,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/sharpen.lua,47,NumSlider,#sharpen_pp.contrast | pp_sharpen_contrast,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/sobel.lua,5,CreateClientConVar,pp_sobel | 0,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/sobel.lua,6,CreateClientConVar,pp_sobel_threshold | 0.11,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/sobel.lua,38,CheckBox,#sobel_pp.enable | pp_sobel,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/sobel.lua,42,NumSlider,#sobel_pp.threshold | pp_sobel_threshold,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/stereoscopy.lua,5,CreateClientConVar,pp_stereoscopy | 0,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/stereoscopy.lua,6,CreateClientConVar,pp_stereoscopy_size | 6,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/stereoscopy.lua,62,CheckBox,#stereoscopy_pp.enable | pp_stereoscopy,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/stereoscopy.lua,66,NumSlider,#stereoscopy_pp.size | pp_stereoscopy_size,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/sunbeams.lua,8,CreateClientConVar,pp_sunbeams | 0,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/sunbeams.lua,9,CreateClientConVar,pp_sunbeams_darken | 0.95,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/sunbeams.lua,10,CreateClientConVar,pp_sunbeams_multiply | 1.0,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/sunbeams.lua,11,CreateClientConVar,pp_sunbeams_sunsize | 0.075,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/sunbeams.lua,61,CheckBox,#sunbeams_pp.enable | pp_sunbeams,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/sunbeams.lua,71,NumSlider,#sunbeams_pp.multiply | pp_sunbeams_multiply,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/sunbeams.lua,72,NumSlider,#sunbeams_pp.darken | pp_sunbeams_darken,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/sunbeams.lua,73,NumSlider,#sunbeams_pp.size | pp_sunbeams_sunsize,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/super_dof.lua,27,NumSlider,DNumSlider,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/super_dof.lua,39,NumSlider,DNumSlider,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/super_dof.lua,63,NumSlider,DNumSlider,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/super_dof.lua,75,NumSlider,DNumSlider,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/super_dof.lua,87,NumSlider,DNumSlider,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/super_dof.lua,113,RunConsoleCommand,jpeg,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/super_dof.lua,380,RunConsoleCommand,pp_superdof,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/texturize.lua,5,CreateClientConVar,pp_texturize | ,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/texturize.lua,6,CreateClientConVar,pp_texturize_scale | 1,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/toytown.lua,8,CreateClientConVar,pp_toytown | 0,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/toytown.lua,9,CreateClientConVar,pp_toytown_passes | 3,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/toytown.lua,10,CreateClientConVar,pp_toytown_size | 0.4,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/toytown.lua,52,CheckBox,#toytown_pp.enable | pp_toytown,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/toytown.lua,56,NumSlider,#toytown_pp.passes | pp_toytown_passes,unverified,lexical_reference_not_runtime_registration
+lua/postprocess/toytown.lua,57,NumSlider,#toytown_pp.height | pp_toytown_size,unverified,lexical_reference_not_runtime_registration
+lua/skins/default.lua,67,NumSlider,,unverified,lexical_reference_not_runtime_registration
+lua/skins/default.lua,184,ComboBox,,unverified,lexical_reference_not_runtime_registration
+lua/skins/default.lua,185,ComboBox,,unverified,lexical_reference_not_runtime_registration
+lua/skins/default.lua,186,ComboBox,,unverified,lexical_reference_not_runtime_registration
+lua/skins/default.lua,187,ComboBox,,unverified,lexical_reference_not_runtime_registration
+lua/skins/default.lua,188,ComboBox,,unverified,lexical_reference_not_runtime_registration
+lua/skins/default.lua,190,ComboBox,,unverified,lexical_reference_not_runtime_registration
+lua/skins/default.lua,191,ComboBox,,unverified,lexical_reference_not_runtime_registration
+lua/skins/default.lua,192,ComboBox,,unverified,lexical_reference_not_runtime_registration
+lua/skins/default.lua,193,ComboBox,,unverified,lexical_reference_not_runtime_registration
+lua/skins/default.lua,194,ComboBox,,unverified,lexical_reference_not_runtime_registration
+lua/skins/default.lua,397,CheckBox,,unverified,lexical_reference_not_runtime_registration
+lua/skins/default.lua,399,CheckBox,,unverified,lexical_reference_not_runtime_registration
+lua/skins/default.lua,798,ComboBox,,unverified,lexical_reference_not_runtime_registration
+lua/skins/default.lua,799,ComboBox,,unverified,lexical_reference_not_runtime_registration
+lua/skins/default.lua,802,ComboBox,,unverified,lexical_reference_not_runtime_registration
+lua/skins/default.lua,803,ComboBox,,unverified,lexical_reference_not_runtime_registration
+lua/skins/default.lua,806,ComboBox,,unverified,lexical_reference_not_runtime_registration
+lua/skins/default.lua,807,ComboBox,,unverified,lexical_reference_not_runtime_registration
+lua/skins/default.lua,810,ComboBox,,unverified,lexical_reference_not_runtime_registration
+lua/skins/default.lua,815,ComboBox,,unverified,lexical_reference_not_runtime_registration
+lua/skins/default.lua,817,ComboBox,,unverified,lexical_reference_not_runtime_registration
+lua/skins/default.lua,820,ComboBox,,unverified,lexical_reference_not_runtime_registration
+lua/skins/default.lua,824,ComboBox,,unverified,lexical_reference_not_runtime_registration
+lua/skins/default.lua,828,ComboBox,,unverified,lexical_reference_not_runtime_registration
+lua/skins/default.lua,831,ComboBox,,unverified,lexical_reference_not_runtime_registration
+lua/skins/default.lua,836,ComboBox,,unverified,lexical_reference_not_runtime_registration
+lua/skins/default.lua,960,NumSlider,,unverified,lexical_reference_not_runtime_registration
+lua/skins/default.lua,985,ComboBox,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/contextbase.lua,12,SetConVar,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/contextbase.lua,22,SetConVar,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dbinder.lua,55,AddOption,#tool.reset_to_default | icon16/arrow_rotate_clockwise.png,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dbinder.lua,56,AddOption,#tool.clear | icon16/stop_cross.png,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dbinder.lua,70,SetConVar,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dbinder.lua,74,GetConVar,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dbutton.lua,144,RunConsoleCommand,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dbutton.lua,150,RunConsoleCommand,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dcategorylist.lua,10,AddItem,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dcategorylist.lua,13,AddItem,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dcategorylist.lua,24,AddItem,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dcheckbox.lua,6,CheckBox,Paint | Paint | CheckBox,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dcheckbox.lua,7,CheckBox,ApplySchemeSettings | Scheme | CheckBox,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dcheckbox.lua,8,CheckBox,PerformLayout | Layout | CheckBox,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dcheckbox.lua,73,CheckBox,DCheckBox | Simple Checkbox | DButton,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dcheckbox.lua,76,CheckBox,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dcheckbox.lua,86,CheckBox,DCheckBox,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dcheckbox.lua,102,SetConVar,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dcheckbox.lua,103,SetConVar,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dcheckbox.lua,188,CheckBox,CheckBox,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dcheckbox.lua,195,CheckBox,DCheckBoxLabel | Simple Checkbox | DPanel,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dcolorcube.lua,108,AddOption,#tool.reset_to_default | icon16/arrow_rotate_clockwise.png,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dcolorcube.lua,109,AddOption,#spawnmenu.menu.copy |   | icon16/page_copy.png,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dcolormixer.lua,53,AddOption,#spawnmenu.menu.save_palette | icon16/disk.png,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dcolormixer.lua,54,AddOption,#spawnmenu.menu.reset_palette | icon16/arrow_rotate_clockwise.png,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dcolormixer.lua,192,SetConVar,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dcolormixer.lua,197,SetConVar,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dcolormixer.lua,202,SetConVar,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dcolormixer.lua,207,SetConVar,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dcolormixer.lua,215,GetConVar,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dcolormixer.lua,216,GetConVar,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dcolormixer.lua,221,GetConVar,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dcolormixer.lua,222,GetConVar,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dcolormixer.lua,223,GetConVar,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dcolormixer.lua,224,GetConVar,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dcolormixer.lua,281,RunConsoleCommand,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dcolormixer.lua,386,GetConVar,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dcolorpalette.lua,197,RunConsoleCommand,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dcolorpalette.lua,203,GetConVar,r,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dcolorpalette.lua,204,GetConVar,g,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dcolorpalette.lua,205,GetConVar,b,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dcolorpalette.lua,206,GetConVar,a,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dcombobox.lua,4,ComboBox,Paint | Paint | ComboBox,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dcombobox.lua,16,ComboBox,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dcombobox.lua,207,AddOption,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dcombobox.lua,217,AddOption,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dcombobox.lua,251,GetConVar,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dcombobox.lua,295,ComboBox,DComboBox |  | DButton,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dform.lua,42,AddItem,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dform.lua,82,SetConVar,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dform.lua,85,AddItem,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dform.lua,95,SetConVar,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dform.lua,134,ComboBox,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dform.lua,140,ComboBox,DComboBox,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dform.lua,141,SetConVar,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dform.lua,145,RunConsoleCommand,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dform.lua,148,AddItem,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dform.lua,165,SetConVar,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dform.lua,168,AddItem,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dform.lua,174,NumSlider,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dform.lua,176,NumSlider,DNumSlider,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dform.lua,183,SetConVar,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dform.lua,187,GetConVar,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dform.lua,194,AddItem,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dform.lua,200,CheckBox,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dform.lua,202,CheckBox,DCheckBoxLabel,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dform.lua,205,SetConVar,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dform.lua,207,AddItem,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dform.lua,225,AddItem,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dform.lua,271,AddItem,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dform.lua,280,AddItem,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dform.lua,291,AddItem,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dform.lua,299,AddItem,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dgrid.lua,28,AddItem,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dlistbox.lua,90,AddItem,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dlistbox.lua,96,AddItem,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dlistbox.lua,184,AddItem,Bread,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dlistbox.lua,185,AddItem,Carrots,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dlistbox.lua,186,AddItem,Toilet Paper,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dlistbox.lua,187,AddItem,Air Freshner,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dlistbox.lua,188,AddItem,Shovel,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dmenu.lua,31,AddItem,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dmenu.lua,36,AddOption,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dmenu.lua,56,SetConVar,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dmenu.lua,295,AddOption,Option One,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dmenu.lua,296,AddOption,Option 2,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dmenu.lua,299,AddOption,Submenu 1,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dmenu.lua,300,AddOption,Submenu 2,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dmenu.lua,302,AddOption,Option For,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dmenubar.lua,90,AddOption,New | Chose New,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dmenubar.lua,91,AddOption,File | Chose File,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dmenubar.lua,92,AddOption,Exit | Chose Exit,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dmenubar.lua,95,AddOption,Copy | Chose Copy,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dmenubar.lua,96,AddOption,Paste | Chose Paste,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dmenubar.lua,97,AddOption,Blah | Chose Blah,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dmenubar.lua,102,AddOption,Option  | Chose sub menu option ,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dmenuoptioncvar.lua,26,GetConVar,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dmenuoptioncvar.lua,40,RunConsoleCommand,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dmenuoptioncvar.lua,42,RunConsoleCommand,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dnotify.lua,28,AddItem,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dnumslider.lua,26,NumSlider,Paint | Paint | NumSlider,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dnumslider.lua,79,AddOption,#tool.reset_to_default | icon16/arrow_rotate_clockwise.png,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dnumslider.lua,80,AddOption,#spawnmenu.menu.copy | icon16/page_copy.png,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dnumslider.lua,197,SetConVar,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dnumslider.lua,198,SetConVar,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dnumslider.lua,199,SetConVar,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dnumslider.lua,285,NumSlider,DNumSlider | Menu Option Line | Panel,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dpanellist.lua,105,AddItem,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dpanellist.lua,131,AddItem,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dpanellist.lua,145,AddItem,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dpanellist.lua,159,AddItem,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dpanelselect.lua,29,AddItem,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dpanelselect.lua,54,RunConsoleCommand,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dpanelselect.lua,77,GetConVar,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dpanpanel.lua,82,AddItem,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dpanpanel.lua,88,AddItem,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dpropertysheet.lua,130,AddOption,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dscrollpanel.lua,33,AddItem,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dscrollpanel.lua,41,AddItem,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dslider.lua,210,SetConVar,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dslider.lua,213,SetConVar,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dslider.lua,220,GetConVar,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dslider.lua,223,GetConVar,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dslider.lua,224,GetConVar,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dslider.lua,231,GetConVar,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dslider.lua,245,GetConVar,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dslider.lua,257,NumSlider,NumSlider | NumSlider,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dslider.lua,276,NumSlider,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dtextentry.lua,230,AddOption,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/dtooltip.lua,6,CreateConVar,"tooltip_delay | 0.5 | Delay between hovering over a panel, and a tooltip appearing, if it has one.",unverified,lexical_reference_not_runtime_registration
+lua/vgui/fingervar.lua,2,CreateClientConVar,finger_restrict | 1 | Whether to restrict non-root Fingerposer sliders to the Y axis only.,unverified,lexical_reference_not_runtime_registration
+lua/vgui/fingervar.lua,55,RunConsoleCommand,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/fingervar.lua,128,GetConVar, ,unverified,lexical_reference_not_runtime_registration
+lua/vgui/imagecheckbox.lua,67,CheckBox,ImageCheckBox | Button,unverified,lexical_reference_not_runtime_registration
+lua/vgui/matselect.lua,65,RunConsoleCommand,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/matselect.lua,73,AddItem,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/matselect.lua,99,RunConsoleCommand,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/matselect.lua,107,AddItem,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/matselect.lua,250,GetConVar,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/matselect.lua,268,AddOption,#spawnmenu.menu.copy | icon16/page_copy.png,unverified,lexical_reference_not_runtime_registration
+lua/vgui/prop_boolean.lua,17,CheckBox,DCheckBox,unverified,lexical_reference_not_runtime_registration
+lua/vgui/prop_combo.lua,13,ComboBox,DComboBox,unverified,lexical_reference_not_runtime_registration
+lua/vgui/prop_combo.lua,49,ComboBox,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/prop_float.lua,23,NumSlider,DNumSlider,unverified,lexical_reference_not_runtime_registration
+lua/vgui/propselect.lua,67,AddItem,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/propselect.lua,97,AddItem,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/propselect.lua,208,GetConVar,,unverified,lexical_reference_not_runtime_registration
+lua/vgui/propselect.lua,226,AddOption,#spawnmenu.menu.copy | icon16/page_copy.png,unverified,lexical_reference_not_runtime_registration
+lua/vgui/spawnicon.lua,209,AddOption, x ,unverified,lexical_reference_not_runtime_registration
+lua/vgui/spawnicon.lua,261,RunConsoleCommand,gm_spawn | ,unverified,lexical_reference_not_runtime_registration
+lua/vgui/spawnicon.lua,271,AddOption,#spawnmenu.menu.copy | \\ | / | icon16/page_copy.png,unverified,lexical_reference_not_runtime_registration
+lua/vgui/spawnicon.lua,273,AddOption,#spawnmenu.menu.spawn_with_toolgun,unverified,lexical_reference_not_runtime_registration
+lua/vgui/spawnicon.lua,274,RunConsoleCommand,gmod_tool | creator,unverified,lexical_reference_not_runtime_registration
+lua/vgui/spawnicon.lua,275,RunConsoleCommand,creator_type | 4,unverified,lexical_reference_not_runtime_registration
+lua/vgui/spawnicon.lua,276,RunConsoleCommand,creator_name,unverified,lexical_reference_not_runtime_registration
+lua/vgui/spawnicon.lua,277,RunConsoleCommand,creator_override |  ,unverified,lexical_reference_not_runtime_registration
+lua/vgui/spawnicon.lua,285,AddOption,#spawnmenu.menu.rerender_this,unverified,lexical_reference_not_runtime_registration
+lua/vgui/spawnicon.lua,288,AddOption,#spawnmenu.menu.rerender_all,unverified,lexical_reference_not_runtime_registration
+lua/vgui/spawnicon.lua,292,AddOption,#spawnmenu.menu.edit_icon,unverified,lexical_reference_not_runtime_registration
+lua/vgui/spawnicon.lua,326,AddOption,#spawnmenu.menu.delete,unverified,lexical_reference_not_runtime_registration
+lua/vgui/vgui_panellist.lua,51,AddItem,,unverified,lexical_reference_not_runtime_registration
+lua/weapons/weapon_fists.lua,105,GetConVar,phys_pushscale,unverified,lexical_reference_not_runtime_registration
+lua/weapons/weapon_fists.lua,198,GetConVar,sv_defaultdeployspeed,unverified,lexical_reference_not_runtime_registration

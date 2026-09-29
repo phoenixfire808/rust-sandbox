@@ -4,6 +4,15 @@ Independent **Bevy 0.16.1 + Rapier 0.30** sandbox foundation, with spreadsheet-a
 
 **This is not a complete Garry's Mod replacement, a Source port, or a Lua-compatible engine.** It is a working first implementation plus an explicit roadmap. No proprietary assets or Valve/Facepunch implementation code are bundled.
 
+## Continue development
+
+- **[Download the complete review workbook](spreadsheets/rust-sandbox-catalog-20260929.xlsx)**: 17 tabs and 94,611 data rows. Use GitHub's **Download raw file** button for Excel/LibreOffice.
+- **[Spreadsheet contributor guide](spreadsheets/README.md)**: where to edit, validate, rebuild and regenerate the workbook.
+- **[Remaining feature inventory](sheets/parity_gaps.csv)**: 169 missing/partial/unverified entries covering every cataloged system and tool, with priorities and acceptance checks. Includes the nonmatching menus and missing physgun effects.
+- **[Authored CSV sheets](sheets/)** and **[public metadata catalogs](catalogs/stock-20260929/)**: all workbook inputs are tracked. No private local files or original game payloads are needed to inspect or export the data.
+
+The gap inventory covers the current stock-game discovery catalog, not every possible native option or community addon. A reference row is not proof of implemented behavior or one-to-one parity.
+
 ## Start
 
 On this machine, double-click `play.cmd`, or from Windows cmd:

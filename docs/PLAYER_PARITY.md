@@ -2,6 +2,8 @@
 
 Target: Drew's locally installed Garry's Mod sandbox on gm_construct. Original content is mounted read-only, never redistributed. This is a requirements and evidence ledger, not a claim that a Bevy/Rapier reconstruction is a complete Source engine. A checked build is not a visual parity check.
 
+The detailed editable backlog is now [sheets/parity_gaps.csv](../sheets/parity_gaps.csv): 169 rows linked to all 64 cataloged system families and 37 installed tool entries. The [public workbook and contributor guide](../spreadsheets/README.md) include all authored sheets and audited metadata catalogs. Coverage of this finite catalog does not establish exhaustive coverage of every engine option or addon.
+
 ## Acceptance rules
 
 - Compare the same model/skin/bodygroups, map position, camera angles, FOV, aspect ratio, graphics settings, and animation time against the original.

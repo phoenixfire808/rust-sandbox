@@ -4,6 +4,13 @@ Date: 2026-09-29 UTC. Windows x86_64, Rust 1.97.1. Build artifacts isolated in `
 
 ## Observed passing checks
 
+### Public spreadsheet handoff, 2026-09-29
+
+- Published inputs consist of all 12 authored CSVs and five versioned metadata catalog CSVs. The latter were copied exactly from the previously local inventories, with SHA-256 copy checks and a scoped privacy review documented in `catalogs/stock-20260929/README.md`. Original local workbooks and inventories remain untouched.
+- `cargo test -p sandbox-catalog --all-features` passed, including the new gap-schema test. It checks unique IDs, required fields, statuses, priorities, known specification links, all 64 system families and all 37 tool entries, plus the specifically reported physgun/menu gaps. This checks inventory structure and family coverage, not original-game parity.
+- `sandbox-catalog validate sheets` passed. Actual workbook export from only the published `sheets/` and `catalogs/stock-20260929/` directories produced `spreadsheets/rust-sandbox-catalog-20260929.xlsx` with **17 tabs and 94,611 data rows**.
+- `scripts/verify-workbook.ps1` independently checked every worksheet name and row count against CSV inputs, and found no formula cells. The workbook was not manually inspected in Microsoft Excel. No runtime gameplay changes were made in this handoff.
+
 ### Grounded player and original animation follow-up
 
 This section supersedes the earlier viewer-only limitations below. The current launcher includes the Source player and limited prop sandbox plugins.
