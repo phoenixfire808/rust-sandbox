@@ -2,6 +2,16 @@
 
 Date: 2026-09-29 UTC. Windows x86_64, Rust 1.97.1. Build artifacts isolated in `D:\jcode-build\rust-sandbox-20260929`. No remote compilation or remote asset upload.
 
+## Testing handoff, 2026-09-29
+
+Drew requested to perform all further testing. Automated testing was stopped and no additional test runs should be started without his request.
+
+Before that instruction, the effects implementation passed 44 workspace tests (one installed-content test ignored by default) and strict all-target/all-feature Clippy. Tests include generated effects configuration, invalid CLI input rejection, effect resource reuse and lifecycle cleanup, beam UV orientation, FOV projection, and complete assignment of 169 gap IDs across 23 ordered work packages. Evidence: `local/effects-final-tests.log` and `local/effects-final-clippy.log`.
+
+Earlier graphical attempts exposed a frame-dependent pickup fixture and a sideways beam texture. The fixture now spawns a bounds-centered prop and injects the real pickup input in the same update. Beam UVs now span width on U and scroll along V. A diagnostic capture showed glows and a held beam in both views before the UV fix. Final graphical acceptance of the corrected version is left to Drew, not claimed complete here. Use `play.cmd` for normal interactive testing. Exact original-game appearance, physical-device behavior and reference parity remain unverified.
+
+The refreshed `spreadsheets/rust-sandbox-catalog-20260929-effects.xlsx` was exported and independently checked before the handoff: 19 tabs, 94,635 data rows, no formula cells. Earlier workbooks were retained. The workbook includes the effects configuration and dependency-ordered work queue. These are implementation/research records, not proof of one-to-one parity.
+
 ## Observed passing checks
 
 ### Public spreadsheet handoff, 2026-09-29

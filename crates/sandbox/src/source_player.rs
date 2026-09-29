@@ -27,6 +27,7 @@ pub struct PlayerState {
     pub entity: Entity,
     pub eye: Transform,
     pub muzzle: Vec3,
+    pub glow_points: Vec<(Vec3, bool)>,
     pub third_person: bool,
     pub noclip: bool,
     pub moving: bool,
@@ -41,6 +42,7 @@ pub struct PlayerState {
 pub struct SourcePlayerPlugin;
 impl Plugin for SourcePlayerPlugin {
     fn build(&self, app: &mut App) {
+        app.add_plugins(crate::source_effects::SourceEffectsPlugin);
         app.add_systems(Update, input.before(source_play::update_play))
             .add_systems(FixedUpdate, walk.before(PhysicsSet::SyncBackend))
             .add_systems(Update, visuals.after(source_play::update_play));
@@ -76,6 +78,7 @@ pub fn spawn(commands: &mut Commands, eye: Vec3, forward: Vec3) {
         entity,
         eye: t,
         muzzle: eye,
+        glow_points: Vec::new(),
         third_person: false,
         noclip: false,
         moving: false,
@@ -375,7 +378,7 @@ fn create_weapons(
     )?;
     Ok((view, hands, held))
 }
-fn visuals(world: &mut World) {
+pub(crate) fn visuals(world: &mut World) {
     if !world.contains_resource::<PlayerState>() {
         return;
     }
@@ -525,11 +528,21 @@ fn visuals(world: &mut World) {
             }
         }
         if third {
+            let held_globals = scene
+                .held
+                .skeleton
+                .globals(&scene.held.skeleton.bind_pose());
+            let transform = world
+                .get::<Transform>(scene.held.root)
+                .unwrap()
+                .compute_matrix();
+            update_effect_attachments(world, &scene.held, &held_globals, transform);
             return;
         }
         let clip = scene.view.clips.values().next().unwrap();
         let view_globals = scene.view.skeleton.globals(&clip.sample(time));
         skin(world, &scene.view, &view_globals);
+        update_effect_attachments(world, &scene.view, &view_globals, eye.compute_matrix());
         if let Some((_, bone, local)) = scene
             .view
             .skeleton
@@ -560,6 +573,32 @@ fn visuals(world: &mut World) {
         }
         skin(world, &scene.hands, &hands_globals);
     });
+}
+fn update_effect_attachments(world: &mut World, actor: &Actor, globals: &[Mat4], root: Mat4) {
+    let position = |bone: usize, local: Mat4| {
+        (root * source_animation::bevy_matrix(globals[bone] * local, 0.01905))
+            .transform_point3(Vec3::ZERO)
+    };
+    let mut points = Vec::new();
+    if let Some((_, bone, local)) = actor
+        .skeleton
+        .attachments
+        .iter()
+        .find(|(name, _, _)| name == "muzzle" || name == "core")
+    {
+        points.push((position(*bone, *local), true));
+    }
+    for (name, bone, local) in &actor.skeleton.attachments {
+        if name.starts_with("fork") && name.ends_with('t') {
+            points.push((position(*bone, *local), false));
+        }
+    }
+    let mut player = world.resource_mut::<PlayerState>();
+    player.muzzle = points
+        .first()
+        .map(|p| p.0)
+        .unwrap_or(player.eye.translation);
+    player.glow_points = points;
 }
 pub fn validate_assets(world: &mut World) -> Result<()> {
     let scene = create_scene(world)?;

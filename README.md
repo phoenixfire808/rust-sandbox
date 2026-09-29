@@ -6,9 +6,10 @@ Independent **Bevy 0.16.1 + Rapier 0.30** sandbox foundation, with spreadsheet-a
 
 ## Continue development
 
-- **[Download the complete review workbook](spreadsheets/rust-sandbox-catalog-20260929.xlsx)**: 17 tabs and 94,611 data rows. Use GitHub's **Download raw file** button for Excel/LibreOffice.
+- **[Download the complete review workbook](spreadsheets/rust-sandbox-catalog-20260929-effects.xlsx)**: 19 tabs and 94,635 data rows. Use GitHub's **Download raw file** button for Excel/LibreOffice.
 - **[Spreadsheet contributor guide](spreadsheets/README.md)**: where to edit, validate, rebuild and regenerate the workbook.
-- **[Remaining feature inventory](sheets/parity_gaps.csv)**: 169 missing/partial/unverified entries covering every cataloged system and tool, with priorities and acceptance checks. Includes the nonmatching menus and missing physgun effects.
+- **[Remaining feature inventory](sheets/parity_gaps.csv)**: 169 missing/partial/unverified entries covering every cataloged system and tool, with priorities and acceptance checks. Includes nonmatching menus and remaining physgun fidelity gaps.
+- **[Ordered implementation queue](sheets/work_queue.csv)**: dependency-ordered work packages assign every known gap exactly once. The first effects slice is implemented, not reference-equivalent.
 - **[Authored CSV sheets](sheets/)** and **[public metadata catalogs](catalogs/stock-20260929/)**: all workbook inputs are tracked. No private local files or original game payloads are needed to inspect or export the data.
 
 The gap inventory covers the current stock-game discovery catalog, not every possible native option or community addon. A reference row is not proof of implemented behavior or one-to-one parity.
@@ -31,6 +32,8 @@ The launcher builds first, so spreadsheet edits cannot silently leave you runnin
 
 Click to capture the mouse. **WASD walks**, **Space jumps**, **Shift runs**, **F4 toggles third person**, and **V toggles noclip** (Space/Ctrl moves vertically only in noclip). Esc releases the mouse and F10 quits. The player uses the original Kleiner model, original idle/walk/run clips, bone-merged first-person hands, and attached world weapons. Grounded movement uses Rapier, not an exact Source physics solver.
 
+The physgun now has mounted additive attachment glows and a scrolling textured beam with a release/switch-cleaned endpoint flare. Color and presentation parameters come from `sheets/source_effects.csv`. These are approximations, not matched stock lighting, claw animation or sound.
+
 **Q** opens the original-model build menu, **1/2** selects physgun/toolgun, **Z** undoes, and **F5/F6** saves/loads local prop scenes. `play-prototype.cmd` preserves the earlier physics sandbox separately. The detailed fidelity checklist and unimplemented one-to-one requirements are in [PLAYER_PARITY.md](docs/PLAYER_PARITY.md). Run `cargo run -p rust-sandbox --bin source-player-check` to validate locally installed player/weapon assets, or `call play.cmd --smoke` to capture both views and an interior-wall check.
 
 ## Delivered files
@@ -41,6 +44,8 @@ Click to capture the mouse. **WASD walks**, **Space jumps**, **Shift runs**, **F
 | `sheets/source_maps.csv` | Original installed map references, scale, FOV and inspection settings |
 | `sheets/source_player.csv` | Original player/hands/weapon references, movement dimensions and camera settings |
 | `sheets/source_play.csv` | Prop menu, grabbing, gravity and sandbox parameters |
+| `sheets/source_effects.csv` | Mounted physgun sprites and beam texture, color, widths, pulse and scroll |
+| `sheets/work_queue.csv` | Ordered implementation work packages and explicit remaining acceptance |
 | `sheets/source_pipeline.csv` | Import capabilities and remaining fidelity gaps |
 | `sheets/world.csv` | Gravity, physics tick rate, floor size, movement, distances, prop limit |
 | `sheets/scene.csv` | Initial prop instances and frozen state |

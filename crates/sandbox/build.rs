@@ -10,6 +10,7 @@ fn main() {
         "source_maps.csv",
         "source_play.csv",
         "source_player.csv",
+        "source_effects.csv",
     ] {
         println!("cargo:rerun-if-changed={}", sheets.join(name).display());
     }
@@ -22,6 +23,9 @@ fn main() {
         &sandbox_catalog::behavior::generate(&behaviors).expect("behavior generation failed"),
     );
     let out = std::path::PathBuf::from(std::env::var_os("OUT_DIR").unwrap());
+    generated.push_str(&sandbox_catalog::effects::generate(
+        &sandbox_catalog::effects::load(&sheets).expect("invalid effects spreadsheet"),
+    ));
     generated.push_str(&sandbox_catalog::player::generate(
         &sandbox_catalog::player::load(&sheets).expect("invalid player spreadsheet"),
     ));

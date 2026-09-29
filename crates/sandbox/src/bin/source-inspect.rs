@@ -40,6 +40,13 @@ fn main() -> Result<()> {
         );
     }
     for path in std::env::args().skip(1) {
+        if path.ends_with(".vmt") {
+            println!(
+                "MATERIAL {path}\n{}",
+                String::from_utf8_lossy(&mounts.read(&bsp, &path)?)
+            );
+            continue;
+        }
         println!("MODEL {path}");
         let bytes = mounts.read(&bsp, &path)?;
         let int = |o: usize| i32::from_le_bytes(bytes[o..o + 4].try_into().unwrap()) as usize;

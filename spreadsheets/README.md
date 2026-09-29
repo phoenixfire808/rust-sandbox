@@ -1,6 +1,6 @@
 # Spreadsheet handoff for contributors
 
-Download [rust-sandbox-catalog-20260929.xlsx](rust-sandbox-catalog-20260929.xlsx) for the combined Excel/LibreOffice review workbook. GitHub does not render XLSX files inline, so use **Download raw file**. All source tables are also available as CSV for review and version control.
+Download [rust-sandbox-catalog-20260929-effects.xlsx](rust-sandbox-catalog-20260929-effects.xlsx) for the combined Excel/LibreOffice review workbook. GitHub does not render XLSX files inline, so use **Download raw file**. All source tables are also available as CSV for review and version control.
 
 ## Where to work
 
@@ -8,6 +8,8 @@ Download [rust-sandbox-catalog-20260929.xlsx](rust-sandbox-catalog-20260929.xlsx
 |---|---|
 | [`../sheets/`](../sheets/) | Authoritative authored configuration and research tables |
 | [`../sheets/parity_gaps.csv`](../sheets/parity_gaps.csv) | Detailed missing/partial/unverified feature backlog and acceptance checks |
+| [`../sheets/work_queue.csv`](../sheets/work_queue.csv) | Ordered work packages assigning every gap once, with dependencies and remaining work |
+| [`../sheets/source_effects.csv`](../sheets/source_effects.csv) | Runtime physgun texture references, color, sizes, pulse and beam scrolling |
 | [`../catalogs/stock-20260929/`](../catalogs/stock-20260929/) | Versioned installed-content metadata snapshot, not game assets |
 | This workbook | Combined snapshot of every CSV in both directories |
 | [`../docs/SCHEMA.md`](../docs/SCHEMA.md) | Column contracts, units, generation and save formats |
@@ -27,7 +29,7 @@ The 169 rows cover all **64 cataloged system families and 37 installed tool entr
 - `P0`: reported visual/input mismatch or prerequisite reference work. `P1`: core playability/fidelity. `P2`: broader stock functionality. `P3`: compatibility extensions or research-only entries.
 - `spec_id` links to `systems.csv` or `tools.csv`. `acceptance` describes a check to perform, not a result already achieved.
 
-Evidence keys: `source_play` and `source_play_beam` refer to `crates/sandbox/src/source_play.rs` (including `beam` and `rebuild_menu`). `source_player`, `source_animation`, `source_assets`, and `source_models` refer to the corresponding Rust modules. `feature_ledger` means `docs/PLAYER_PARITY.md` plus the existing system catalog. `tools_catalog` means `sheets/tools.csv` and its source R9. `user_report*` records the 2026-09-29 reports of missing physgun lighting, nonmatching menus and unreliable launch feedback. These are observations and inspection references, not original-game numerical measurements.
+Evidence keys: `source_play` refers to `crates/sandbox/src/source_play.rs` (including pickup and `rebuild_menu`). `source_play_beam` is the historical gizmo-beam reference, now superseded by `source_effects` in `crates/sandbox/src/source_effects.rs`. `source_player`, `source_animation`, `source_assets`, and `source_models` refer to the corresponding Rust modules. `feature_ledger` means `docs/PLAYER_PARITY.md` plus the existing system catalog. `tools_catalog` means `sheets/tools.csv` and its source R9. `user_report*` records the 2026-09-29 reports of missing physgun lighting, nonmatching menus and unreliable launch feedback. These are observations and inspection references, not original-game numerical measurements.
 
 The older `systems.csv` and `tools.csv` statuses describe the initial implementation/research baseline. For the latest detailed gaps use `parity_gaps.csv` and the validation record. The catalog's 37 tool entries include internal/example/legacy entries and do not imply 37 fully specified player-facing tools.
 
@@ -45,7 +47,7 @@ cargo test --workspace --all-features
 cargo clippy --workspace --all-targets --all-features -- -D warnings
 ```
 
-Builds consume authored configuration through `crates/sandbox/build.rs`. Asset catalogs and `parity_gaps.csv` are research metadata, not runtime logic. The catalog test checks gap IDs, schema, priorities and coverage of every known system/tool. Runtime data equality tests verify compiled player/play/map configuration.
+Builds consume authored configuration through `crates/sandbox/build.rs`. Asset catalogs and `parity_gaps.csv` are research metadata, not runtime logic. The catalog test checks gap IDs, schema, priorities and coverage of every known system/tool. Runtime data equality tests verify compiled player/play/map/effects configuration. The work-queue test rejects missing or duplicate gap assignments and requires dependencies to occur earlier in the file. `implemented_partial` means the scoped work package has code, not that its linked parity gaps are verified.
 
 Use Rust/MSVC prerequisites on Windows and set `GMOD_DIR` to your own Steam GarrysMod root for original content. Set `CARGO_TARGET_DIR` to a suitable private build directory rather than relying on the developer's D: drive. `play-prototype.cmd` runs the independent procedural testbed without original game content. Stock content and Steam are not required just to read or export these tables.
 

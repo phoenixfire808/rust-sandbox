@@ -148,7 +148,10 @@ impl Plugin for SourcePlayPlugin {
         })
         .insert_resource(Time::<Fixed>::from_hz(60.))
         .add_plugins(RapierPhysicsPlugin::<NoUserData>::default().in_fixed_schedule())
-        .add_systems(Update, (search_input, update_play, beam).chain());
+        .add_systems(
+            Update,
+            (search_input, update_play, adjust_hold_distance).chain(),
+        );
     }
 }
 fn rgba_image(decoded: image::RgbaImage) -> Image {
@@ -746,33 +749,10 @@ fn perform(world: &mut World, action: UiAction) {
         }
     }
 }
-fn beam(
-    mut gizmos: Gizmos,
-    mut state: ResMut<PlayState>,
-    player: Option<Res<crate::source_player::PlayerState>>,
-    camera: Query<&GlobalTransform, With<SourceCamera>>,
-    props: Query<&Transform, With<SpawnedProp>>,
-    mut wheel: EventReader<MouseWheel>,
-) {
+fn adjust_hold_distance(mut state: ResMut<PlayState>, mut wheel: EventReader<MouseWheel>) {
     for e in wheel.read() {
         if state.held.is_some() {
             state.distance = (state.distance + e.y * 0.5).clamp(1., 50.);
-        }
-    }
-    if let (Some(held), Ok(cam)) = (state.held, camera.single()) {
-        if let Ok(t) = props.get(held) {
-            gizmos.line(
-                player.as_ref().map(|p| p.muzzle).unwrap_or_else(|| {
-                    cam.translation() + *cam.forward() * 0.7 + *cam.right() * 0.18
-                }),
-                t.translation,
-                Color::srgb(0.2, 0.75, 1.),
-            );
-            gizmos.sphere(
-                Isometry3d::from_translation(t.translation),
-                0.06,
-                Color::srgb(0.6, 0.9, 1.),
-            );
         }
     }
 }

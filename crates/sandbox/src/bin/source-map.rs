@@ -276,6 +276,61 @@ fn smoke(world: &mut World) {
     }
     world.resource_mut::<Settings>().frame += 1;
     let frame = world.resource::<Settings>().frame;
+    if frame == 140 {
+        let eye = world
+            .resource::<rust_sandbox::source_player::PlayerState>()
+            .eye;
+        let model = world.resource::<PlayState>().config.default_prop.clone();
+        let entity = rust_sandbox::source_play::spawn_model(
+            world,
+            &model,
+            eye.translation + *eye.forward() * 4.,
+            Quat::IDENTITY,
+            true,
+        )
+        .expect("effects smoke original prop");
+        // Aim at the model bounds center, which may differ from its authored origin.
+        let center = world
+            .get::<rust_sandbox::source_play::SpawnedProp>(entity)
+            .unwrap()
+            .center;
+        world.get_mut::<Transform>(entity).unwrap().translation -= center;
+        assert_eq!(
+            rust_sandbox::source_play::aimed_prop(world).map(|p| p.0),
+            Some(entity),
+            "effects fixture must be under the eye trace"
+        );
+        // Inject pickup immediately, without a frame-rate-dependent simulation gap.
+        world
+            .resource_mut::<ButtonInput<MouseButton>>()
+            .press(MouseButton::Left);
+    }
+    if frame == 141 {
+        assert!(
+            world.resource::<PlayState>().held.is_some(),
+            "pickup input must acquire fixture"
+        );
+    }
+    if frame == 350 {
+        world
+            .resource_mut::<ButtonInput<MouseButton>>()
+            .release(MouseButton::Left);
+    }
+    if matches!(frame, 120 | 165 | 240 | 360 | 460 | 540) {
+        let (glows, beam) = rust_sandbox::source_effects::visible_counts(world)
+            .expect("effects must load from installed textures");
+        if frame < 400 {
+            assert!(glows >= 3, "missing attached physgun glow");
+            assert_eq!(beam, matches!(frame, 165 | 240), "held/released beam state");
+        } else {
+            assert_eq!(
+                (glows, beam),
+                (0, false),
+                "stale physgun effects after tool switch"
+            );
+        }
+        println!("PHYSGUN_EFFECT_STATE frame={frame} glows={glows} beam={beam}");
+    }
     if frame == 120 && !rust_sandbox::source_player::scene_ready(world) {
         eprintln!("PLAYER_SMOKE_FAILED: player assets did not load");
         world.send_event(AppExit::error());
@@ -320,6 +375,7 @@ fn smoke(world: &mut World) {
     }
     let capture = match frame {
         120 => Some("player-first"),
+        165 => Some("physgun-held-first"),
         240 => Some("player-third"),
         320 => Some("player-walk"),
         460 => Some("tool-third"),

@@ -30,6 +30,25 @@ The original installed-content pipeline and additional decoder research are reco
 
 Bevy uses MIT/Apache-2.0 licensing, Rapier uses Apache-2.0, and the serialization/workbook crates have their own permissive terms. Exact dependency versions are locked in Cargo.lock. Review dependency notices and asset rights before any distribution. No broad license over third-party content is asserted by this project.
 
+## Physgun presentation research, 2026-09-29
+
+- Read installed `materials/sprites/physbeam.vmt` and `materials/sprites/blueflare1_noz_gmod.vmt` through the existing read-only mount. The former references `sprites/physbeam_white`; the latter requests additive sprite rendering. Diagnostic text stays in ignored `local/effects-research.log`.
+- Inspected original `models/weapons/w_physics.mdl` metadata. Its `core` and `fork*t` attachments provide effect positions. The viewmodel's available muzzle/fork attachments are transformed by the same sampled skeleton as its mesh. This reuses the existing MDL decoder and coordinate conversion rather than introducing a second asset pipeline.
+- Reused Bevy 0.16 `StandardMaterial` additive blending, billboard quad meshes, render layers and mutable mesh assets. A fixed pool holds four weapon glow slots, one endpoint and one ribbon. Beam UVs scroll on the existing mesh instead of allocating a new GPU asset every frame.
+- `sheets/source_effects.csv` authors texture references, color, widths, pulse and scroll parameters. These are independently chosen presentation parameters, not measured GMod constants. The beam's viewmodel start is adjusted for the separate world and viewmodel camera FOVs.
+- No native renderer code was copied. Claw transitions, sound, configurable player color, exact grab anchors, illumination and paired original-game visual acceptance remain open. An additive sprite does not establish that the weapon illuminates nearby geometry.
+
+```mermaid
+flowchart LR
+    CSV[source_effects.csv] --> Validate[Catalog validation]
+    Validate --> Build[Build-generated Rust config]
+    Build --> FX[Bevy effect pool]
+    Mount[Read-only installed VTF textures] --> FX
+    Pose[Sampled weapon attachments] --> FX
+    Hold[Real pickup and release state] --> FX
+    FX --> Views[World and viewmodel render layers]
+```
+
 ## What has not been researched to completion
 
 No full native engine implementation, exhaustive Lua API semantics, every game convar, all model/material formats, all stock map I/O entities, Workshop corpus, mounted game corpus, weapon/NPC stat corpus or numerical Source physics baseline has been reconstructed. The 64-system matrix is a discovery map that must be expanded into concrete reference cases during M2. The current runnable prototype is evidence for its own behavior only.

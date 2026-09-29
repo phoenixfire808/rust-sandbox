@@ -74,6 +74,7 @@ fn cli_validates_and_generates_player_and_play_sheets() {
     let code = std::fs::read_to_string(fixture.0.join("generated.rs")).unwrap();
     assert!(code.contains("compiled_player_config"));
     assert!(code.contains("compiled_play_config"));
+    assert!(code.contains("compiled_effects_config"));
     let before = code;
     assert!(
         !fixture.run("generate").status.success(),
@@ -93,6 +94,8 @@ fn cli_rejects_invalid_player_and_play_sheets_before_writing_output() {
         ("source_player.csv", "radius", "0.6"),
         ("source_play.csv", "max_props", "0"),
         ("source_play.csv", "gravity", "NaN"),
+        ("source_effects.csv", "beam_width", "NaN"),
+        ("source_effects.csv", "glow_texture", "sprites/../private"),
     ] {
         let fixture = Fixture::new();
         fixture.replace(sheet, field, value);

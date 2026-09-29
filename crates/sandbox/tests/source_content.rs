@@ -6,6 +6,10 @@ fn player_and_play_spreadsheets_reach_compiled_runtime() {
     let sheets = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../sheets");
     let player = sandbox_catalog::player::load(&sheets).unwrap();
     assert_eq!(
+        sandbox_catalog::effects::load(&sheets).unwrap(),
+        rust_sandbox::compiled_effects_config()
+    );
+    assert_eq!(
         serde_json::to_value(player).unwrap(),
         serde_json::to_value(rust_sandbox::compiled_player_config()).unwrap()
     );
