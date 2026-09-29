@@ -56,9 +56,9 @@ pub fn spawn(world: &mut World, id: &str) {
     else {
         return;
     };
-    if definition(world, id).is_none() {
+    let Some(definition) = definition(world, id) else {
         return;
-    }
+    };
     let Some(eye) = camera(world) else { return };
     let distance = world
         .resource::<PlayState>()
@@ -78,7 +78,7 @@ pub fn spawn(world: &mut World, id: &str) {
         entry.model,
         position,
         normal,
-        Quat::from_rotation_y(yaw),
+        Quat::from_rotation_y(yaw - definition.forward_yaw),
         id.into(),
     );
     let mut p = world.resource_mut::<PlayState>();
@@ -266,6 +266,7 @@ pub fn update(world: &mut World) {
                 world.entity_mut(player_id).insert(ColliderDisabled);
                 let mut player = world.resource_mut::<PlayerState>();
                 player.vehicle = Some(vehicle);
+                player.yaw = yaw + c.forward_yaw;
                 player.noclip = false;
                 player.horizontal_velocity = Vec3::ZERO;
                 player.vertical = 0.;
@@ -399,16 +400,23 @@ pub fn drive(world: &mut World) {
             continue;
         }
         let up = *t.up();
-        let forward = *t.forward();
-        let right = *t.right();
+        let frame = Quat::from_rotation_y(c.forward_yaw);
+        let local_forward = frame * Vec3::NEG_Z;
+        let local_right = frame * Vec3::X;
+        let forward = t.rotation * local_forward;
+        let right = t.rotation * local_right;
+        let width = local_right.abs().dot(half);
+        let length = local_forward.abs().dot(half);
         let com = t.transform_point(center);
         let mut force = Vec3::ZERO;
         let mut torque = Vec3::ZERO;
         let mut contacts = 0;
         for x in [-tuning.wheel_span_x, tuning.wheel_span_x] {
             for z in [-tuning.wheel_span_z, tuning.wheel_span_z] {
-                let local =
-                    center + Vec3::new(half.x * x, -half.y + c.suspension * 0.5, half.z * z);
+                let local = center
+                    + local_right * (width * x)
+                    + local_forward * (length * z)
+                    + Vec3::Y * (-half.y + c.suspension * 0.5);
                 let origin = t.transform_point(local);
                 let ground = ray(world, origin, -up, c.suspension, e);
                 let water = if c.kind == "airboat" && up.y > tuning.min_up {

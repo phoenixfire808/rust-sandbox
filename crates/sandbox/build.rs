@@ -26,6 +26,8 @@ fn main() {
         "source_weapons.csv",
         "source_vehicles.csv",
         "source_gameplay.csv",
+        "source_model_categories.csv",
+        "source_water.csv",
         "parity_gaps.csv",
     ] {
         println!("cargo:rerun-if-changed={}", sheets.join(name).display());

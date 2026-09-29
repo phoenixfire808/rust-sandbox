@@ -51,6 +51,27 @@ pub struct SpawnCatalog {
     pub weapons: Vec<Weapon>,
     pub vehicles: Vec<Vehicle>,
     pub runtime: Runtime,
+    pub model_categories: Vec<ModelCategory>,
+    pub water: Water,
+}
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct Water {
+    pub roughness: f32,
+    pub reflectance: f32,
+    pub transmission: f32,
+    pub ior: f32,
+    pub thickness: f32,
+    pub uv_scale: f32,
+    pub scroll_x: f32,
+    pub scroll_y: f32,
+    pub tint_mix: f32,
+}
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct ModelCategory {
+    pub model: String,
+    pub category: String,
+    pub source: String,
+    pub line: usize,
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Runtime {
@@ -114,6 +135,8 @@ pub struct Vehicle {
     pub seat_y: f32,
     pub seat_z: f32,
     pub seat_yaw: f32,
+    pub forward_yaw: f32,
+    pub eye_height: f32,
     pub exit_distance: f32,
     pub entry_seconds: f32,
     pub exit_seconds: f32,
@@ -171,8 +194,34 @@ pub fn load(dir: &Path) -> Result<SpawnCatalog> {
     {
         return Err("invalid shared gameplay tuning".into());
     }
+    let mut water = rows::<Water>(dir, "source_water.csv")?;
+    if water.len() != 1 {
+        return Err("source_water requires one row".into());
+    }
+    let water = water.remove(0);
+    if ![
+        water.roughness,
+        water.reflectance,
+        water.transmission,
+        water.tint_mix,
+    ]
+    .iter()
+    .all(|v| v.is_finite() && (0.0..=1.0).contains(v))
+        || !water.ior.is_finite()
+        || !(1.0..=2.0).contains(&water.ior)
+        || ![water.thickness, water.uv_scale]
+            .iter()
+            .all(|v| v.is_finite() && *v > 0. && *v <= 10.)
+        || ![water.scroll_x, water.scroll_y]
+            .iter()
+            .all(|v| v.is_finite() && v.abs() <= 1.)
+    {
+        return Err("invalid water tuning".into());
+    }
     let mut c = SpawnCatalog {
+        water,
         runtime,
+        model_categories: rows(dir, "source_model_categories.csv")?,
         entries: rows(dir, "spawn_reference.csv")?,
         tabs: rows(dir, "source_creation_tabs.csv")?,
         capabilities: rows(dir, "spawn_capabilities.csv")?,
@@ -187,6 +236,20 @@ pub fn load(dir: &Path) -> Result<SpawnCatalog> {
         .into_iter()
         .map(|g| g.id)
         .collect();
+    let mut memberships = BTreeSet::new();
+    for row in &c.model_categories {
+        if !row.model.starts_with("models/")
+            || !row.model.ends_with(".mdl")
+            || row.model.contains("..")
+            || row.model.contains('\\')
+            || row.category.is_empty()
+            || row.source.is_empty()
+            || row.line == 0
+            || !memberships.insert((&row.model, &row.category))
+        {
+            return Err("invalid or duplicate model category membership".into());
+        }
+    }
     unique(c.entries.iter().map(|e| e.id.as_str()))?;
     unique(c.tabs.iter().map(|e| e.id.as_str()))?;
     unique(c.capabilities.iter().map(|e| e.id.as_str()))?;
@@ -282,6 +345,10 @@ pub fn load(dir: &Path) -> Result<SpawnCatalog> {
             || v.entry_seconds > 5.
             || v.exit_seconds > 5.
             || v.exit_distance > 10.
+            || !v.forward_yaw.is_finite()
+            || v.forward_yaw.abs() > std::f32::consts::TAU
+            || !v.eye_height.is_finite()
+            || !(0.1..=2.).contains(&v.eye_height)
             || v.pose.is_empty()
             || v.remaining.is_empty()
             || v.scope.is_empty()

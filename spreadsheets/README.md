@@ -1,6 +1,6 @@
 # Spreadsheet handoff for contributors
 
-Download [rust-sandbox-catalog-20260929-playable-entities.xlsx](rust-sandbox-catalog-20260929-playable-entities.xlsx) for the combined Excel/LibreOffice review workbook. GitHub does not render XLSX files inline, so use **Download raw file**. All source tables are also available as CSV for review and version control.
+Download [rust-sandbox-catalog-20260929-vehicle-water-repair.xlsx](rust-sandbox-catalog-20260929-vehicle-water-repair.xlsx) for the combined Excel/LibreOffice review workbook. GitHub does not render XLSX files inline, so use **Download raw file**. All source tables are also available as CSV for review and version control.
 
 The movement-repair snapshot exports **96,805 data rows**. It corrects generic SDK friction 4 to the installed GMod preset 8, separates persistent velocity from step/snap displacement, authors the low-speed stop/support/slope thresholds and expands the movement ledger to **20 rules and acceptance cases**. The [detailed drift investigation](../docs/MOVEMENT_REPAIR.md) records exact source functions, equations, native-engine uncertainty and unrun regression cases. The final executable compiled separately from the still-running prior game and has not been launched or gameplay-tested. All prior menu/tool/context inventories remain included. Acceptance remains Drew-owned and not_run.
 
@@ -19,6 +19,10 @@ The retained presentation snapshot added `source_layout.csv` (runtime placement 
 The playable-entities snapshot adds all 34 weapon rows, all 15 vehicle rows, shared runtime tuning and 49 derived coverage rows. Thirteen weapon routes include the existing physgun/toolgun plus eleven primary-attack prototypes. Four powered vehicles and eleven passive seats have typed occupancy routes. Native secondary attacks, 21 disabled weapons, NPC AI, native driving/entry animations and audiovisual parity remain open. No gameplay acceptance is claimed.
 
 Before workbook export run `powershell -NoProfile -File scripts/export-gameplay-coverage.ps1`. Project policy reserves gameplay and tests to Drew. The contributor test commands below are not authorization for agent-run tests.
+
+The vehicle/water/category correction snapshot additionally preserves 8,390 original model-category memberships from 43 lists, researched vehicle heading/seat/eye frames, authored water optics and 14 correction acceptance rows. See [the correction plan](../docs/VEHICLE_WATER_CATEGORY_PLAN.md). Original mounted metadata is evidence, not gameplay acceptance. Normal-map/refraction rendering remains an approximation with native reflection and underwater fog pending.
+
+Regenerate category metadata with `powershell -NoProfile -File scripts/catalog-model-categories.ps1` against your own legal installation before rebuilding/exporting when source lists change.
 
 ## Where to work
 

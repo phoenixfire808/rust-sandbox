@@ -22,16 +22,25 @@ pub fn source_position(v: [f32; 3], scale: f32) -> Vec3 {
 pub struct WaterSurfaces(pub Vec<[Vec3; 3]>);
 impl WaterSurfaces {
     pub fn height(&self, point: Vec3) -> Option<f32> {
-        self.0.iter().filter_map(|[a,b,c]| {
-            if (a.y-b.y).abs() > 0.01 || (a.y-c.y).abs() > 0.01 { return None; }
-            let p = Vec2::new(point.x,point.z);
-            let a2 = Vec2::new(a.x,a.z); let b2 = Vec2::new(b.x,b.z); let c2 = Vec2::new(c.x,c.z);
-            let d = (b2-a2).perp_dot(c2-a2);
-            if d.abs() < 1e-6 { return None; }
-            let u = (p-a2).perp_dot(c2-a2)/d;
-            let v = (b2-a2).perp_dot(p-a2)/d;
-            (u >= -0.0001 && v >= -0.0001 && u+v <= 1.0001).then_some(a.y)
-        }).max_by(f32::total_cmp)
+        self.0
+            .iter()
+            .filter_map(|[a, b, c]| {
+                if (a.y - b.y).abs() > 0.01 || (a.y - c.y).abs() > 0.01 {
+                    return None;
+                }
+                let p = Vec2::new(point.x, point.z);
+                let a2 = Vec2::new(a.x, a.z);
+                let b2 = Vec2::new(b.x, b.z);
+                let c2 = Vec2::new(c.x, c.z);
+                let d = (b2 - a2).perp_dot(c2 - a2);
+                if d.abs() < 1e-6 {
+                    return None;
+                }
+                let u = (p - a2).perp_dot(c2 - a2) / d;
+                let v = (b2 - a2).perp_dot(p - a2) / d;
+                (u >= -0.0001 && v >= -0.0001 && u + v <= 1.0001).then_some(a.y)
+            })
+            .max_by(f32::total_cmp)
     }
 }
 
@@ -231,7 +240,13 @@ impl Geometry {
         .with_inserted_attribute(Mesh::ATTRIBUTE_UV_1, self.light_uv)
     }
 }
+pub struct WaterMaterial {
+    pub above: bool,
+    pub normal: Option<String>,
+    pub fog_distance: f32,
+}
 pub struct Surface {
+    pub water: Option<WaterMaterial>,
     pub name: String,
     pub geometry: Geometry,
     pub texture: Option<String>,
@@ -493,6 +508,7 @@ pub fn load(install: &Path, def: &SourceMapDef) -> Result<LoadedMap> {
         println!("Material: {name}");
         triangles += geometry.positions.len() / 3;
         let mut surface = Surface {
+            water: None,
             name: name.clone(),
             geometry,
             texture: None,
@@ -513,7 +529,41 @@ pub fn load(install: &Path, def: &SourceMapDef) -> Result<LoadedMap> {
                         });
                 surface.no_cull = mat.no_cull();
                 surface.unlit = matches!(mat, vmt_parser::material::Material::UnlitGeneric(_));
-                if let Some(base) = mat.base_texture() {
+                if let vmt_parser::material::Material::Water(water) = &mat {
+                    let [r, g, b] = water.fog_color.0;
+                    let divisor = if r.max(g).max(b) > 1. { 255. } else { 1. };
+                    surface.tint = Color::srgb(
+                        (r / divisor).clamp(0., 1.),
+                        (g / divisor).clamp(0., 1.),
+                        (b / divisor).clamp(0., 1.),
+                    );
+                    surface.alpha = AlphaMode::Opaque;
+                    surface.unlit = false;
+                    let mut normal = None;
+                    if let Some(path) = water.normal_map.as_ref().or(water.bump_map.as_ref()) {
+                        let key = format!("linear-normal:{path}");
+                        if !textures.contains_key(&key) {
+                            match mounts.texture(&bsp, path, true) {
+                                Ok(mut image) => {
+                                    image.texture_descriptor.format = TextureFormat::Rgba8Unorm;
+                                    textures.insert(key.clone(), image);
+                                }
+                                Err(e) => {
+                                    warnings.push(format!("{name}: water normal unavailable: {e}"))
+                                }
+                            }
+                        }
+                        if textures.contains_key(&key) {
+                            normal = Some(key);
+                        }
+                    }
+                    surface.water = Some(WaterMaterial {
+                        above: water.above_water,
+                        normal,
+                        fog_distance: (water.fog_end.abs() * def.unit_scale).max(0.1),
+                    });
+                    warnings.push(format!("{name}: PBR normal/refraction approximation; native planar reflection and underwater fog remain pending"));
+                } else if let Some(base) = mat.base_texture() {
                     let result = if textures.contains_key(base) {
                         Ok(())
                     } else {
@@ -529,11 +579,6 @@ pub fn load(install: &Path, def: &SourceMapDef) -> Result<LoadedMap> {
                         }
                         Err(e) => warnings.push(format!("{name}: {e}")),
                     }
-                } else if let vmt_parser::material::Material::Water(water) = &mat {
-                    let [r, g, b] = water.fog_color.0;
-                    surface.tint = Color::srgba(r / 255., g / 255., b / 255., 0.85);
-                    surface.unlit = true;
-                    warnings.push(format!("{name}: original water fog color only, reflection/refraction and waves not implemented"));
                 } else {
                     surface.tint = Color::srgb(1., 0., 1.);
                     warnings.push(format!("{name}: no supported base texture"));

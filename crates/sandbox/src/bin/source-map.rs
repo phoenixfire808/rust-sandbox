@@ -121,6 +121,7 @@ fn run() -> Result<()> {
             screenshot_done: false,
         })
         .add_systems(Startup, setup)
+        .add_systems(Update, rust_sandbox::source_water::animate)
         .add_systems(
             Update,
             (movement, smoke)
@@ -148,11 +149,31 @@ fn setup(
         .map(|(name, image)| (name, images.add(image)))
         .collect();
     let mut water = rust_sandbox::source_assets::WaterSurfaces::default();
+    let water_config = rust_sandbox::compiled_spawn_catalog().water;
     for surface in map.surfaces {
-        if surface.name.contains("water") {
-            water.0.extend(surface.geometry.positions.chunks_exact(3).map(|p| [Vec3::from_array(p[0]), Vec3::from_array(p[1]), Vec3::from_array(p[2])]));
+        if let Some(w) = &surface.water {
+            if w.above {
+                water
+                    .0
+                    .extend(surface.geometry.positions.chunks_exact(3).map(|p| {
+                        [
+                            Vec3::from_array(p[0]),
+                            Vec3::from_array(p[1]),
+                            Vec3::from_array(p[2]),
+                        ]
+                    }));
+            }
+            rust_sandbox::source_water::spawn_surface(
+                &mut commands,
+                &mut meshes,
+                &mut materials,
+                &texture_handles,
+                surface,
+                &water_config,
+            );
+            continue;
         }
-        if !surface.name.contains("water") {
+        {
             let vertices = surface
                 .geometry
                 .positions

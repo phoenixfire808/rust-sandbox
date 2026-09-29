@@ -7,6 +7,8 @@ use std::{collections::BTreeSet, path::Path};
 pub struct ModelEntry {
     pub model: String,
     pub category: String,
+    #[serde(skip)]
+    pub categories: Vec<String>,
     pub vvd: bool,
     pub vtx: bool,
     pub phy: bool,
@@ -45,14 +47,30 @@ impl MountedSource {
     }
     pub fn models(&self) -> Result<Vec<ModelEntry>> {
         let files = self.files()?;
+        let mut categories = std::collections::BTreeMap::<String, Vec<String>>::new();
+        for row in crate::compiled_spawn_catalog().model_categories {
+            categories.entry(row.model).or_default().push(row.category);
+        }
         Ok(files
             .iter()
             .filter(|p| p.starts_with("models/") && p.ends_with(".mdl"))
             .map(|p| {
                 let stem = p.trim_end_matches(".mdl");
+                let labels = categories.get(p).cloned().unwrap_or_else(|| {
+                    let folder = p
+                        .trim_start_matches("models/")
+                        .rsplit_once('/')
+                        .map(|(dir, _)| dir)
+                        .unwrap_or("Other models");
+                    vec![format!(
+                        "Other mounted models / {}",
+                        folder.replace('_', " ")
+                    )]
+                });
                 ModelEntry {
                     model: p.clone(),
-                    category: p.split('/').nth(1).unwrap_or("other").to_string(),
+                    category: labels[0].clone(),
+                    categories: labels,
                     vvd: files.contains(&format!("{stem}.vvd")),
                     vtx: files.contains(&format!("{stem}.dx90.vtx")),
                     phy: files.contains(&format!("{stem}.phy")),

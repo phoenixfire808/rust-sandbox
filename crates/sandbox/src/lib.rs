@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 pub mod source_assets;
+pub mod source_water;
 pub mod source_effects;
 pub mod source_animation;
 pub mod source_catalog;

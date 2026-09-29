@@ -1,5 +1,15 @@
 # Spreadsheet and generated-struct contract
 
+## Vehicle frames, stock categories and water
+
+source_vehicles.csv adds forward_yaw in radians and eye_height in meters. Forward yaw maps Bevy local -Z to the original converted model nose. New spawn rotation is player_yaw - forward_yaw. Existing saved rotations remain unchanged. Propulsion/grip/ray placement use the same frame; seat_yaw sets body heading. Seat coordinates are model-local imported meters from original feet attachments, not normalized chassis coordinates. Pod feet remain estimated.
+
+source_model_categories.csv stores unique model/category pairs plus original source and line. Categories preserve original parent paths and headers using ` / ` separators. Multiple memberships are intentional. Runtime filters to mounted models; fallback directories never use root model filenames as categories. ModelEntry.categories is runtime-only and skipped by the older flat metadata serializer, whose primary category remains readable. The original versioned discovery catalog is not rewritten.
+
+source_water.csv is one authored row: roughness/reflectance/transmission/tint_mix are 0..1, ior is 1..2, positive thickness and uv_scale are bounded by 10, and signed UV scroll rates are bounded by 1. These values are prototype render tuning, not native convars. Original Water shader classification and fog/normal metadata come from mounted VMTs, not name heuristics. Build and production CLI validate and embed these sheets with the spawn catalog.
+
+vehicle_water_category_cases.csv records 14 Drew-owned acceptance cases. not_run means no gameplay acceptance occurred, even when compilation and data export succeeded.
+
 ## Playable weapon and vehicle authority
 
 `source_weapons.csv` has exactly one row per registered weapon. `kind` selects disabled/physgun/toolgun/hitscan/melee/projectile/grenade. Model paths stay read-only mount references. Idle/fire/reload are pipe-separated candidate clip names with fallback diagnostics. Clip/reserve are counts; interval/reload_seconds are seconds; range/speed/blast/gravity use meters and seconds. Damage and spread are prototype values, not verified native units. Automatic is a boolean. Scope and remaining are mandatory honesty boundaries.

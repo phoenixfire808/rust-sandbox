@@ -456,15 +456,39 @@ pub(super) fn rebuild(world: &mut World) {
             UiAction::Category(String::new()),
             category.is_empty(),
         );
-        let categories: std::collections::BTreeSet<_> =
-            models.iter().map(|m| m.category.clone()).collect();
-        for cat in categories {
+        let mut categories = std::collections::BTreeSet::new();
+        for label in models.iter().flat_map(|m| &m.categories) {
+            let mut path = String::new();
+            for part in label.split(" / ") {
+                if !path.is_empty() {
+                    path.push_str(" / ");
+                }
+                path.push_str(part);
+                categories.insert(path.clone());
+            }
+        }
+        for cat in &categories {
+            let (parent, label) = cat.rsplit_once(" / ").unwrap_or(("", cat));
+            // Keep root groups and the active ancestor branch visible instead of thousands of flat paths.
+            if !parent.is_empty()
+                && category != parent
+                && !category.starts_with(&format!("{parent} / "))
+            {
+                continue;
+            }
+            let prefix = format!("{cat} / ");
+            let branch = categories.iter().any(|c| c.starts_with(&prefix));
+            let depth = cat.matches(" / ").count();
             action(
                 world,
                 tree,
-                format!("  {cat}"),
+                format!(
+                    "{}{} {label}",
+                    "  ".repeat(depth),
+                    if branch { ">" } else { " " }
+                ),
                 UiAction::Category(cat.clone()),
-                cat == category,
+                cat == &category,
             );
         }
         divider(world, body, c.divider);
@@ -491,8 +515,14 @@ pub(super) fn rebuild(world: &mut World) {
         let results: Vec<_> = models
             .into_iter()
             .filter(|m| {
-                (category.is_empty() || m.category == category)
-                    && m.model.to_lowercase().contains(&search.to_lowercase())
+                (category.is_empty()
+                    || m.categories
+                        .iter()
+                        .any(|c| c == &category || c.starts_with(&format!("{category} / "))))
+                    && (m.model.to_lowercase().contains(&search.to_lowercase())
+                        || m.categories
+                            .iter()
+                            .any(|c| c.to_lowercase().contains(&search.to_lowercase())))
             })
             .collect();
         let pages = results.len().div_ceil(page_size).max(1);

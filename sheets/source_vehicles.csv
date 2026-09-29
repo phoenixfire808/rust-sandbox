@@ -1,16 +1,16 @@
-id,kind,mass,engine_accel,brake_accel,max_speed,steer_rate,suspension,spring,damping,grip,seat_x,seat_y,seat_z,seat_yaw,exit_distance,entry_seconds,exit_seconds,pose,scope,remaining
-vehicle_jeep,wheels,700,7,12,28,0.65,0.55,35000,4500,7,-0.25,0.48,0.05,0,2.2,0.65,0.5,drive_jeep_center,Prototype four-ray sprung chassis and occupancy,Native script tuning wheel animation gearbox sounds entry sequences damage
-vehicle_jalopy,wheels,1100,6,12,30,0.6,0.55,48000,6000,7,-0.35,0.48,0.1,0,2.4,0.7,0.55,drive_jeep_center,Prototype four-ray sprung chassis and occupancy,Native script tuning wheel animation gearbox sounds entry sequences damage
-vehicle_prop_vehicle_apc,wheels,4000,4,10,20,0.45,0.6,180000,18000,6,0,1.3,0,0,3.2,0.8,0.6,drive_jeep_center,Prototype heavy four-ray chassis and occupancy,Native engine turret weapons camera entry sequences damage
-vehicle_airboat,airboat,500,6,8,24,0.8,0.5,26000,3600,3,0,0.48,0.25,0,2,0.65,0.5,drive_airboat_center,Prototype surface-support propulsion and occupancy,Native hydrodynamics water-volume buoyancy rudder fan animation and sounds
-vehicle_pod,seat,200,0,0,0,0,0.2,10000,1500,0,0,0.35,0,0,1.8,0.65,0.5,@drive_pd,Passive usable pod without engine,Door sequences view limits native seated offsets and sounds
-vehicle_chair_wood,seat,30,0,0,0,0,0.2,10000,1500,0,0,0.05,0,0,1.3,0.5,0.4,@sit,Passive usable chair without engine,Native seat offsets animation alignment and constraints
-vehicle_chair_plastic,seat,20,0,0,0,0,0.2,10000,1500,0,0,0.05,0,0,1.3,0.5,0.4,@sit,Passive usable chair without engine,Native seat offsets animation alignment and constraints
-vehicle_chair_office1,seat,35,0,0,0,0,0.2,10000,1500,0,0,0.05,0,0,1.3,0.5,0.4,@sit,Passive usable chair without engine,Native seat offsets animation alignment and constraints
-vehicle_chair_office2,seat,40,0,0,0,0,0.2,10000,1500,0,0,0.05,0,0,1.3,0.5,0.4,@sit,Passive usable chair without engine,Native seat offsets animation alignment and constraints
-vehicle_seat_jeep,seat,35,0,0,0,0,0.2,10000,1500,0,0,0.05,0,0,1.3,0.5,0.4,drive_jeep_center,Passive usable seat without engine,Native seat offsets animation alignment and constraints
-vehicle_seat_airboat,seat,35,0,0,0,0,0.2,10000,1500,0,0,0.05,0,0,1.3,0.5,0.4,drive_airboat_center,Passive usable seat without engine,Native seat offsets animation alignment and constraints
-vehicle_seat_jalopy,seat,35,0,0,0,0,0.2,10000,1500,0,0,0.05,0,0,1.3,0.5,0.4,drive_jeep_center,Passive usable seat without engine,Native seat offsets animation alignment and constraints
-vehicle_phx_seat,seat,35,0,0,0,0,0.2,10000,1500,0,0,0.3048,0,0,1.3,0.5,0.4,@sit,Passive usable seat without engine,Native seat offsets animation alignment and constraints
-vehicle_phx_seat2,seat,35,0,0,0,0,0.2,10000,1500,0,0,0.3048,0,0,1.3,0.5,0.4,drive_jeep_center,Passive usable seat without engine,Native seat offsets animation alignment and constraints
-vehicle_phx_seat3,seat,35,0,0,0,0,0.2,10000,1500,0,0,0.3048,0,0,1.3,0.5,0.4,drive_airboat_center,Passive usable seat without engine,Native seat offsets animation alignment and constraints
+id,kind,mass,engine_accel,brake_accel,max_speed,steer_rate,suspension,spring,damping,grip,seat_x,seat_y,seat_z,seat_yaw,forward_yaw,eye_height,exit_distance,entry_seconds,exit_seconds,pose,scope,remaining
+vehicle_jeep,wheels,700,7,12,28,0.65,0.55,35000,4500,7,-0.9042624,0.433865,-0.1796344,-1.5707964,-1.5707964,0.6096,2.2,0.65,0.5,drive_jeep_center,Attachment-aligned four-ray chassis and occupancy,Native script tuning wheel animation gearbox sounds entry sequences damage
+vehicle_jalopy,wheels,1100,6,12,30,0.6,0.55,48000,6000,7,-0.7331455,0.4599928,-0.3362158,-1.5707964,-1.5707964,0.6477,2.4,0.7,0.55,drive_jeep_center,Attachment-aligned four-ray chassis and occupancy,Native script tuning wheel animation gearbox sounds entry sequences damage
+vehicle_prop_vehicle_apc,wheels,4000,4,10,20,0.45,0.6,180000,18000,6,-0.5524505,1.54305,0,-1.5707964,-1.5707964,0.5334,3.2,0.8,0.6,drive_jeep_center,Attachment-aligned heavy chassis and occupancy,Native engine turret weapons camera entry sequences damage
+vehicle_airboat,airboat,500,6,8,24,0.8,0.5,26000,3600,3,-0.2095504,0.6532086,0,-1.5707964,-1.5707964,0.5334,2,0.65,0.5,drive_airboat_center,Attachment-aligned surface-support propulsion and occupancy,Native hydrodynamics water-volume buoyancy rudder fan animation and sounds
+vehicle_pod,seat,200,0,0,0,0,0.2,10000,1500,0,-0.0390997,0.7192375,0,-1.5707964,-1.5707964,0.5334,1.8,0.65,0.5,@drive_pd,Eye-attachment-aligned passive pod with estimated feet height,Door sequences view limits native seated offsets and sounds
+vehicle_chair_wood,seat,30,0,0,0,0,0.2,10000,1500,0,0,0.36195,-0.05715,0,0,0.4953,1.3,0.5,0.4,@sit,Attachment-aligned passive chair,Native pose alignment and constraints
+vehicle_chair_plastic,seat,20,0,0,0,0,0.2,10000,1500,0,0,0.4191,-0.0381,0,0,0.4953,1.3,0.5,0.4,@sit,Attachment-aligned passive chair,Native pose alignment and constraints
+vehicle_chair_office1,seat,35,0,0,0,0,0.2,10000,1500,0,0,0.527685,0,0,0,0.47625,1.3,0.5,0.4,@sit,Attachment-aligned passive chair,Native pose alignment and constraints
+vehicle_chair_office2,seat,40,0,0,0,0,0.2,10000,1500,0,0,0.4191,-0.0762,0,0,0.4953,1.3,0.5,0.4,@sit,Attachment-aligned passive chair,Native pose alignment and constraints
+vehicle_seat_jeep,seat,35,0,0,0,0,0.2,10000,1500,0,0,0.20955,-0.0381,0,0,0.4953,1.3,0.5,0.4,drive_jeep_center,Attachment-aligned passive seat,Native pose alignment and constraints
+vehicle_seat_airboat,seat,35,0,0,0,0,0.2,10000,1500,0,0,0.1143,0,0,0,0.51435,1.3,0.5,0.4,drive_airboat_center,Attachment-aligned passive seat,Native pose alignment and constraints
+vehicle_seat_jalopy,seat,35,0,0,0,0,0.2,10000,1500,0,0,0.24765,-0.09525,0,0,0.51435,1.3,0.5,0.4,drive_jeep_center,Attachment-aligned passive seat,Native pose alignment and constraints
+vehicle_phx_seat,seat,35,0,0,0,0,0.2,10000,1500,0,-0.0158003,0.1564515,-0.0730485,0,0,0.55245,1.3,0.5,0.4,@sit,Attachment-aligned passive PHX seat,Native pose alignment and constraints
+vehicle_phx_seat2,seat,35,0,0,0,0,0.2,10000,1500,0,-0.0158004,0.1564513,0.3079515,0,0,0.55245,1.3,0.5,0.4,drive_jeep_center,Attachment-aligned passive PHX seat,Native pose alignment and constraints
+vehicle_phx_seat3,seat,35,0,0,0,0,0.2,10000,1500,0,-0.0158003,0.1564515,-0.0730485,0,0,0.55245,1.3,0.5,0.4,drive_airboat_center,Attachment-aligned passive PHX seat,Native pose alignment and constraints

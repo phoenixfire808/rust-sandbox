@@ -1,0 +1,15 @@
+id,scope,action,expected,result,owner
+vehicle_forward,vehicles,Spawn Jeep Jalopy APC and Airboat while looking in the same direction,All visible noses align with view heading; W drives forward along nose and S reverses,not_run,Drew
+vehicle_steer,vehicles,Drive powered vehicles forward and backward while steering A and D,Steering follows vehicle heading; lateral grip does not suppress forward propulsion,not_run,Drew
+vehicle_seats,vehicles,Enter all 15 registered vehicles or seats and switch F4 view,Driver faces model forward with researched feet and eye height; no sideways seated body,not_run,Drew
+vehicle_restore,vehicles,Save reload and duplicate each vehicle then enter it,Existing rotations are retained while corrected drive and seat frames remain consistent,not_run,Drew
+vehicle_exit,vehicles,Exit near walls and under low ceilings,Blocked capsule endpoints are refused without trapping the player in world geometry,not_run,Drew
+vehicle_water,airboat,Spawn boat at shoreline and steer on and off water,Propulsion stays aligned and water surface support remains stable; no claim of native fluid dynamics,not_run,Drew
+category_stock,models,Browse Construction Props and Half-Life 2 furniture and vehicles,Original stock membership and semantic headers appear with mounted models only,not_run,Drew
+category_multiple,models,Find a model present in multiple original lists,Model appears in every relevant category without duplicate entries in All models,not_run,Drew
+category_fallback,models,Find uncategorized root-level and nested mounted models,Readable fallback groups appear; no individual mdl filename becomes a category,not_run,Drew
+category_search,models,Search furniture and model names then change category and page,Category text and model names both match; focus and page reset remain usable,not_run,Drew
+water_shoreline,rendering,Walk along shoreline and look across water at several angles,Moving original normal detail and refraction replace flat opaque color without coplanar blinking,not_run,Drew
+water_submerged,rendering,Look above and below the water plane,Only one two-sided boundary renders; native underwater fog remains explicitly missing,not_run,Drew
+water_collision,rendering,Move across a water boundary and inspect other surfaces with water in their names,Only Water shader surfaces omit solid collision; model filenames do not classify liquids,not_run,Drew
+water_budget,rendering,View water while moving and using menus,No tangent or render errors; frame cost and appearance require user acceptance,not_run,Drew

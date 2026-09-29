@@ -1,5 +1,15 @@
 # Validation record
 
+## Vehicle orientation, model categories and water, 2026-09-29 23:19 UTC
+
+- Read-only installed-content research extracted attachment frames for all 15 registered vehicles, 8,390 model/category memberships from 43 stock spawn lists, and original above/below-water material parameters. Metadata extraction is not gameplay acceptance. Research sources and approximation boundaries are recorded in RESEARCH.md and VEHICLE_WATER_CATEGORY_PLAN.md.
+- Final actual executable build succeeded in 1m53s: `cargo rustc --locked -p rust-sandbox --bin source-map -- -o D:\jcode-build\rust-sandbox-20260929\source-map-vehicle-water-repair.exe`. Log: local/vehicle-water-repair-final.log. The preceding integrated build also passed. Only the two deliberate explicit-output-path warnings and existing binrw future-incompatibility notice were reported.
+- Production `sandbox-catalog validate sheets` passed, including generated vehicle frames, model categories and water configuration. It reported 197 spawn references, eight creation tabs, 56 capabilities and 101 behavior specifications. Log: local/vehicle-water-sheet-validation.log.
+- Workbook export succeeded with **107,168 data rows** at `spreadsheets/rust-sandbox-catalog-20260929-vehicle-water-repair.xlsx`. Log: local/vehicle-water-workbook.log. CSV remains authoritative, earlier snapshots are preserved, and export success is not independent workbook acceptance.
+- Static review covered spawn orientation, steering and suspension axes, seat/camera configuration, mounted-model category intersection and parent filtering, parsed-water collision exclusion, original linear normal maps and single-boundary rendering. Native chassis parameters, entry cinematics, exact seat pose alignment, native menu interaction parity, planar water reflections, animated VTF frames and underwater optics remain incomplete or unverified.
+- No tests or test compilation, Clippy, benchmarks, screenshots or gameplay automation were performed. All 14 new acceptance cases remain not_run and Drew-owned. Compilation does not establish that the reported visual or handling defects pass gameplay acceptance.
+- The prior game was observed responding as PID 48788 during this pass. No game was terminated or replaced, saves and private feedback were preserved, and this separate new executable has not been launched.
+
 ## Playable weapons and typed vehicles, 2026-09-29 22:40 UTC
 
 - Published the preceding nine local commits to origin/master through 143dd5c immediately on request. This section records the subsequent gameplay integration separately.

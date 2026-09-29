@@ -39,16 +39,72 @@ fn main() -> Result<()> {
             e.prop("angles")
         );
     }
-    for path in std::env::args().skip(1) {
-        if path.ends_with(".vmt") {
+    let args: Vec<_> = std::env::args().skip(1).collect();
+    let metadata = args.iter().any(|a| a == "--metadata");
+    for path in args.into_iter().filter(|a| a != "--metadata") {
+        if path.ends_with(".vmt") || path.ends_with(".txt") {
             println!(
                 "MATERIAL {path}\n{}",
                 String::from_utf8_lossy(&mounts.read(&bsp, &path)?)
             );
+            if path.ends_with(".vmt") {
+                let name = path
+                    .trim_start_matches("materials/")
+                    .trim_end_matches(".vmt");
+                if let Ok(vmt_parser::material::Material::Water(w)) = mounts.material(&bsp, name) {
+                    println!(
+                        "PARSED_WATER above={} fog={:?} normal={:?}",
+                        w.above_water, w.fog_color.0, w.normal_map
+                    );
+                }
+            }
             continue;
         }
         println!("MODEL {path}");
         let bytes = mounts.read(&bsp, &path)?;
+        if metadata {
+            let mdl = vmdl::Mdl::read(&bytes)?;
+            let skeleton = rust_sandbox::source_animation::Skeleton::read(&bytes)?;
+            let globals = skeleton.globals(&skeleton.bind_pose());
+            for (name, bone, local) in &skeleton.attachments {
+                if name == "vehicle_driver_eyes"
+                    || name == "vehicle_feet_passenger0"
+                    || name == "wheel_fl"
+                    || name == "wheel_rl"
+                {
+                    let m = globals[*bone] * *local;
+                    let p = rust_sandbox::source_assets::source_position(
+                        m.transform_point3(bevy::prelude::Vec3::ZERO).to_array(),
+                        0.01905,
+                    );
+                    let f = rust_sandbox::source_assets::source_position(
+                        m.transform_vector3(bevy::prelude::Vec3::X).to_array(),
+                        1.,
+                    );
+                    println!(
+                        "FRAME {path} {name} position={p:?} forward={f:?} yaw={}",
+                        (-f.x).atan2(-f.z)
+                    );
+                }
+            }
+            println!("BOUNDS {:?}", mdl.header.bounding_box);
+            for a in &mdl.attachments {
+                println!("ATTACH {} bone={} {:?}", a.name, a.local_bone, a.local);
+            }
+            for (i, b) in mdl.bones.iter().enumerate() {
+                if b.name.contains("driver")
+                    || b.name.contains("steer")
+                    || b.name.contains("wheel")
+                    || b.name.contains("vehicle")
+                {
+                    println!(
+                        "BONE {i} {} parent={} pos={:?} rot={:?}",
+                        b.name, b.parent, b.pos, b.quaternion
+                    );
+                }
+            }
+            continue;
+        }
         let int = |o: usize| i32::from_le_bytes(bytes[o..o + 4].try_into().unwrap()) as usize;
         let text = |o: usize| {
             String::from_utf8_lossy(&bytes[o..])

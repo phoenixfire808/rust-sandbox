@@ -154,7 +154,7 @@ impl PlayState {
             creation_tab: "spawnlists".into(),
             catalog_selected: String::new(),
             spawn_catalog: crate::compiled_spawn_catalog(),
-            category: "props_c17".into(),
+            category: "Construction Props".into(),
             search: String::new(),
             page: 0,
             selected,

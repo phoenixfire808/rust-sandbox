@@ -688,7 +688,10 @@ pub(crate) fn visuals(world: &mut World) {
         let feet = center - Vec3::Y * c.height * 0.5;
         let tuning = world.resource::<PlayState>().spawn_catalog.runtime.clone();
         let eye_height = if occupied {
-            tuning.seat_eye_height
+            let seat = world.resource::<source_play::vehicles::Occupancy>();
+            source_play::vehicles::definition(world, &seat.definition)
+                .map(|v| v.eye_height)
+                .unwrap_or(tuning.seat_eye_height)
         } else {
             c.eye_height
         };
