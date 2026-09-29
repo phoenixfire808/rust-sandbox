@@ -27,6 +27,9 @@ pub struct PlayerConfig {
     pub stop_speed: f32,
     pub air_speed_cap: f32,
     pub jump_boost: f32,
+    pub minimum_move_speed: f32,
+    pub ground_probe: f32,
+    pub walkable_normal: f32,
 }
 pub fn load(path: &Path) -> Result<PlayerConfig> {
     let rows: Vec<PlayerConfig> = csv::Reader::from_path(path.join("source_player.csv"))?
@@ -68,6 +71,9 @@ pub fn load(path: &Path) -> Result<PlayerConfig> {
         (c.stop_speed, 0.01, 30.),
         (c.air_speed_cap, 0.01, 30.),
         (c.jump_boost, 0., 1.),
+        (c.minimum_move_speed, 0.001, 0.1),
+        (c.ground_probe, 0.001, 0.1),
+        (c.walkable_normal, 0.1, 1.),
     ] {
         if !v.is_finite() || !(lo..=hi).contains(&v) {
             return Err("invalid player parameter".into());

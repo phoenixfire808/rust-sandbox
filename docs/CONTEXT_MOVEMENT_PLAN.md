@@ -1,5 +1,7 @@
 # Contextual feedback, cursor and Source-style movement
 
+**Movement follow-up:** Drew reported drifting in this build. [MOVEMENT_REPAIR.md](MOVEMENT_REPAIR.md) supersedes its friction and momentum implementation: installed GMod preset friction is 8, and positional corrections must not become velocity. The contextual feedback workflow below is unchanged.
+
 ## Delivered implementation scope
 
 1. Research the actual public Source movement functions and installed Sandbox player class. Record sources and separate native engine uncertainty.

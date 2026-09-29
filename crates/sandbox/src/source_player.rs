@@ -40,8 +40,8 @@ pub struct PlayerState {
     pub vertical: f32,
     pub running: bool,
     pub horizontal_velocity: Vec3,
-    jump_boost_pending: Vec3,
-    reset_velocity: bool,
+    jumped: bool,
+    movement_submitted: bool,
 }
 pub struct SourcePlayerPlugin;
 impl Plugin for SourcePlayerPlugin {
@@ -50,6 +50,7 @@ impl Plugin for SourcePlayerPlugin {
         app.add_systems(Update, input.before(source_play::update_play))
             .add_systems(Update, sync_cursor.after(source_play::update_play))
             .add_systems(FixedUpdate, walk.before(PhysicsSet::SyncBackend))
+            .add_systems(FixedUpdate, finish_walk.after(PhysicsSet::Writeback))
             .add_systems(Update, visuals.after(source_play::tools::input));
     }
 }
@@ -71,8 +72,8 @@ pub fn spawn(commands: &mut Commands, eye: Vec3, forward: Vec3) {
                     include_dynamic_bodies: false,
                 }),
                 snap_to_ground: Some(CharacterLength::Absolute(c.step_height)),
-                max_slope_climb_angle: 45f32.to_radians(),
-                min_slope_slide_angle: 46f32.to_radians(),
+                max_slope_climb_angle: c.walkable_normal.acos(),
+                min_slope_slide_angle: c.walkable_normal.acos(),
                 ..default()
             },
         ))
@@ -97,8 +98,8 @@ pub fn spawn(commands: &mut Commands, eye: Vec3, forward: Vec3) {
         vertical: 0.,
         running: false,
         horizontal_velocity: Vec3::ZERO,
-        jump_boost_pending: Vec3::ZERO,
-        reset_velocity: true,
+        jumped: false,
+        movement_submitted: false,
     });
 }
 #[allow(clippy::too_many_arguments)]
@@ -136,8 +137,9 @@ pub fn input(
         s.noclip = !s.noclip;
         s.vertical = 0.;
         s.horizontal_velocity = Vec3::ZERO;
-        s.jump_boost_pending = Vec3::ZERO;
-        s.reset_velocity = true;
+        s.jumped = false;
+        s.movement_submitted = false;
+        s.grounded = false;
     }
     let axis =
         |positive, negative| (keys.pressed(positive) as i32 - keys.pressed(negative) as i32) as f32;
@@ -175,25 +177,15 @@ fn walk(
     time: Res<Time<Fixed>>,
     play: Res<PlayState>,
     state: Option<ResMut<PlayerState>>,
-    mut q: Query<
-        (
-            &mut Transform,
-            &mut KinematicCharacterController,
-            Option<&KinematicCharacterControllerOutput>,
-        ),
-        With<PlayerBody>,
-    >,
+    mut q: Query<(&mut Transform, &mut KinematicCharacterController), With<PlayerBody>>,
 ) {
     let Some(mut s) = state else { return };
-    let Ok((mut t, mut controller, output)) = q.single_mut() else {
+    let Ok((mut t, mut controller)) = q.single_mut() else {
         return;
     };
     let dt = time.delta_secs();
-    s.grounded = output.is_some_and(|o| o.grounded);
-    s.local_velocity = Quat::from_rotation_y(-s.yaw)
-        * output
-            .map(|o| o.effective_translation / dt)
-            .unwrap_or(Vec3::ZERO);
+    s.movement_submitted = false;
+    s.jumped = false;
     let rotation = Quat::from_euler(
         EulerRot::YXZ,
         s.yaw,
@@ -215,23 +207,10 @@ fn walk(
         s.vertical = 0.;
         s.local_velocity = s.direction.normalize_or_zero() * speed;
         s.horizontal_velocity = Vec3::ZERO;
-        s.jump_boost_pending = Vec3::ZERO;
-        s.reset_velocity = true;
+        s.grounded = false;
     } else {
-        // Use collision-resolved displacement, then apply the preceding FinishMove boost.
-        if !s.reset_velocity {
-            if let Some(output) = output {
-                s.horizontal_velocity = Vec3::new(
-                    output.effective_translation.x,
-                    0.,
-                    output.effective_translation.z,
-                ) / dt
-                    + s.jump_boost_pending;
-            }
-        }
-        s.reset_velocity = false;
-        s.jump_boost_pending = Vec3::ZERO;
-        if s.grounded && s.vertical < 0. {
+        // Source keeps velocity separately from step/snap/contact position corrections.
+        if s.grounded {
             s.vertical = 0.;
         }
         let jumping = s.jump && s.grounded;
@@ -239,6 +218,7 @@ fn walk(
             s.vertical = s.config.jump_speed;
             s.grounded = false;
         }
+        s.jumped = jumping;
         let c = &s.config;
         let mut velocity = s.horizontal_velocity;
         if s.grounded {
@@ -264,29 +244,121 @@ fn walk(
             // Source's legacy AirAccelerate uses uncapped wish speed for acceleration.
             velocity += direction * missing.min(acceleration * speed * dt);
         }
-        s.horizontal_velocity = velocity;
-        s.vertical = (s.vertical + play.config.gravity * dt * 0.5).max(-50.);
-        controller.snap_to_ground = if s.vertical > 0. {
-            None
-        } else {
-            Some(CharacterLength::Absolute(s.config.step_height))
-        };
-        controller.translation = Some((velocity + Vec3::Y * s.vertical) * dt);
-        s.vertical = (s.vertical + play.config.gravity * dt * 0.5).max(-50.);
-        // Sandbox adds a bounded forward boost after movement, including reverse travel.
-        if jumping {
-            let forward = Quat::from_rotation_y(s.yaw) * Vec3::NEG_Z;
-            let fraction = s.config.jump_boost;
-            let mut addition = (-s.direction.z * speed * fraction).abs();
-            let ceiling = speed * (1. + fraction);
-            addition -= (velocity.length() + addition - ceiling).max(0.);
-            if velocity.dot(forward) < 0. {
-                addition = -addition;
-            }
-            s.jump_boost_pending = forward * addition;
+        if s.grounded && velocity.length() < c.minimum_move_speed {
+            velocity = Vec3::ZERO;
         }
+        s.horizontal_velocity = velocity;
+        if !s.grounded {
+            s.vertical = (s.vertical + play.config.gravity * dt * 0.5).max(-50.);
+        }
+        controller.autostep = s.grounded.then_some(CharacterAutostep {
+            max_height: CharacterLength::Absolute(s.config.step_height),
+            min_width: CharacterLength::Absolute(0.1),
+            include_dynamic_bodies: false,
+        });
+        controller.snap_to_ground = if s.grounded {
+            Some(CharacterLength::Absolute(s.config.step_height))
+        } else {
+            None
+        };
+        // This downward support probe enables Rapier snapping. It is NOT falling velocity.
+        let vertical_move = if s.grounded {
+            -s.config.ground_probe
+        } else {
+            s.vertical * dt
+        };
+        controller.translation = Some(velocity * dt + Vec3::Y * vertical_move);
+        s.movement_submitted = true;
     }
     s.jump = false;
+}
+
+fn finish_walk(
+    time: Res<Time<Fixed>>,
+    play: Res<PlayState>,
+    state: Option<ResMut<PlayerState>>,
+    q: Query<&KinematicCharacterControllerOutput, With<PlayerBody>>,
+) {
+    let Some(mut s) = state else { return };
+    if !s.movement_submitted || s.noclip {
+        return;
+    }
+    s.movement_submitted = false;
+    let Ok(output) = q.single() else { return };
+    let was_grounded = s.grounded;
+    let mut velocity = s.horizontal_velocity + Vec3::Y * s.vertical;
+    let mut planes = Vec::new();
+    for collision in &output.collisions {
+        let Some(hit) = collision.hit.details else {
+            continue;
+        };
+        // KCC query hits expose obstacle normals in world space, as used by handle_slopes.
+        let mut normal = hit.normal1.normalize_or_zero();
+        if was_grounded && normal.y >= s.config.walkable_normal {
+            continue;
+        }
+        // A stair face successfully stepped over must not cancel forward momentum.
+        if output.effective_translation.dot(normal)
+            <= output.desired_translation.dot(normal) + 1.0e-5
+        {
+            continue;
+        }
+        if was_grounded && normal.y >= 0. {
+            normal = Vec3::new(normal.x, 0., normal.z).normalize_or_zero();
+        }
+        if normal != Vec3::ZERO && !planes.iter().any(|p: &Vec3| p.dot(normal) > 0.99999) {
+            planes.push(normal);
+        }
+    }
+    velocity = clip_movement_velocity(velocity, &planes);
+    // Successful steps/snaps can report support without a floor collision event.
+    // Keep Rapier's support result, not a heuristic over sweep events. Source's
+    // hull/quadrant ground trace remains a separate parity boundary.
+    s.grounded = output.grounded && s.vertical <= 0.;
+    s.vertical = if s.grounded {
+        0.
+    } else {
+        (velocity.y + play.config.gravity * time.delta_secs() * 0.5).max(-50.)
+    };
+    s.horizontal_velocity = Vec3::new(velocity.x, 0., velocity.z);
+    if s.jumped {
+        // Sandbox FinishMove observes collision-clipped velocity, not pre-move wish velocity.
+        let forward = Quat::from_rotation_y(s.yaw) * Vec3::NEG_Z;
+        let speed = if s.running {
+            s.config.run_speed
+        } else {
+            s.config.walk_speed
+        };
+        let fraction = s.config.jump_boost;
+        let mut addition = (-s.direction.z * speed * fraction).abs();
+        addition -= (s.horizontal_velocity.length() + addition - speed * (1. + fraction)).max(0.);
+        if s.horizontal_velocity.dot(forward) < 0. {
+            addition = -addition;
+        }
+        s.horizontal_velocity += forward * addition;
+    }
+    s.jumped = false;
+    // Actual displacement is useful for animation, but never becomes next-tick momentum.
+    s.local_velocity =
+        Quat::from_rotation_y(-s.yaw) * output.effective_translation / time.delta_secs();
+}
+
+fn clip_movement_velocity(velocity: Vec3, planes: &[Vec3]) -> Vec3 {
+    if planes.is_empty() {
+        return velocity;
+    }
+    for normal in planes {
+        let candidate = velocity - *normal * velocity.dot(*normal).min(0.);
+        if planes.iter().all(|p| candidate.dot(*p) >= -1.0e-5) {
+            return candidate;
+        }
+    }
+    // Two blocking planes leave a crease. More conflicting planes stop movement.
+    if planes.len() == 2 {
+        let crease = planes[0].cross(planes[1]).normalize_or_zero();
+        return crease * velocity.dot(crease);
+    }
+    Vec3::ZERO
 }
 struct Actor {
     root: Entity,
@@ -830,7 +902,8 @@ mod tests {
                 Transform::from_xyz(0., 2., -2.),
             ));
         })
-        .add_systems(FixedUpdate, walk.before(PhysicsSet::SyncBackend));
+        .add_systems(FixedUpdate, walk.before(PhysicsSet::SyncBackend))
+        .add_systems(FixedUpdate, finish_walk.after(PhysicsSet::Writeback));
         a.finish();
         a.cleanup();
         for _ in 0..180 {
@@ -864,6 +937,56 @@ mod tests {
             (p.y - c.height * 0.5).abs() < 0.03,
             "looking up must not fly: {p:?}"
         );
+    }
+    #[test]
+    fn gmod_ground_stop_does_not_use_sdk_friction() {
+        let mut a = app();
+        assert_eq!(
+            a.world().resource::<PlayerState>().config.ground_friction,
+            8.
+        );
+        {
+            let mut s = a.world_mut().resource_mut::<PlayerState>();
+            s.direction = Vec3::X;
+            s.running = true;
+        }
+        for _ in 0..60 {
+            a.update();
+        }
+        let start = position(&a);
+        a.world_mut().resource_mut::<PlayerState>().direction = Vec3::ZERO;
+        for _ in 0..24 {
+            a.update();
+        }
+        let stopped = position(&a);
+        assert!(
+            (stopped - start).length() < 0.85,
+            "excess stopping drift: {:?}",
+            stopped - start
+        );
+        assert_eq!(
+            a.world().resource::<PlayerState>().horizontal_velocity,
+            Vec3::ZERO
+        );
+        assert_eq!(a.world().resource::<PlayerState>().vertical, 0.);
+        for _ in 0..120 {
+            a.update();
+        }
+        assert!((position(&a) - stopped).length() < 0.001, "idle creep");
+    }
+    #[test]
+    fn contact_clipping_removes_only_inward_momentum() {
+        let incoming = Vec3::new(3., 0., -4.);
+        assert_eq!(
+            clip_movement_velocity(incoming, &[Vec3::Z]),
+            Vec3::new(3., 0., 0.)
+        );
+        assert_eq!(
+            clip_movement_velocity(incoming, &[Vec3::NEG_X, Vec3::Z]),
+            Vec3::ZERO
+        );
+        let away = Vec3::new(3., 0., 4.);
+        assert_eq!(clip_movement_velocity(away, &[Vec3::Z]), away);
     }
     #[test]
     fn jump_lands_and_cannot_rejump_in_air() {
