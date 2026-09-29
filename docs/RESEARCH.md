@@ -2,6 +2,16 @@
 
 Research date: 2026-09-29 UTC. Citation IDs are maintained in `sheets/sources.csv`.
 
+## Source movement and contextual feedback, 2026-09-29
+
+Read Valve Source SDK 2013 `src/game/shared/gamemovement.cpp` (Friction, AirAccelerate, FullWalkMove and CheckJumpButton), `gamemovement.h` and `movevars_shared.cpp` from the public Valve repository (R12). Ground friction uses max(speed, stop speed); air acceleration limits velocity projected onto the wish direction to 30 Hammer units/s but uses uncapped wish speed in the acceleration term. A successful fresh jump precedes ground friction. Held Space alone is not automatic bunny hopping. Gravity uses half steps around movement. SDK baseline values are acceleration 10, air acceleration 10, friction 4 and stop speed 100 HU/s. These are reference baselines, not measurements of the installed GMod native binary. The Valve Developer Wiki Bunnyhop page returned an anti-bot response and was not used as read evidence.
+
+Read the installed `gamemodes/base/gamemode/player_class/player_default.lua` and `gamemodes/sandbox/gamemode/player_class/player_sandbox.lua` without modifying Steam (R13). Sandbox specifies walk 200/run 400/slow 100 HU/s and inherits jump power 200. Its StartMove/FinishMove jump boost uses standing fraction 0.5 (crouched 0.1), deliberately preserves sprint boost, bounds horizontal speed against moveMaxSpeed*(1+fraction), and reverses the addition for backward travel. This differs from treating bunny hopping as unlimited forward acceleration. Existing scale 0.01905 m/HU yields walk 3.81, run 7.62, jump 3.81, stop speed 1.905 and air projection cap 0.5715 in SI units.
+
+The independent Rust controller now retains collision-resolved planar momentum, applies the researched acceleration/friction rules, uses fresh-press jumps and a pending post-move Sandbox boost. Authored constants remain in source_player.csv. Rapier capsule/contact/step behavior is not Source hull sliding. Crouch, water, ladders, surf, moving platforms, ceiling response, surface friction, exact command timing and native frame-rate parity remain incomplete or unverified. movement_reference.csv separates each implemented rule from remaining work and Drew-owned acceptance.
+
+Cursor inspection found that menu closure previously depended on another click to recapture. A single final cursor synchronization now derives capture from window focus and actual UI state. Contextual feedback reuses Bevy RelativeCursorPosition, existing UI actions and serde JSON. F8 or browser/tool-panel feedback captures context before the editor opens, preserves unsent-draft context, and returns to the originating page/menu. No new service, dependency, upload, agent loop or screenshot capture was added. Reports stay private in ignored local/feedback. No reports were present when reviewed for this request. See CONTEXT_MOVEMENT_PLAN.md.
+
 ## Nonworking menu repair and exact layout inventory, 2026-09-29
 
 Drew reported that the previous menu did not work and did not match stock placement. Read installed `html/template/main.html`, `newgame.html`, `menu.html`, `css/menu/PageOptions.css`, `NavBar.css`, `NewGame.css`, `Menu.css`, and `js/menu/control.NewGame.js`. Inspected the actual 288x128 Sandbox logo and one installed 1920x1080 PNG background. Stock main text starts at CSS x=50+20+16=86, not the prior 16px sidebar. Stock footer is 50px high. New Game has an independently anchored white map list and a 226px settings panel. The 46 rules in menu_reference.csv retain locations, selectors, responsive conditions and unimplemented boundaries.
@@ -113,4 +123,3 @@ No full native engine implementation, exhaustive Lua API semantics, every game c
 - Original hands are bone-merged by name. World weapons use the authored `anim_attachment_RH` matrix, including its local orientation. Visual review caught the initial bone-only attachment pointing the gun down.
 - Teeth/Eyes shaders are missing from vmt-parser. Their base textures now load through a VertexLitGeneric approximation, not equivalent lighting or eye animation.
 - Full fidelity acceptance inventory is in [PLAYER_PARITY.md](PLAYER_PARITY.md). Proprietary payloads and diagnostic dumps remain local/ignored.
-

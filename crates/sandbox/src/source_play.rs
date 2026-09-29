@@ -12,7 +12,7 @@ use bevy::{
     },
     prelude::*,
     render::render_resource::{Extent3d, TextureDimension, TextureFormat},
-    window::{CursorGrabMode, PrimaryWindow},
+    window::PrimaryWindow,
 };
 use bevy_rapier3d::prelude::*;
 use sandbox_catalog::{play::PlayConfig, Result};
@@ -57,6 +57,7 @@ enum UiAction {
     Save,
     Load,
     Close,
+    Feedback(String),
 }
 #[derive(Component)]
 struct MenuRoot;
@@ -630,15 +631,7 @@ pub fn update_play(world: &mut World) {
             set_weapon(world);
         }
     }
-    if world.resource::<PlayState>().menu_open || !focused {
-        for mut w in world
-            .query_filtered::<&mut Window, With<PrimaryWindow>>()
-            .iter_mut(world)
-        {
-            w.cursor_options.grab_mode = CursorGrabMode::None;
-            w.cursor_options.visible = true;
-        }
-    } else {
+    if !world.resource::<PlayState>().menu_open && focused {
         if keys.just_pressed(KeyCode::Enter) {
             actions.push(UiAction::Spawn(
                 world.resource::<PlayState>().selected.clone(),
@@ -796,6 +789,7 @@ fn perform(world: &mut World, action: UiAction) {
         world.resource_mut::<PlayState>().search_focus = false;
     }
     match action {
+        UiAction::Feedback(subject) => crate::source_frontend::request_feedback(world, subject),
         UiAction::Search => {
             let mut s = world.resource_mut::<PlayState>();
             s.search_focus = true;
@@ -943,6 +937,16 @@ fn text(world: &mut World, parent: Entity, label: impl Into<String>, size: f32) 
     ));
 }
 fn button(world: &mut World, parent: Entity, label: impl Into<String>, action: UiAction) -> Entity {
+    let label = label.into();
+    let context_label = match &action {
+        UiAction::ToolSetting(key, _) => format!(
+            "Tool setting / {} / {key}",
+            world.resource::<PlayState>().tool
+        ),
+        UiAction::Spawn(path) => format!("Model / {path}"),
+        UiAction::Tool(tool) => format!("Tool / {tool}"),
+        _ => label.clone(),
+    };
     let id = world
         .spawn((
             Button,
@@ -958,6 +962,7 @@ fn button(world: &mut World, parent: Entity, label: impl Into<String>, action: U
         .id();
     let size = world.resource::<PlayState>().layout.font_size;
     text(world, id, label, size);
+    crate::source_frontend::feedback::tag(world, id, context_label, 100);
     id
 }
 fn container(world: &mut World, parent: Entity, node: Node) -> Entity {

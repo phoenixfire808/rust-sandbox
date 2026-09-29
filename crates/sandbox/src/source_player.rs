@@ -39,12 +39,16 @@ pub struct PlayerState {
     pub jump: bool,
     pub vertical: f32,
     pub running: bool,
+    pub horizontal_velocity: Vec3,
+    jump_boost_pending: Vec3,
+    reset_velocity: bool,
 }
 pub struct SourcePlayerPlugin;
 impl Plugin for SourcePlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins(crate::source_effects::SourceEffectsPlugin);
         app.add_systems(Update, input.before(source_play::update_play))
+            .add_systems(Update, sync_cursor.after(source_play::update_play))
             .add_systems(FixedUpdate, walk.before(PhysicsSet::SyncBackend))
             .add_systems(Update, visuals.after(source_play::tools::input));
     }
@@ -92,34 +96,28 @@ pub fn spawn(commands: &mut Commands, eye: Vec3, forward: Vec3) {
         jump: false,
         vertical: 0.,
         running: false,
+        horizontal_velocity: Vec3::ZERO,
+        jump_boost_pending: Vec3::ZERO,
+        reset_velocity: true,
     });
 }
 #[allow(clippy::too_many_arguments)]
 pub fn input(
     keys: Res<ButtonInput<KeyCode>>,
-    mouse: Res<ButtonInput<MouseButton>>,
     mut motion: EventReader<MouseMotion>,
     play: Res<PlayState>,
     state: Option<ResMut<PlayerState>>,
-    mut window: Query<&mut Window, With<PrimaryWindow>>,
+    window: Query<&Window, With<PrimaryWindow>>,
     frontend: Option<Res<crate::source_frontend::Frontend>>,
     mut exit: EventWriter<AppExit>,
 ) {
     let delta = motion.read().fold(Vec2::ZERO, |a, e| a + e.delta);
     let Some(mut s) = state else { return };
-    let Ok(mut w) = window.single_mut() else {
+    let Ok(w) = window.single() else {
         return;
     };
     if keys.just_pressed(KeyCode::F10) && frontend.is_none() {
         exit.write(AppExit::Success);
-    }
-    if keys.just_pressed(KeyCode::Escape) || !w.focused || play.menu_open {
-        w.cursor_options.grab_mode = CursorGrabMode::None;
-        w.cursor_options.visible = true;
-    }
-    if mouse.just_pressed(MouseButton::Left) && w.focused && !play.menu_open {
-        w.cursor_options.grab_mode = CursorGrabMode::Locked;
-        w.cursor_options.visible = false;
     }
     s.direction = Vec3::ZERO;
     s.running = false;
@@ -137,6 +135,9 @@ pub fn input(
     if keys.just_pressed(KeyCode::KeyV) {
         s.noclip = !s.noclip;
         s.vertical = 0.;
+        s.horizontal_velocity = Vec3::ZERO;
+        s.jump_boost_pending = Vec3::ZERO;
+        s.reset_velocity = true;
     }
     let axis =
         |positive, negative| (keys.pressed(positive) as i32 - keys.pressed(negative) as i32) as f32;
@@ -148,10 +149,27 @@ pub fn input(
             0.
         },
         axis(KeyCode::KeyS, KeyCode::KeyW),
-    )
-    .normalize_or_zero();
+    );
     s.running = keys.pressed(KeyCode::ShiftLeft);
     s.jump |= keys.just_pressed(KeyCode::Space);
+}
+fn sync_cursor(world: &mut World) {
+    let in_ui = crate::source_frontend::active(world) || world.resource::<PlayState>().menu_open;
+    for mut window in world
+        .query_filtered::<&mut Window, With<PrimaryWindow>>()
+        .iter_mut(world)
+    {
+        let captured = window.focused && !in_ui;
+        let grab = if captured {
+            CursorGrabMode::Locked
+        } else {
+            CursorGrabMode::None
+        };
+        if window.cursor_options.grab_mode != grab || window.cursor_options.visible == captured {
+            window.cursor_options.grab_mode = grab;
+            window.cursor_options.visible = !captured;
+        }
+    }
 }
 fn walk(
     time: Res<Time<Fixed>>,
@@ -182,7 +200,7 @@ fn walk(
         if s.noclip { s.pitch } else { 0. },
         0.,
     );
-    let direction = rotation * s.direction;
+    let direction = (rotation * s.direction).normalize_or_zero();
     let speed = if s.noclip {
         play.speed
     } else if s.running {
@@ -195,16 +213,78 @@ fn walk(
         controller.translation = None;
         t.translation += direction * speed * dt;
         s.vertical = 0.;
-        s.local_velocity = s.direction * speed;
+        s.local_velocity = s.direction.normalize_or_zero() * speed;
+        s.horizontal_velocity = Vec3::ZERO;
+        s.jump_boost_pending = Vec3::ZERO;
+        s.reset_velocity = true;
     } else {
+        // Use collision-resolved displacement, then apply the preceding FinishMove boost.
+        if !s.reset_velocity {
+            if let Some(output) = output {
+                s.horizontal_velocity = Vec3::new(
+                    output.effective_translation.x,
+                    0.,
+                    output.effective_translation.z,
+                ) / dt
+                    + s.jump_boost_pending;
+            }
+        }
+        s.reset_velocity = false;
+        s.jump_boost_pending = Vec3::ZERO;
         if s.grounded && s.vertical < 0. {
             s.vertical = 0.;
         }
-        if s.jump && s.grounded {
+        let jumping = s.jump && s.grounded;
+        if jumping {
             s.vertical = s.config.jump_speed;
+            s.grounded = false;
         }
-        s.vertical = (s.vertical + play.config.gravity * dt).max(-50.);
-        controller.translation = Some((direction * speed + Vec3::Y * s.vertical) * dt);
+        let c = &s.config;
+        let mut velocity = s.horizontal_velocity;
+        if s.grounded {
+            let current = velocity.length();
+            if current > f32::EPSILON {
+                let remaining =
+                    (current - current.max(c.stop_speed) * c.ground_friction * dt).max(0.);
+                velocity *= remaining / current;
+            }
+        }
+        if direction.length_squared() > 0. {
+            let cap = if s.grounded {
+                speed
+            } else {
+                speed.min(c.air_speed_cap)
+            };
+            let missing = (cap - velocity.dot(direction)).max(0.);
+            let acceleration = if s.grounded {
+                c.ground_acceleration
+            } else {
+                c.air_acceleration
+            };
+            // Source's legacy AirAccelerate uses uncapped wish speed for acceleration.
+            velocity += direction * missing.min(acceleration * speed * dt);
+        }
+        s.horizontal_velocity = velocity;
+        s.vertical = (s.vertical + play.config.gravity * dt * 0.5).max(-50.);
+        controller.snap_to_ground = if s.vertical > 0. {
+            None
+        } else {
+            Some(CharacterLength::Absolute(s.config.step_height))
+        };
+        controller.translation = Some((velocity + Vec3::Y * s.vertical) * dt);
+        s.vertical = (s.vertical + play.config.gravity * dt * 0.5).max(-50.);
+        // Sandbox adds a bounded forward boost after movement, including reverse travel.
+        if jumping {
+            let forward = Quat::from_rotation_y(s.yaw) * Vec3::NEG_Z;
+            let fraction = s.config.jump_boost;
+            let mut addition = (-s.direction.z * speed * fraction).abs();
+            let ceiling = speed * (1. + fraction);
+            addition -= (velocity.length() + addition - ceiling).max(0.);
+            if velocity.dot(forward) < 0. {
+                addition = -addition;
+            }
+            s.jump_boost_pending = forward * addition;
+        }
     }
     s.jump = false;
 }

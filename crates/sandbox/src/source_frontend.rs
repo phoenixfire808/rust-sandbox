@@ -1,4 +1,5 @@
 //! Local startup/pause navigation and a private, persistent player feedback inbox.
+pub(crate) mod feedback;
 mod view;
 use crate::{
     project_root,
@@ -20,7 +21,7 @@ use std::{
     process::{Child, Command, Stdio},
 };
 
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 enum Page {
     Hidden,
     Home,
@@ -32,7 +33,7 @@ enum Page {
     Loading,
     Info,
 }
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 enum Popup {
     Games,
     Language,
@@ -60,13 +61,15 @@ pub struct Frontend {
     window_size: Vec2,
     info: String,
     popup: Option<Popup>,
+    feedback_context: Option<serde_json::Value>,
+    feedback_candidate: Option<serde_json::Value>,
+    feedback_return: Page,
+    feedback_return_menu: bool,
+    resume_menu: Option<bool>,
 }
 impl Frontend {
     pub fn new(startup: bool, map: String) -> Self {
-        let fields = std::fs::read(project_root().join("local/feedback-draft.json"))
-            .ok()
-            .and_then(|b| serde_json::from_slice(&b).ok())
-            .unwrap_or_default();
+        let saved_draft = feedback::load();
         let prefs: (String, std::collections::BTreeSet<String>) =
             std::fs::read(project_root().join("local/menu-preferences.json"))
                 .ok()
@@ -83,9 +86,9 @@ impl Frontend {
             map,
             page: if startup { Page::Home } else { Page::Hidden },
             dirty: true,
-            fields,
+            fields: saved_draft.fields,
             field: 0,
-            category: 0,
+            category: saved_draft.category,
             message: String::new(),
             pending: String::new(),
             child: None,
@@ -98,6 +101,11 @@ impl Frontend {
             window_size: Vec2::ZERO,
             info: String::new(),
             popup: None,
+            feedback_context: saved_draft.context,
+            feedback_candidate: None,
+            feedback_return: if startup { Page::Home } else { Page::Hidden },
+            feedback_return_menu: false,
+            resume_menu: None,
         }
     }
 }
@@ -123,11 +131,14 @@ enum Action {
     MapCategory(bool),
     Search,
     Popup(Option<Popup>),
+    BackFeedback,
+    RetargetFeedback,
 }
 pub struct FrontendPlugin;
 impl Plugin for FrontendPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<Actions>()
+            .init_resource::<feedback::Request>()
             .add_systems(Startup, view::load_assets)
             .add_systems(
                 Update,
@@ -169,12 +180,12 @@ pub fn run() {
         .run();
 }
 fn draft(f: &Frontend) -> Result<()> {
-    std::fs::create_dir_all(project_root().join("local"))?;
-    std::fs::write(
-        project_root().join("local/feedback-draft.json"),
-        serde_json::to_vec_pretty(&f.fields)?,
-    )?;
-    Ok(())
+    feedback::persist(f)
+}
+pub(crate) fn request_feedback(world: &mut World, subject: String) {
+    if let Some(mut request) = world.get_resource_mut::<feedback::Request>() {
+        request.0 = Some(subject);
+    }
 }
 fn typing(mut events: EventReader<KeyboardInput>, mut f: ResMut<Frontend>) {
     if f.page == Page::Maps && f.search_focus {
@@ -232,7 +243,7 @@ fn submit(world: &mut World, f: &mut Frontend) -> Result<()> {
     let tool = world.get_resource::<PlayState>().map(|p| p.tool.clone());
     let status = world.get_resource::<PlayState>().map(|p| p.status.clone());
     let props = world.query::<&SpawnedProp>().iter(world).count();
-    let note = serde_json::json!({"version":1,"created_unix_nanos":time.to_string(),"category":(["Bug","Feature request","Visual mismatch","Performance"][f.category]),"title":f.fields[0],"observed":f.fields[1],"expected":f.fields[2],"steps_and_notes":f.fields[3],"map":f.map,"eye_position":position,"selected_tool":tool,"prop_count":props,"game_status":status,"review_status":"new"});
+    let note = serde_json::json!({"version":2,"created_unix_nanos":time.to_string(),"category":(["Bug","Feature request","Visual mismatch","Performance"][f.category]),"title":f.fields[0],"observed":f.fields[1],"expected":f.fields[2],"steps_and_notes":f.fields[3],"map":f.map,"eye_position":position,"selected_tool":tool,"prop_count":props,"game_status":status,"context_at_open":f.feedback_context,"review_status":"new"});
     let dir = project_root().join("local/feedback");
     std::fs::create_dir_all(&dir)?;
     let path = dir.join(format!("feedback-{time}.json"));
@@ -333,12 +344,15 @@ fn update(world: &mut World) {
             }
         }
         let previous_page=f.page;
-        let keys=world.resource::<ButtonInput<KeyCode>>();
+        let keys=world.resource::<ButtonInput<KeyCode>>().clone();
+        let request=world.resource_mut::<feedback::Request>().0.take();
         if f.page!=Page::Loading {
             if keys.just_pressed(KeyCode::F10) {f.pending="quit".into();f.page=Page::Confirm;f.dirty=true;}
-            else if keys.just_pressed(KeyCode::F8) {f.page=Page::Feedback;f.dirty=true;}
+            else if request.is_some() {feedback::open(world,&mut f,request);}
+            else if keys.just_pressed(KeyCode::F8) {if f.page==Page::Feedback {feedback::close(&mut f);} else {feedback::open(world,&mut f,None);}}
             else if keys.just_pressed(KeyCode::Escape) {
-                if f.popup.take().is_none() {
+                if f.page==Page::Feedback {feedback::close(&mut f);}
+                else if f.popup.take().is_none() {
                     f.page=match f.page {Page::Hidden=>Page::Home,Page::Home if !f.startup=>Page::Hidden,_=>Page::Home};
                 }
                 f.blocked_frame=true; f.dirty=true;
@@ -350,6 +364,9 @@ fn update(world: &mut World) {
             f.dirty=true;f.blocked_frame=true;
             if !matches!(&action, Action::Map(_)) { f.last_map_click=None; }
             let result:Result<()>=match action {
+                Action::Page(Page::Feedback)=>{feedback::open(world,&mut f,None);Ok(())},
+                Action::BackFeedback=>{feedback::close(&mut f);Ok(())},
+                Action::RetargetFeedback=>{f.feedback_context=f.feedback_candidate.clone();draft(&f)},
                 Action::Page(p)=>{f.page=p;f.search_focus=p==Page::Maps;f.message.clear();Ok(())},
                 Action::Map(map)=>{let double=f.last_map_click.as_ref().is_some_and(|(previous,time)|previous==&map && time.elapsed().as_secs_f32()<0.35);f.selected=map.clone();f.search_focus=false;f.last_map_click=Some((map,std::time::Instant::now()));if double {start_map(&mut f)} else {save_preferences(&f)}},
                 Action::Favorite(map)=>{if !f.favorites.remove(&map) {f.favorites.insert(map);}save_preferences(&f)},
@@ -357,7 +374,7 @@ fn update(world: &mut World) {
                 Action::Search=>{f.search_focus=true;Ok(())},
                 Action::Popup(p)=>{f.popup=if f.popup==p {None} else {p};f.search_focus=false;Ok(())},
                 Action::Info(text)=>{f.info=text;f.page=Page::Info;f.search_focus=false;Ok(())},
-                Action::Field(i)=>{f.field=i;Ok(())}, Action::Category=>{f.category=(f.category+1)%4;Ok(())},
+                Action::Field(i)=>{f.field=i;Ok(())}, Action::Category=>{f.category=(f.category+1)%4;draft(&f)},
                 Action::Submit=>submit(world,&mut f),
                 Action::Start=>start_map(&mut f),
                 Action::Leave(s)=>{f.pending=s;f.page=Page::Confirm;Ok(())},
@@ -372,7 +389,7 @@ fn update(world: &mut World) {
         let open=f.page!=Page::Hidden || f.blocked_frame;
         if let Some(mut play)=world.get_resource_mut::<PlayState>() {
             if open {play.menu_open=true;play.search_focus=false;play.held=None;play.beam_active=false;}
-            else if f.dirty || previously_blocked {play.menu_open=false;play.dirty=true;}
+            else if f.dirty || previously_blocked {play.menu_open=f.resume_menu.take().unwrap_or(false);play.dirty=true;}
         }
         if !f.startup {
             let mut time=world.resource_mut::<Time<Virtual>>();

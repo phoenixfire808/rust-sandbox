@@ -238,6 +238,10 @@ fn btn(
             ChildOf(parent),
         ))
         .id();
+    let value = value.into();
+    if !value.is_empty() {
+        feedback::tag(world, e, value.clone(), 100);
+    }
     let label = text(world, e, value, size, foreground, false);
     world.entity_mut(label).insert(ButtonLabel);
     e
@@ -406,6 +410,7 @@ fn footer_button(
     action: Action,
 ) -> Entity {
     let e = btn(world, parent, "", action, 11., Color::WHITE, gray(51));
+    feedback::tag(world, e, if label.is_empty() { icon } else { label }, 100);
     let children = world.get::<Children>(e).unwrap().to_vec();
     for child in children {
         world.despawn(child);
@@ -486,9 +491,17 @@ fn footer(world: &mut World, root: Entity, f: &Frontend) {
         footer_button(
             world,
             bar,
-            "Back to Main Menu",
+            if f.page == Page::Feedback {
+                "Back to previous window"
+            } else {
+                "Back to Main Menu"
+            },
             "html/img/back_to_main_menu.png",
-            Action::Page(Page::Home),
+            if f.page == Page::Feedback {
+                Action::BackFeedback
+            } else {
+                Action::Page(Page::Home)
+            },
         );
     }
     let center = node(
@@ -828,9 +841,7 @@ fn maps(world: &mut World, page: Entity, f: &Frontend, offset: f32) {
         for child in children {
             world.despawn(child);
         }
-        world
-            .entity_mut(card)
-            .insert(RelativeCursorPosition::default());
+        feedback::tag(world, card, format!("Map / {}", map.id), 100);
         world.entity_mut(card).insert(Node {
             width: Val::Px(c.map_icon + 2. * c.card_padding),
             padding: UiRect::all(Val::Px(c.card_padding)),
@@ -1000,7 +1011,15 @@ fn form(world: &mut World, page: Entity, f: &Frontend, offset: f32) {
     ));
     match f.page {
         Page::Feedback => {
-            text(world, panel, "Detailed Feedback", 28., gray(50), true);
+            text(world, panel, "Contextual Feedback", 28., gray(50), true);
+            text(world, panel, feedback::summary(f), 13., gray(60), false);
+            text(world, panel, "F8 over any control captures it before the editor opens. Save here, then ask Jcode to review local feedback. No automatic upload.", 12., gray(80), false);
+            standard(
+                world,
+                panel,
+                "Attach current context",
+                Action::RetargetFeedback,
+            );
             text(world,panel,"Private local reports for Jcode. Nothing uploads automatically. Tab changes field; Enter adds a line.",13.,gray(80),false);
             standard(
                 world,
@@ -1042,6 +1061,12 @@ fn form(world: &mut World, page: Entity, f: &Frontend, offset: f32) {
                 }
             }
             standard(world, panel, "Save feedback locally", Action::Submit);
+            standard(
+                world,
+                panel,
+                "Return to previous window (F8 / Esc)",
+                Action::BackFeedback,
+            );
         }
         Page::Options => {
             text(world, panel, "Options", 28., gray(50), true);

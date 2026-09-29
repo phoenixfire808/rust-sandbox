@@ -21,6 +21,12 @@ pub struct PlayerConfig {
     pub step_height: f32,
     pub camera_distance: f32,
     pub view_fov: f32,
+    pub ground_acceleration: f32,
+    pub air_acceleration: f32,
+    pub ground_friction: f32,
+    pub stop_speed: f32,
+    pub air_speed_cap: f32,
+    pub jump_boost: f32,
 }
 pub fn load(path: &Path) -> Result<PlayerConfig> {
     let rows: Vec<PlayerConfig> = csv::Reader::from_path(path.join("source_player.csv"))?
@@ -56,6 +62,12 @@ pub fn load(path: &Path) -> Result<PlayerConfig> {
         (c.step_height, 0.01, 0.6),
         (c.camera_distance, 1., 10.),
         (c.view_fov, 30., 100.),
+        (c.ground_acceleration, 0.1, 1000.),
+        (c.air_acceleration, 0.1, 1000.),
+        (c.ground_friction, 0., 100.),
+        (c.stop_speed, 0.01, 30.),
+        (c.air_speed_cap, 0.01, 30.),
+        (c.jump_boost, 0., 1.),
     ] {
         if !v.is_finite() || !(lo..=hi).contains(&v) {
             return Err("invalid player parameter".into());

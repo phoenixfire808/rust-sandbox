@@ -172,6 +172,7 @@ pub(super) fn rebuild(world: &mut World) {
         ))
         .id();
     let creation = column(world, root, Val::Px(creation_width));
+    crate::source_frontend::feedback::tag(world, creation, "Spawn browser", 10);
     world
         .entity_mut(creation)
         .insert(BackgroundColor(Color::srgb(0.82, 0.83, 0.84)));
@@ -195,6 +196,13 @@ pub(super) fn rebuild(world: &mut World) {
             .entity_mut(e)
             .insert(BackgroundColor(Color::srgb(0.72, 0.73, 0.74)));
     }
+    action(
+        world,
+        creation,
+        "Feedback on this browser (F8)",
+        UiAction::Feedback("Spawn browser".into()),
+        false,
+    );
     let body = container(
         world,
         creation,
@@ -391,6 +399,19 @@ pub(super) fn rebuild(world: &mut World) {
         ScrollPane(3),
         BackgroundColor(Color::srgb(0.94, 0.94, 0.94)),
     ));
+    crate::source_frontend::feedback::tag(
+        world,
+        controls,
+        format!("Tool panel / tab {tab} / {tool}"),
+        20,
+    );
+    action(
+        world,
+        controls,
+        "Feedback on this panel (F8)",
+        UiAction::Feedback(format!("Tool panel / tab {tab} / {tool}")),
+        false,
+    );
     match tab {
         0 => {
             let catalog = world.resource::<PlayState>().tools.catalog.clone();
@@ -478,6 +499,12 @@ pub(super) fn rebuild(world: &mut World) {
                             },
                             BackgroundColor(Color::srgb(0.65, 0.67, 0.7)),
                         ));
+                        crate::source_frontend::feedback::tag(
+                            world,
+                            slider,
+                            format!("Tool setting / {tool} / {}", option.key),
+                            100,
+                        );
                         let fraction = ((value.parse::<f32>().unwrap_or(option.min) - option.min)
                             / (option.max - option.min))
                             .clamp(0., 1.);

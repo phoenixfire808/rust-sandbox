@@ -2,6 +2,14 @@
 
 Date: 2026-09-29 UTC. Windows x86_64, Rust 1.97.1. Build artifacts isolated in `D:\jcode-build\rust-sandbox-20260929`. No remote compilation or remote asset upload.
 
+## Contextual feedback, cursor and movement, 2026-09-29 20:05 UTC
+
+- `cargo build --locked -p rust-sandbox --lib` succeeded in 1m37s. Following final control-tagging and formatting changes, `cargo rustc --locked -p rust-sandbox --bin source-map -- -o D:\jcode-build\rust-sandbox-20260929\source-map-context.exe` succeeded in **1m50s**. Logs: `local/context-movement-build.log` and `local/context-movement-final-build.log`. The final separate executable exists at the specified path (68,509,184 bytes). Rustc reported expected output-name adaptation/out-dir warnings for the deliberate separate output, plus the existing binrw future-compatibility notice. No application-source compiler warning was reported.
+- The separately compiled executable was **not launched** while the prior game remained active. PID 37840 at `debug/source-map.exe` was responding during inspection. No live process was terminated and no active scene was replaced. After Drew closes the prior game, he can run the separate `source-map-context.exe` directly, or use the normal repository `play.cmd` to build/run the current source. The active game does not hot-reload these Rust changes.
+- The catalog exporter compiled in 8.97s and exported **96,795 data rows** to `spreadsheets/rust-sandbox-catalog-20260929-context-movement.xlsx`. Log: `local/context-movement-workbook.log`. Earlier workbooks remain intact. Export success is not independent workbook acceptance.
+- Static diff review covered cursor ownership, frontend input blocking/return, original-context capture, legacy draft fallback, local report preservation, sheet-to-generated movement configuration and collision-resolved planar velocity. `git diff --check` reported no whitespace errors. No local feedback reports existed to process. No tests, Clippy, benchmarks, gameplay input automation, screenshots or independent workbook verification were run, per project instructions.
+- All 12 movement-reference and 18 contextual-feedback/cursor acceptance cases remain **not_run**, owned by Drew. Native command timing, collision/hull/step/surf behavior, crouch/water/ladder/platform movement, all menu visual equivalence and the broader existing parity backlog remain incomplete or unverified. Compilation is not a claim that these player-visible workflows pass.
+
 ## Reference-menu repair and expanded inventory, 2026-09-29 19:28 UTC
 
 - Final `cargo build --locked -p rust-sandbox --bin source-map` succeeded in **1m30s**. The preceding build succeeded in 1m43s. Logs: `local/menu-parity-final-build.log` and `local/menu-parity-build.log`. The pre-existing binrw future-compatibility warning remains. No test, benchmark or Clippy run was performed.

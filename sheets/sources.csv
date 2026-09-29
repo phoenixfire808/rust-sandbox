@@ -10,3 +10,5 @@ R8,Bevy Rapier 0.30 integration,https://github.com/dimforge/bevy_rapier/tree/v0.
 R9,Installed stock tool declarations,garrysmod/gamemodes/sandbox/entities/weapons/gmod_tool/stools,37 files and categories callbacks client defaults inspected,File presence and declarations do not prove full semantics
 R10,Independent implementation,crates/sandbox and crates/catalog,Original implementation and executable tests,Acceptance checks are prototype checks unless explicitly compared to GMod
 R11,Rust XLSX writer,https://github.com/jmcnamara/rust_xlsxwriter,Workbook and worksheet example inspected,Workbook export is a review view and CSV remains authoritative
+R12,Valve shared movement implementation,https://github.com/ValveSoftware/source-sdk-2013/tree/master/src/game/shared,Friction AirAccelerate FullWalkMove CheckJumpButton movevars and air cap read,SDK branch baselines are not measured GMod native behavior
+R13,Installed Sandbox player movement,garrysmod/gamemodes/sandbox/gamemode/player_class/player_sandbox.lua,StartMove FinishMove and base player_default jump power read,Standing boost implemented but crouch and native engine timing remain incomplete

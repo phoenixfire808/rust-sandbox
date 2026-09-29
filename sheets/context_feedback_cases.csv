@@ -1,0 +1,19 @@
+id,area,scenario,expected,implementation,owner,result
+context_control,Feedback,Hover menu button map card or tool setting then F8,Original control label and original screen captured,Tagged controls and before-open snapshot,Drew,not_run
+context_browser,Feedback,Click browser feedback action,Spawn browser plus current search category page and model captured,Explicit panel subject,Drew,not_run
+context_tool,Feedback,Click tool panel feedback after editing options,Tool name values and staged target captured,Explicit panel and tool state snapshot,Drew,not_run
+context_gameplay,Feedback,Press F8 during gameplay,Player pose window cursor selected tool and prop count describe original scene,Snapshot before frontend changes,Drew,not_run
+context_return,Feedback,Return with F8 Esc and Return button,Original frontend page or Q menu restored,Stored origin and deferred menu restoration,Drew,not_run
+context_isolation,Input,Type WASD Q Enter and weapon keys inside editor,Text does not move player spawn props or fire,Frontend blocks play and pauses virtual time,Drew,not_run
+context_draft,Persistence,Leave unsent text then open feedback over another control,Existing text and original context preserved,Context-preserving draft,Drew,not_run
+context_retarget,Persistence,Choose Attach current context on an existing draft,Text preserved and snapshot changed to current opening,Explicit candidate replacement,Drew,not_run
+context_restart,Persistence,Close normally and reopen with unsent draft,Fields category and original context restored,Versioned context draft load,Drew,not_run
+context_legacy,Persistence,Open with only old four-field draft present,Old fields retained and old file untouched,Fallback migration,Drew,not_run
+context_save,Persistence,Submit title and observed text,Unique local version-2 report contains context and draft clears after sync,Local report writer,Drew,not_run
+context_failure,Persistence,Encounter report or draft write failure,Error shown and report text remains available,Error propagation and in-memory preservation,Drew,not_run
+context_privacy,Privacy,Save a report and later ask Jcode to review,No upload or automatic agent turn and original report retained,Ignored local files and project review policy,Drew,not_run
+cursor_q,Cursor,Hold Q spawn prop then release Q,Cursor visible in Q and recaptured after closing without another click,Final UI-state cursor synchronization,Drew,not_run
+cursor_close,Cursor,Use Close or return from pause to gameplay,Cursor hidden and locked only after UI closes,Final UI-state cursor synchronization,Drew,not_run
+cursor_focus,Cursor,Alt-tab away and back with menu open and closed,Unfocused cursor free and focused state follows actual UI,Focus-dependent cursor synchronization,Drew,not_run
+cursor_no_click_leak,Input,Close menu with mouse then use tool,Closing click does not also fire or grab,Existing input isolation retained,Drew,not_run
+context_resizing,UI,Resize feedback window with long model and report text,Form remains scrollable and return/save reachable,Existing scrolling form layout,Drew,not_run
