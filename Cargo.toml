@@ -6,8 +6,12 @@ resolver = "2"
 debug = 0
 incremental = false
 
-# CPU skinning and selected animation sampling need optimized application math.
-# Dependencies keep the existing build profile and cached artifacts.
+# Bevy recommends optimized dependencies even during development. Physics,
+# texture decoding and asset upload otherwise execute unoptimized hot loops.
+[profile.dev.package."*"]
+opt-level = 3
+
+# Keep application math optimized without requiring release builds.
 [profile.dev.package.rust-sandbox]
 opt-level = 2
 

@@ -228,10 +228,10 @@ pub struct LoadedMap {
     pub report: serde_json::Value,
 }
 
-#[derive(Resource)]
+#[derive(Resource, Clone)]
 pub struct MountedSource {
-    pub mounts: Mounts,
-    pub bsp: vbsp::Bsp,
+    pub mounts: std::sync::Arc<Mounts>,
+    pub bsp: std::sync::Arc<vbsp::Bsp>,
 }
 
 fn lump(bytes: &[u8], index: usize) -> Result<&[u8]> {
@@ -562,7 +562,10 @@ pub fn load(install: &Path, def: &SourceMapDef) -> Result<LoadedMap> {
     let report = serde_json::json!({ "map":def.id, "bsp_bytes":bytes.len(), "world_faces":face_count-brush_faces,"brush_models":brush_models,"brush_faces":brush_faces,"displacement_faces":displacement_faces,"lightmapped_faces":lightmapped_faces,"triangles":triangles,"materials":surfaces.len(),"textured_materials":textured,"sky_faces":sky.len(),"skyname":skyname,"spawn_source":origin,"spawn_bevy":spawn.to_array(),"source_static_props":bsp.static_props().count(),"loaded_static_props":loaded_props,"warnings":warnings,"limitations":["World, visible brush entities and static models imported; brush entity simulation and 3D sky scaling not implemented; static prop lighting is approximate","Source shaders, water, blend textures, overlays and material proxies not equivalent","LDR lightmaps clamped to normalized range, HDR exposure not matched","Grounded Rapier player controller and optional noclip, not exact Source movement"] });
     println!("{}", serde_json::to_string_pretty(&report)?);
     Ok(LoadedMap {
-        source: MountedSource { mounts, bsp },
+        source: MountedSource {
+            mounts: mounts.into(),
+            bsp: bsp.into(),
+        },
         surfaces,
         textures,
         lightmap: atlas.image(),

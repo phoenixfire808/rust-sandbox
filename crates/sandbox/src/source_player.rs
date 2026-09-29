@@ -233,7 +233,7 @@ fn actor(world: &mut World, path: &str, layer: usize, parent: Option<Entity>) ->
         world.entity_mut(root).insert(ChildOf(p));
     }
     let mut parts = Vec::new();
-    for ((_, material), geo) in model.parts.into_iter().zip(model.geometry) {
+    for ((_, material), geo) in model.parts.into_iter().zip(model.geometry.iter().cloned()) {
         let mesh = world.resource_mut::<Assets<Mesh>>().add(geo.clone().mesh());
         world.spawn((
             Mesh3d(mesh.clone()),

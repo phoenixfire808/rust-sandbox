@@ -1,5 +1,9 @@
 # Spreadsheet and generated-struct contract
 
+## Spawn performance authoring
+
+`source_performance.csv` has exactly one typed row: `spawn_queue_limit` (1..64 pending requests), `report_seconds` (finite 1..60 seconds), and `frame_budget_ms` (finite 1..1000 milliseconds). Build generation and catalog validate/generate consume it. The authored 16.667 ms budget is a proposed 60 Hz frame target, not a measured GMod baseline or an achieved result. It does not alter simulation time. `performance_cases.csv` is a review-only scenario ledger, included in workbook export. The dependency optimization profile is build configuration in Cargo.toml, not gameplay data.
+
 ## Original installed Source maps
 
 `source_maps.csv` generates typed `SourceMapDef` values at build time, validated by both build.rs and the catalog CLI. Columns: `id`, `bsp` (must equal `maps/<id>.bsp`), finite positive `unit_scale` (Bevy units per Hammer unit), `fly_speed`, `eye_height_units`, and `fov_degrees`. Duplicate IDs, traversal paths, unknown columns and invalid numeric ranges fail validation. `GMOD_DIR` selects a local installation path, not authored spreadsheet data.

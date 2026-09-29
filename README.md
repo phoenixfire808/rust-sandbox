@@ -6,13 +6,17 @@ Independent **Bevy 0.16.1 + Rapier 0.30** sandbox foundation, with spreadsheet-a
 
 ## Continue development
 
-- **[Download the complete review workbook](spreadsheets/rust-sandbox-catalog-20260929-presentation.xlsx)**: includes the reference placement ledger, animation mappings and layout parameters. Use GitHub's **Download raw file** button for Excel/LibreOffice.
+- **[Download the complete review workbook](spreadsheets/rust-sandbox-catalog-20260929-performance.xlsx)**: includes the full parity backlog, placement/animation sheets, spawn performance settings and scenario acceptance ledger. Use GitHub's **Download raw file** button for Excel/LibreOffice.
 - **[Spreadsheet contributor guide](spreadsheets/README.md)**: where to edit, validate, rebuild and regenerate the workbook.
 - **[Remaining feature inventory](sheets/parity_gaps.csv)**: 169 missing/partial/unverified entries covering every cataloged system and tool, with priorities and acceptance checks. Includes nonmatching menus and remaining physgun fidelity gaps.
 - **[Ordered implementation queue](sheets/work_queue.csv)**: dependency-ordered work packages assign every known gap exactly once. The first effects slice is implemented, not reference-equivalent.
 - **[Authored CSV sheets](sheets/)** and **[public metadata catalogs](catalogs/stock-20260929/)**: all workbook inputs are tracked. No private local files or original game payloads are needed to inspect or export the data.
 
 The gap inventory covers the current stock-game discovery catalog, not every possible native option or community addon. A reference row is not proof of implemented behavior or one-to-one parity.
+
+### Current spawn performance repair
+
+[Detailed plan](docs/PERFORMANCE_PLAN.md), [runtime bounds and timing](sheets/source_performance.csv), and [scenario ledger](sheets/performance_cases.csv). Engine/physics dependencies are now optimized in development builds. Interactive spawns prepare models, textures and hulls in a bounded background queue, while cached copies share geometry. Z cancels pending spawns before scene undo. Normal-play logs include `SPAWN_PREPARE`, `SPAWN_COMMIT` and `FRAME_TIMING` diagnostics. First rebuild is longer because dependencies must be recompiled. Drew performs acceptance testing. GPU-upload/menu stalls and complete Source parity remain unverified.
 
 ### Current presentation repair
 

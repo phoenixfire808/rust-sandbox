@@ -2,6 +2,16 @@
 
 Date: 2026-09-29 UTC. Windows x86_64, Rust 1.97.1. Build artifacts isolated in `D:\jcode-build\rust-sandbox-20260929`. No remote compilation or remote asset upload.
 
+## Spawn performance implementation awaiting Drew's testing
+
+The reported spawn lag prompted dependency optimization, a bounded off-thread preparation queue, shared immutable cached geometry, exact duplicate hull-input removal, and reduced idle-frame change processing. Settings come from `source_performance.csv`. `performance_cases.csv` lists implemented and remaining scenarios without passing results.
+
+`cargo build --locked -p rust-sandbox --bin source-map` succeeded. The initial full optimized dependency build exceeded the tool's ten-minute limit and was resumed with cached artifacts. The resumed compile exposed an ambiguous `Real` import from Bevy/Rapier, corrected to `bevy::time::Real` before the successful build. Final output: `local/performance-build-final.log`. Cargo's overall dev profile label remains unoptimized, while explicit package overrides optimize dependencies at level 3 and rust-sandbox at level 2. Existing binrw future-compatibility warning remains.
+
+The existing workbook exporter produced `spreadsheets/rust-sandbox-catalog-20260929-performance.xlsx` with **94,663 data rows**, including both new sheets and the complete existing catalogs. No independent workbook test was run. Earlier snapshots were retained.
+
+The newly built `source-map.exe` was launched normally, with no smoke flag or automated inputs. Process 50072 reported a responding `gm_construct | Bevy local Source map` window. Startup logged the selected player clips and both physgun textures. Logs: `local/performance-launch.log` and `local/performance-launch.err.log`. Passive frame diagnostics start during normal play, but startup/idle samples do not establish a before/after spawn improvement. No tests, benchmarks, Clippy, screenshots or gameplay automation were run. Drew owns performance and visual acceptance. Cold asset upload, menu opening, long sessions, cancellation behavior and complete Source equivalence remain unverified.
+
 ## Presentation corrections awaiting Drew's testing
 
 After Drew reported incorrect leg motion/jumps, missing physgun beam and nonmatching Q layout, the implementation was updated from public-source rules recorded in `presentation_references.csv`. `source_pose` adds measured directional gait, takeoff-reset non-looping jump clips and crossfades. `source_play` separates beam firing from held targets, preserves local grab anchors and uses Rapier world traces. `source_menu` consumes compiled dimensions for the browser, 64px icons and tool regions, with hold-Q and focused search.

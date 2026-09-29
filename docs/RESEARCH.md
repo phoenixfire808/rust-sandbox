@@ -2,6 +2,14 @@
 
 Research date: 2026-09-29 UTC. Citation IDs are maintained in `sheets/sources.csv`.
 
+## Spawn responsiveness repair, 2026-09-29
+
+Drew reported continuing lag, especially spawning an item. Static inspection found unoptimized engine/physics/decoder dependencies in the dev build, synchronous model/VTF/mipmap/convex-hull preparation inside the exclusive game update, deep geometry copies on every model-cache hit, idle aim queries, and unchanged HUD/projection/config writes. These are observed code paths, not measured proportions of frame cost.
+
+Reused Bevy's documented optimized dependency profile (`[profile.dev.package."*"] opt-level = 3`), its existing `AsyncComputeTaskPool`, `Task`, and `block_on(poll_once(...))` completion pattern, and standard-library `Arc` for immutable mounted assets and cached geometry. Sources: <https://bevy.org/learn/quick-start/getting-started/setup/> and the version-matched example <https://github.com/bevyengine/bevy/blob/v0.16.1/examples/async_tasks/async_compute.rs>. No new dependency or agent worker was added. One bounded game-internal preparation task avoids concurrent decode storms. Exact duplicate hull input points are removed, not simplified into a different collision shape. Physics tick rate, mass, gravity, CCD and render detail are unchanged.
+
+`source_performance.csv` supplies queue bounds and passive diagnostic settings through the normal typed build pipeline. `performance_cases.csv` records scenario-level implementation and remaining acceptance. GPU upload, icon loading, CPU skinning and original collision-solid parity remain explicit boundaries. See [PERFORMANCE_PLAN.md](PERFORMANCE_PLAN.md). No measured speedup or complete one-to-one parity is claimed.
+
 ## Reference-driven presentation repair, 2026-09-29
 
 Drew's play feedback identified incorrect walking/jumping, missing beam and nonmatching menu layout. Read Facepunch's public `gamemodes/base/gamemode/animations.lua`, Sandbox `spawnmenu/spawnmenu.lua`, `creationmenu.lua`, `toolpanel.lua`, `creationmenu/content/content.lua`, `lua/vgui/spawnicon.lua`, and the `GM:DrawPhysgunBeam` wiki page. Exact URLs, observed rules, approximation labels and remaining work are in `sheets/presentation_references.csv`. The implementation plan is [PRESENTATION_PLAN.md](PRESENTATION_PLAN.md).

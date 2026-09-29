@@ -19,7 +19,10 @@ fn main() -> Result<()> {
         .insert_resource(Assets::<Image>::default())
         .insert_resource(Assets::<StandardMaterial>::default())
         .insert_resource(PlayState::new(Vec::new(), 75., 10.))
-        .insert_resource(MountedSource { mounts, bsp })
+        .insert_resource(MountedSource {
+            mounts: mounts.into(),
+            bsp: bsp.into(),
+        })
         .add_systems(Startup, |mut commands: Commands| {
             source_player::spawn(&mut commands, Vec3::ZERO, Vec3::NEG_Z)
         });

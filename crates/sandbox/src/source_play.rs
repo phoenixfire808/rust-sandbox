@@ -19,6 +19,8 @@ use sandbox_catalog::{play::PlayConfig, Result};
 use std::collections::BTreeMap;
 #[path = "source_menu.rs"]
 mod menu;
+#[path = "source_spawn.rs"]
+mod spawn;
 
 #[derive(Component)]
 pub struct SourceCamera;
@@ -82,7 +84,7 @@ pub struct PlayState {
 #[derive(Clone)]
 pub(crate) struct GpuModel {
     pub(crate) parts: Vec<(Handle<Mesh>, Handle<StandardMaterial>)>,
-    pub(crate) geometry: Vec<crate::source_assets::Geometry>,
+    pub(crate) geometry: std::sync::Arc<Vec<crate::source_assets::Geometry>>,
     collider: Collider,
     center: Vec3,
     half: Vec3,
@@ -164,11 +166,14 @@ impl Plugin for SourcePlayPlugin {
         })
         .insert_resource(Time::<Fixed>::from_hz(60.))
         .add_plugins(RapierPhysicsPlugin::<NoUserData>::default().in_fixed_schedule())
+        .init_resource::<spawn::PendingSpawns>()
         .add_systems(
             Update,
             (
                 search_input,
                 update_play,
+                spawn::complete,
+                spawn::report,
                 adjust_hold_distance,
                 menu::scroll,
                 menu::hover,
@@ -200,48 +205,81 @@ pub(crate) fn gpu_model_skin(world: &mut World, path: &str, skin: i32) -> Result
     if let Some(model) = world.resource::<PlayState>().cache.get(&cache_key) {
         return Ok(model.clone());
     }
+    let prepared = prepare_model(world.resource::<MountedSource>(), path, skin)?;
+    Ok(install_model(world, cache_key, prepared))
+}
+struct PreparedModel {
+    parts: Vec<(
+        crate::source_assets::Geometry,
+        Option<Image>,
+        AlphaMode,
+        bool,
+    )>,
+    collider: Collider,
+    center: Vec3,
+    half: Vec3,
+}
+fn prepare_model(source: &MountedSource, path: &str, skin: i32) -> Result<PreparedModel> {
     let scale = 0.01905;
-    let decoded = world.resource_scope(|_world, source: Mut<MountedSource>| -> Result<_> {
-        let geometry = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-            source_models::model_parts(&source.bsp, &source.mounts, path, skin)
-        }))
-        .map_err(|_| "unsupported model format")??;
-        let mut parts = Vec::new();
-        for (name, mut geo) in geometry {
-            for p in &mut geo.positions {
-                for axis in p {
-                    *axis *= scale;
-                }
-            }
-            let mat = source.mounts.material(&source.bsp, &name)?;
-            let texture = mat
-                .base_texture()
-                .map(|base| source.mounts.texture(&source.bsp, base, true))
-                .transpose()?;
-            let alpha = mat
-                .alpha_test()
-                .map(AlphaMode::Mask)
-                .unwrap_or(if mat.translucent() {
-                    AlphaMode::Blend
-                } else {
-                    AlphaMode::Opaque
-                });
-            parts.push((geo, texture, alpha, mat.no_cull()));
-        }
-        Ok(parts)
-    })?;
-    let mut points = Vec::new();
+    let geometry = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        source_models::model_parts(&source.bsp, &source.mounts, path, skin)
+    }))
+    .map_err(|_| "unsupported model format")??;
     let mut parts = Vec::new();
-    let mut geometry = Vec::new();
+    let mut points = Vec::new();
     let mut min = Vec3::splat(f32::INFINITY);
     let mut max = Vec3::splat(f32::NEG_INFINITY);
-    for (geo, texture, alpha, nocull) in decoded {
-        for p in &geo.positions {
+    for (name, mut geo) in geometry {
+        for p in &mut geo.positions {
+            for axis in p.iter_mut() {
+                *axis *= scale;
+            }
             let v = Vec3::from_array(*p);
+            if !v.is_finite() {
+                return Err("model contains nonfinite geometry".into());
+            }
             min = min.min(v);
             max = max.max(v);
             points.push(v);
         }
+        let mat = source.mounts.material(&source.bsp, &name)?;
+        let texture = mat
+            .base_texture()
+            .map(|base| source.mounts.texture(&source.bsp, base, true))
+            .transpose()?;
+        let alpha = mat
+            .alpha_test()
+            .map(AlphaMode::Mask)
+            .unwrap_or(if mat.translucent() {
+                AlphaMode::Blend
+            } else {
+                AlphaMode::Opaque
+            });
+        parts.push((geo, texture, alpha, mat.no_cull()));
+    }
+    if points.is_empty() {
+        return Err("model contains no render geometry".into());
+    }
+    // Render triangles repeat vertices. Exact deduplication preserves the hull.
+    points.sort_unstable_by(|a, b| {
+        a.x.total_cmp(&b.x)
+            .then(a.y.total_cmp(&b.y))
+            .then(a.z.total_cmp(&b.z))
+    });
+    points.dedup();
+    let collider =
+        Collider::convex_hull(&points).ok_or("cannot build model convex collision hull")?;
+    Ok(PreparedModel {
+        parts,
+        collider,
+        center: (min + max) * 0.5,
+        half: ((max - min) * 0.5).max(Vec3::splat(0.02)),
+    })
+}
+fn install_model(world: &mut World, cache_key: String, prepared: PreparedModel) -> GpuModel {
+    let mut parts = Vec::new();
+    let mut geometry = Vec::new();
+    for (geo, texture, alpha, nocull) in prepared.parts {
         let tex = texture.map(|image| world.resource_mut::<Assets<Image>>().add(image));
         let material = world
             .resource_mut::<Assets<StandardMaterial>>()
@@ -260,25 +298,18 @@ pub(crate) fn gpu_model_skin(world: &mut World, path: &str, skin: i32) -> Result
         let mesh = world.resource_mut::<Assets<Mesh>>().add(geo.mesh());
         parts.push((mesh, material));
     }
-    if points.is_empty() || !min.is_finite() || !max.is_finite() {
-        return Err("model contains no finite render geometry".into());
-    }
-    let half = ((max - min) * 0.5).max(Vec3::splat(0.02));
-    let center = (min + max) * 0.5;
-    let collider =
-        Collider::convex_hull(&points).ok_or("cannot build model convex collision hull")?;
     let model = GpuModel {
         parts,
-        geometry,
-        collider,
-        center,
-        half,
+        geometry: geometry.into(),
+        collider: prepared.collider,
+        center: prepared.center,
+        half: prepared.half,
     };
     world
         .resource_mut::<PlayState>()
         .cache
         .insert(cache_key, model.clone());
-    Ok(model)
+    model
 }
 pub fn spawn_model(
     world: &mut World,
@@ -448,6 +479,7 @@ fn remember(world: &mut World) {
     s.undo.push(save);
 }
 fn restore(world: &mut World, save: Vec<SavedModel>) -> Result<()> {
+    spawn::clear(world);
     if save.len() > world.resource::<PlayState>().config.max_props {
         return Err("save exceeds prop limit".into());
     }
@@ -606,7 +638,12 @@ pub fn update_play(world: &mut World) {
             ));
         }
         if keys.just_pressed(KeyCode::KeyZ) {
-            let save = world.resource_mut::<PlayState>().undo.pop();
+            let cancelled = spawn::cancel_latest(world);
+            let save = if cancelled {
+                None
+            } else {
+                world.resource_mut::<PlayState>().undo.pop()
+            };
             if let Some(save) = save {
                 if let Err(e) = restore(world, save) {
                     world.resource_mut::<PlayState>().status = e.to_string();
@@ -619,10 +656,15 @@ pub fn update_play(world: &mut World) {
         if keys.just_pressed(KeyCode::F6) {
             actions.push(UiAction::Load);
         }
-        let focus = world
-            .resource::<PlayState>()
-            .held
-            .or_else(|| aimed_prop(world).map(|p| p.0));
+        let needs_target = mouse.just_pressed(MouseButton::Left)
+            || mouse.just_pressed(MouseButton::Right)
+            || keys.just_pressed(KeyCode::KeyR);
+        let focus = world.resource::<PlayState>().held.or_else(|| {
+            needs_target
+                .then(|| aimed_prop(world))
+                .flatten()
+                .map(|p| p.0)
+        });
         if mouse.just_pressed(MouseButton::Left) {
             if let Some(e) = focus {
                 if world.resource::<PlayState>().physgun {
@@ -730,12 +772,16 @@ pub fn update_play(world: &mut World) {
         .query_filtered::<&mut Projection, With<SourceCamera>>()
         .iter_mut(world)
     {
-        if let Projection::Perspective(p) = p.as_mut() {
-            p.fov = fov.to_radians();
+        if matches!(&*p, Projection::Perspective(v) if v.fov != fov.to_radians()) {
+            if let Projection::Perspective(p) = p.as_mut() {
+                p.fov = fov.to_radians();
+            }
         }
     }
     for mut c in world.query::<&mut RapierConfiguration>().iter_mut(world) {
-        c.gravity = Vec3::Y * gravity;
+        if c.gravity != Vec3::Y * gravity {
+            c.gravity = Vec3::Y * gravity;
+        }
     }
     let count = world.query::<&SpawnedProp>().iter(world).count();
     let text = {
@@ -746,7 +792,9 @@ pub fn update_play(world: &mut World) {
         .query_filtered::<&mut Text, With<SourceHud>>()
         .iter_mut(world)
     {
-        hud.0 = text.clone();
+        if hud.0 != text {
+            hud.0 = text.clone();
+        }
     }
     if world.resource::<PlayState>().dirty {
         rebuild_menu(world);
@@ -790,24 +838,7 @@ fn perform(world: &mut World, action: UiAction) {
         UiAction::Spawn(path) => {
             if let Some(cam) = camera(world) {
                 let d = world.resource::<PlayState>().config.spawn_distance;
-                remember(world);
-                match spawn_model(
-                    world,
-                    &path,
-                    cam.translation + *cam.forward() * d,
-                    Quat::IDENTITY,
-                    false,
-                ) {
-                    Ok(_) => {
-                        let mut s = world.resource_mut::<PlayState>();
-                        s.selected = path.clone();
-                        s.status = format!("Spawned {path}");
-                    }
-                    Err(e) => {
-                        world.resource_mut::<PlayState>().status =
-                            format!("Cannot spawn {path}: {e}")
-                    }
-                }
+                spawn::enqueue(world, path, cam.translation + *cam.forward() * d);
             }
         }
         UiAction::Tool(tool) => {

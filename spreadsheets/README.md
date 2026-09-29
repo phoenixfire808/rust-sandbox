@@ -1,8 +1,10 @@
 # Spreadsheet handoff for contributors
 
-Download [rust-sandbox-catalog-20260929-presentation.xlsx](rust-sandbox-catalog-20260929-presentation.xlsx) for the combined Excel/LibreOffice review workbook. GitHub does not render XLSX files inline, so use **Download raw file**. All source tables are also available as CSV for review and version control.
+Download [rust-sandbox-catalog-20260929-performance.xlsx](rust-sandbox-catalog-20260929-performance.xlsx) for the combined Excel/LibreOffice review workbook. GitHub does not render XLSX files inline, so use **Download raw file**. All source tables are also available as CSV for review and version control.
 
-The presentation snapshot adds `source_layout.csv` (runtime placement and timing), `source_animation_states.csv` (installed clip mappings), and `presentation_references.csv` (public-source rules versus independent approximation). The [detailed correction plan](../docs/PRESENTATION_PLAN.md) identifies what is implemented and what remains. Earlier snapshots are retained. Drew is performing testing, so this snapshot has not been independently workbook-tested or visually accepted.
+The performance snapshot adds `source_performance.csv` (typed queue and diagnostic settings) and `performance_cases.csv` (implementation versus user acceptance), and prioritizes spawn lag in the full backlog. Export produced 94,663 data rows. See [the performance plan](../docs/PERFORMANCE_PLAN.md). No measured speedup is claimed.
+
+The retained presentation snapshot added `source_layout.csv` (runtime placement and timing), `source_animation_states.csv` (installed clip mappings), and `presentation_references.csv` (public-source rules versus independent approximation). The [detailed correction plan](../docs/PRESENTATION_PLAN.md) identifies what is implemented and what remains. Earlier snapshots are retained. Drew is performing testing, so this snapshot has not been independently workbook-tested or visually accepted.
 
 ## Where to work
 
