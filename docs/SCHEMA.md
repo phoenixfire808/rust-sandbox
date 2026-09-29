@@ -1,5 +1,13 @@
 # Spreadsheet and generated-struct contract
 
+## Original installed Source maps
+
+`source_maps.csv` generates typed `SourceMapDef` values at build time, validated by both build.rs and the catalog CLI. Columns: `id`, `bsp` (must equal `maps/<id>.bsp`), finite positive `unit_scale` (Bevy units per Hammer unit), `fly_speed`, `eye_height_units`, and `fov_degrees`. Duplicate IDs, traversal paths, unknown columns and invalid numeric ranges fail validation. `GMOD_DIR` selects a local installation path, not authored spreadsheet data.
+
+`source_pipeline.csv` is review metadata describing implemented import stages and fidelity gaps. It is exported to XLSX but is not executable shader or physics logic. Binary assets stay in Steam, while the spreadsheet contains identifiers and configuration. `local/<map>-import-report.json` records observed decode counts and unsupported assets.
+
+## General CSV contract
+
 All files are UTF-8 CSV with a required header row. IDs are stable references, not display names. Do not use formulas. The parser handles quoted commas and escapes via the `csv` crate. Typed gameplay rows reject unknown columns, missing values, malformed booleans/numbers, NaN/infinity, duplicate prop IDs and invalid references.
 
 ## Runtime tables

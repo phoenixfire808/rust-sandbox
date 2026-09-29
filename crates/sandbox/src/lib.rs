@@ -1,4 +1,6 @@
 use bevy::prelude::*;
+pub mod source_assets;
+mod source_models;
 use bevy_rapier3d::prelude::*;
 use sandbox_catalog::{
     content::Content,

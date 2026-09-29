@@ -7,6 +7,7 @@ fn main() {
         "systems.csv",
         "tools.csv",
         "sources.csv",
+        "source_maps.csv",
     ] {
         println!("cargo:rerun-if-changed={}", sheets.join(name).display());
     }
@@ -19,6 +20,9 @@ fn main() {
         &sandbox_catalog::behavior::generate(&behaviors).expect("behavior generation failed"),
     );
     let out = std::path::PathBuf::from(std::env::var_os("OUT_DIR").unwrap());
+    generated.push_str(&sandbox_catalog::source_maps::generate(
+        &sandbox_catalog::source_maps::load(&sheets).expect("invalid Source map spreadsheet"),
+    ));
     std::fs::write(out.join("content_generated.rs"), generated)
         .expect("cannot write generated Rust");
 }

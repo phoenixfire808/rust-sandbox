@@ -19,6 +19,8 @@ These are useful research references. No Valve/Facepunch implementation was copi
 
 ## Reuse decisions
 
+The original installed-content pipeline and additional decoder research are recorded in [SOURCE_ASSETS.md](SOURCE_ASSETS.md). This replaces the earlier procedural-only visual target, not the preserved testbed or its tests.
+
 1. **Bevy**, requested by Drew, supplies ECS, input, windowing, UI and rendering. Version 0.16.1 was selected with a compatible physics plugin, not because it was assumed newest.
 2. **bevy_rapier3d 0.30.0** manifest explicitly targets Bevy 0.16. Its fixed-schedule API is used. This is an existing solver, not a new hand-written physics engine. The project has since moved upstream to the main Rapier repository, so future upgrades should consult that location.
 3. **csv / serde / serde_json** handle typed authoring and persistence. Do not implement ad-hoc CSV parsing or silently accept invalid physical values.

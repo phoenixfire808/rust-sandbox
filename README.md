@@ -11,16 +11,24 @@ On this machine, double-click `play.cmd`, or from Windows cmd:
 ```bat
 cd /d C:\Users\Drew\Projects\rust-sandbox
 set "CARGO_TARGET_DIR=D:\jcode-build\rust-sandbox-20260929"
-cargo run -p rust-sandbox
+call play.cmd
+rem Or choose the other original installed map:
+call play.cmd gm_flatgrass
 ```
 
 The launcher builds first, so spreadsheet edits cannot silently leave you running an old binary. First build requires Rust, MSVC build tools, dependency downloads, and a supported graphics adapter. The selected versions are a deliberately verified compatible pair, not a claim to be the latest Bevy release.
+
+**Normal launch now loads the original installed `gm_construct` in Bevy**, not the box demo. It reads BSP geometry/displacements/lightmaps, VPK-mounted VMT/VTF textures, six sky faces, and placed MDL/VVD/VTX static models. Set `GMOD_DIR` if your Steam `GarrysMod` root differs from `D:\SteamLibrary\steamapps\common\GarrysMod`. First content decode takes a short time, with per-asset progress in the console. No Steam files are changed.
+
+Click to capture the mouse. WASD moves the inspection camera, Space/Ctrl moves vertically, Shift accelerates, Esc releases the mouse, F10 quits. This is still **noclip asset inspection**, not Source player physics. `play-prototype.cmd` preserves the earlier physics sandbox separately. See [original-content plan and limitations](docs/SOURCE_ASSETS.md).
 
 ## Delivered files
 
 | Location | Purpose |
 |---|---|
 | `sheets/props.csv` | Authored procedural prop sizes, mass, friction, bounce, color |
+| `sheets/source_maps.csv` | Original installed map references, scale, FOV and inspection settings |
+| `sheets/source_pipeline.csv` | Import capabilities and remaining fidelity gaps |
 | `sheets/world.csv` | Gravity, physics tick rate, floor size, movement, distances, prop limit |
 | `sheets/scene.csv` | Initial prop instances and frozen state |
 | `sheets/systems.csv` | 64 major system specifications and parity gaps |
@@ -37,7 +45,7 @@ The launcher builds first, so spreadsheet edits cannot silently leave you runnin
 
 CSV sheets are the **authoritative editable source**. Open them in Excel or LibreOffice and save as UTF-8 CSV. XLSX is an exported review snapshot, not a second source of truth. To use edits made in the workbook, export the relevant tab back to its named CSV before rebuilding. No Excel formulas are evaluated by the build.
 
-## Implemented gameplay
+## Preserved prototype gameplay (`play-prototype.cmd`)
 
 - Lit 3D workshop with four original procedural prop types and a spreadsheet-built spawn menu.
 - Fixed-step rigid-body gravity and collisions, mass, friction, restitution and CCD.
@@ -80,4 +88,4 @@ The inventory and export commands refuse existing destinations. Inventory reads 
 
 ## Important gaps
 
-No Source maps/models/materials importer, walking player, ragdolls, constraint tools, multiplayer, NPCs, vehicles, audio, Lua runtime, Workshop integration, or GMod save/addon compatibility yet. Rapier is not Source VPhysics. The reference game has not been run through a comparative parity harness. The 101 research rows are a structured initial baseline, not proof that every engine behavior or community addon has been enumerated.
+The Source importer is partial, not renderer parity. Brush entity simulation, 3D sky scaling, model animation, accurate static prop lighting, HDR, material blending/proxies, reflection/refraction, overlays and original player physics remain. Unsupported assets are listed in `local/<map>-import-report.json`. No walking player, ragdolls, constraint tools, multiplayer, NPCs, vehicles, audio, Lua runtime, Workshop integration, or GMod save/addon compatibility yet. Rapier is not Source VPhysics. The reference game has not been run through a comparative parity harness. Research rows are a structured baseline, not proof that every behavior or addon has been enumerated.

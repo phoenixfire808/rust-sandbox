@@ -4,6 +4,29 @@ Date: 2026-09-29 UTC. Windows x86_64, Rust 1.97.1. Build artifacts isolated in `
 
 ## Observed passing checks
 
+### Original installed-content follow-up
+
+The normal `play.cmd` now starts `source-map`. Earlier prototype evidence below describes the historical launcher, now preserved as `play-prototype.cmd`.
+
+| Original map | World faces | Displacement faces | Lightmapped faces | Textured materials | Static props decoded | Total rendered triangles |
+|---|---:|---:|---:|---:|---:|---:|
+| gm_construct | 6,952 | 110 | 6,887 | 203 / 205 | 181 / 182 | 105,141 |
+| gm_flatgrass | 1,657 | 16 | 1,648 | 16 / 16 | 1 / 1 | 14,448 |
+
+Both rendered six original sky textures and the BSP-authored player spawn. Actual Bevy screenshots are `evidence/gm_construct-source.png` and `evidence/gm_flatgrass-source.png`. They were visually inspected. Original buildings, terrain and textures are visible, not procedural replacements. Material counts include cubemap-specific VMT variants, not unique source textures. Textures now share CPU decode and GPU image handles by base-texture path.
+
+`gm_construct` has two water materials without base textures. These use original VMT fog colors as a documented approximation, not Source water shading. One original model, `models/dav0r/buttons/switch.mdl`, is rejected by vmdl with `String is not null-terminated` and remains absent. Reports contain these exact warnings. No unsupported asset is counted as loaded.
+
+The first visual iteration exposed a missing `sourceengine` mount (only 9 / 187 world materials loaded) and near-black lightmaps from Bevy's default physical exposure. Installed archive paths and Bevy's exposure implementation were inspected. Adding the actual bundled Source content root raised world texture coverage to 185 / 187, and unit exposure restored normalized LDR baked lighting. Subsequent model import raised totals to the table above. Mipmap and anisotropic filtering reduced the prominent high-frequency texture aliasing visible in the earlier screenshot.
+
+The opt-in `installed_stock_maps_load_original_textures_and_geometry` integration test was executed against both real local maps and passed. It calls the same importer used by the renderer and checks sky count, world coverage, at least 95% texture/model coverage, finite positions/UVs, complete triangles, matching attributes and decoded texture mip data. The initial missing-content-mount result would fail its explicit texture-coverage gate. A separate test compares map CSV values to the generated runtime structs. Path traversal, invalid ranges, NaN and duplicate IDs have negative tests.
+
+No pixel-equivalence or Source movement equivalence is established. The renderer remains a noclip asset inspection mode, separate from prototype sandbox physics. Brush entities, model animation, correct model lighting, full material shaders, HDR and 3D sky scaling need further work. OS-level physical mouse/keyboard input has not been automated for this viewer.
+
+The final standard workspace suite passed **31 tests**, with the installed-content test ignored by default. That opt-in test was run separately and passed against both real maps. Strict workspace/all-target/all-feature clippy passed. Final `play.cmd --smoke` and `play.cmd gm_flatgrass --smoke` both exited successfully after actual screenshot capture. The refreshed `local/gmod-original-assets.xlsx` contains **12 sheets and 86,931 data rows** (5,058,294 bytes), independently checked against all CSV sources with no formula elements. The earlier workbook remains untouched.
+
+### Earlier procedural sandbox baseline
+
 | Requirement | Executed check | Result |
 |---|---|---|
 | Typed spreadsheet ingestion | Catalog tests plus `sandbox-catalog validate sheets` | Four prop definitions, five initial instances, 60 Hz, 101 behavior specs validated |

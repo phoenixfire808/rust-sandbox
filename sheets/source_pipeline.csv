@@ -1,0 +1,12 @@
+id,input,conversion,status,acceptance_gap
+source_mount,Local Steam files and VPK directories,Read-only virtual file lookup,prototype,External mounted games and addon precedence not implemented
+bsp_world,Source BSP model zero,Native Bevy triangle meshes and original texture axes,prototype,Brush entities and map I/O pending
+bsp_displacements,Source BSP displacement lumps,Native triangulated terrain,prototype,Blend textures and normal smoothing pending
+vmt_materials,Original VMT and patch files,Parsed base texture and alpha metadata,prototype,Full Source shader and proxy behavior pending
+vtf_textures,Original VTF payloads,Decoded RGBA plus mipmap filtering,prototype,Animated textures and uncommon formats pending
+bsp_lightmaps,Original LDR RGBExp32 samples,Second UV atlas and Bevy baked lighting,prototype,HDR range and Source exposure not matched
+source_sky,Original six sky textures,Camera-centered textured cube,prototype,3D sky transform and reference orientation validation pending
+source_models,Original MDL VVD and DX90 VTX,Static geometry with model skin materials and transforms,prototype,Animation bodygroups collision and vertex lighting pending
+source_water,Original water VMT,Original fog-color approximation,prototype,Reflection refraction waves and underwater rendering pending
+source_player,Original player spawn entity,Source coordinate conversion and inspection camera,prototype,Ground movement collision and physics feel pending
+source_parity,Reference Garry's Mod gameplay,Same-camera and same-input comparisons,not_started,No one-to-one equivalence established

@@ -11,6 +11,8 @@ fn run() -> Result<()> {
         [cmd,dir] if cmd=="validate" => {
             let c=content::load(Path::new(dir))?;
             let specs=behavior::load(Path::new(dir))?;
+            let maps=sandbox_catalog::source_maps::load(Path::new(dir))?;
+            println!("VALID: {} original Source map references",maps.len());
             println!("VALID: {} prop definitions, {} scene instances, {} Hz, {} behavior specifications",c.props.len(),c.scene.len(),c.world.fixed_hz,specs.len());
         }
         [cmd,dir,out] if cmd=="generate" => {
@@ -18,6 +20,7 @@ fn run() -> Result<()> {
             let c=content::load(Path::new(dir))?;
             let mut code=content::generate_rust(&c)?;
             code.push_str(&behavior::generate(&behavior::load(Path::new(dir))?)?);
+            code.push_str(&sandbox_catalog::source_maps::generate(&sandbox_catalog::source_maps::load(Path::new(dir))?));
             std::fs::write(out,code)?;
             println!("Generated typed Rust structs: {out}");
         }
