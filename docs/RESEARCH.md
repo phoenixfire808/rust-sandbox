@@ -33,3 +33,15 @@ Bevy uses MIT/Apache-2.0 licensing, Rapier uses Apache-2.0, and the serializatio
 ## What has not been researched to completion
 
 No full native engine implementation, exhaustive Lua API semantics, every game convar, all model/material formats, all stock map I/O entities, Workshop corpus, mounted game corpus, weapon/NPC stat corpus or numerical Source physics baseline has been reconstructed. The 64-system matrix is a discovery map that must be expanded into concrete reference cases during M2. The current runnable prototype is evidence for its own behavior only.
+
+## Player and map repair research, 2026-09-29
+
+- Inspected installed dependency sources for `vmdl 0.2.0`: `src/lib.rs`, `src/vvd/{mod,raw}.rs`, `src/mdl/raw/{header,bones,animation,mod}.rs`, and `src/compressed_vector.rs`. Geometry, VVD fixups and material lookup remain reused. Observed that its weight iterator divides by influence count, external animation blocks are unimplemented, compressed samples are unsigned, and frame indices narrow to u8.
+- Added independently implemented bounded skeletal/selected-clip sampling using those format layouts. It preserves signed i16 runs, frame indices above 255, raw quaternion formats, external ANI blocks, section tables, bind matrices and attachment matrices. Full Source sequence layering, IK, flexes and procedural bones remain outside this implementation.
+- Original local metadata shows Kleiner's player model contains its ragdoll animation, while stock locomotion and hold clips live in `models/m_anm.mdl` and its ANI blocks. Actual idle/walk/run physgun and pistol clips are used, not synthesized walking poses.
+- Reused Rapier 0.30's KinematicCharacterController, autostep and grounded output. Its capsule/sliding behavior is not Source's box-hull movement solver. Models and movement dimensions are authored in `sheets/source_player.csv`.
+- Inspected `vbsp 0.9.1` face triangulation and normals. The original face-side correction remains. Local gm_construct has 12 non-world brush submodels, including interior func_brush walls, reflective glass, vehicle clips and illusionary surfaces. Diagnostic vertices confirm visible submodels use entity-local coordinates. Rendering only model 0 omitted this geometry.
+- Original hands are bone-merged by name. World weapons use the authored `anim_attachment_RH` matrix, including its local orientation. Visual review caught the initial bone-only attachment pointing the gun down.
+- Teeth/Eyes shaders are missing from vmt-parser. Their base textures now load through a VertexLitGeneric approximation, not equivalent lighting or eye animation.
+- Full fidelity acceptance inventory is in [PLAYER_PARITY.md](PLAYER_PARITY.md). Proprietary payloads and diagnostic dumps remain local/ignored.
+
