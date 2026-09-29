@@ -938,6 +938,7 @@ fn text(world: &mut World, parent: Entity, label: impl Into<String>, size: f32) 
             ..default()
         },
         TextColor(Color::srgb(0.12, 0.15, 0.2)),
+        bevy::ui::FocusPolicy::Pass,
         ChildOf(parent),
     ));
 }

@@ -65,6 +65,11 @@ impl Mounts {
         if let Some(data) = bsp.pack.get(&name)? {
             return Ok(data);
         }
+        self.read_file(&name)
+    }
+    /// Read installed loose/VPK content without decoding a BSP first.
+    pub fn read_file(&self, name: &str) -> Result<Vec<u8>> {
+        let name = virtual_path(name)?;
         for (root, archives) in &self.roots {
             let file = root.join(&name);
             if file.is_file() {

@@ -1,0 +1,17 @@
+id,label,visibility,kind,action
+logo,,all,logo,none
+gap_logo,,all,gap,none
+resume,Resume Game,game,link,resume
+gap_resume,,game,gap,none
+newgame,Start New Game,all,link,maps
+servers,Find Multiplayer Game,all,link,servers
+gap_content,,all,gap,none
+addons,Addons,all,link,addons
+dupes,Dupes,all,link,dupes
+saves,Saves,all,link,saves
+demos,Demos,all,link,demos
+gap_options,,all,gap,none
+options,Options,all,link,options
+gap_quit,,all,gap,none
+disconnect,Disconnect,game,link,disconnect
+quit,Quit,all,link,quit

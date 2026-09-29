@@ -1,8 +1,10 @@
 # Spreadsheet handoff for contributors
 
-Download [rust-sandbox-catalog-20260929-frontend.xlsx](rust-sandbox-catalog-20260929-frontend.xlsx) for the combined Excel/LibreOffice review workbook. GitHub does not render XLSX files inline, so use **Download raw file**. All source tables are also available as CSV for review and version control.
+Download [rust-sandbox-catalog-20260929-menu-parity.xlsx](rust-sandbox-catalog-20260929-menu-parity.xlsx) for the combined Excel/LibreOffice review workbook. GitHub does not render XLSX files inline, so use **Download raw file**. All source tables are also available as CSV for review and version control.
 
-The frontend snapshot adds typed placement/menu dimensions, 38 detailed frontend and feedback acceptance rows, and updated menu/placement backlog status. Export produced **94,981 data rows**. See [the frontend plan](../docs/FRONTEND_PLAN.md). Startup, pause, map selection and local feedback are implemented as a partial slice, not one-to-one stock parity.
+The menu-parity snapshot adds **368 HTML control/label definitions**, **1,138 CSS layout/style declarations**, **140 native option controls**, **30 Sandbox settings**, **46 measured menu rules**, and a **40-package screen-by-screen implementation backlog**. Export produced **96,763 data rows**. See [the menu repair plan](../docs/MENU_REPAIR_PLAN.md) and [menu work items](../sheets/menu_work_items.csv). The actual executable compiled and was launched normally. Button behavior, visual equality and workbook acceptance remain Drew-owned and untested by the agent. Full native Options and backend-dependent screens are still unfinished.
+
+The retained frontend snapshot adds typed placement/menu dimensions, 38 detailed frontend and feedback acceptance rows, and updated menu/placement backlog status. Export produced **94,981 data rows**. See [the frontend plan](../docs/FRONTEND_PLAN.md). Startup, pause, map selection and local feedback are implemented as a partial slice, not one-to-one stock parity.
 
 The retained toolgun snapshot adds the typed tool matrix, toolgun presentation configuration, enabled/pending settings, approximate physical materials, 170 literal installed defaults and 24 user-owned acceptance scenarios. Export produced **94,942 data rows**. See [the detailed tool plan](../docs/TOOL_IMPLEMENTATION_PLAN.md). Twelve stock-tool subsets are implemented, not 37 complete tools. Gameplay and workbook acceptance remain with Drew.
 

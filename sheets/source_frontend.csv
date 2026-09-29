@@ -1,2 +1,2 @@
-margin,sidebar_width,settings_width,map_icon,font_size,row_height,feedback_limit,spawn_clearance
-16,190,226,128,18,36,8192,0.025
+margin,sidebar_width,settings_width,map_icon,font_size,row_height,feedback_limit,spawn_clearance,footer_height,main_padding,main_list_margin,main_item_padding,main_font,compact_font,compact_width,short_height,short_font,short_line,logo_width,logo_height,map_right,map_grid_left,card_padding,card_margin,caption_font,category_height,category_gap,header_font,body_font,start_inset,start_font,background,footer_label_breakpoint,footer_compact_margin,popup_right,popup_width,popup_games_right,popup_games_width,popup_language_right,popup_max_height,tiny_height,narrow_width
+16,190,226,128,16,28,8192,0.025,50,50,20,16,23,16,1280,580,20,19,288,128,256,200,6,2,10,26,5,32,12,18,20,backgrounds/edd_construct_isometric.png,940,15,10,230,150,260,100,300,420,640

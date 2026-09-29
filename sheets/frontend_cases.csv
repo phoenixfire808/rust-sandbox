@@ -4,11 +4,11 @@ spawn_slope,placement,Spawn on slopes walls and ceilings,Support projection alon
 spawn_moving,placement,Spawn onto a moving prop during cold loading,Click-time trace plane retained,Track moving hit entity transform through asynchronous preparation,Drew,not_run
 spawn_sky,placement,Spawn while aiming at sky,Forward fallback with upward support,Match stock no-hit behavior and distance,Drew,not_run
 spawn_cancel,placement,Cancel cold queued spawn with Z,Existing bounded queue and cancel retained,Confirm no scene insertion after cancellation,Drew,not_run
-startup,main_menu,Launch play.cmd without arguments,Independent startup menu before map decoding,Original background font skin footer and branding layout,Drew,not_run
-map_select,new_game,Select supported map and start,Compiled map cards and explicit Start Game,Original mounted thumbnails categories search and favorites,Drew,not_run
+startup,main_menu,Launch play.cmd without arguments,Independent startup menu before map decoding,Reference artwork and font mounted; exact typography rotation and full skin remain,Drew,not_run
+map_select,new_game,Select supported map and start,Compiled map cards and explicit Start Game,Installed thumbnails search and local favorites added; full map category discovery remains,Drew,not_run
 map_layout,new_game,Compare map selection at same resolution,Authored 128px card region and 226px settings column,Exact padding card caption geometry and responsive layout,Drew,not_run
 map_categories,new_game,Browse all installed map categories,Only compiled supported maps shown,Discover supported maps and category labels without enabling unsupported content,Drew,not_run
-map_search,new_game,Search and favorite maps,Not implemented,Search text editing favorites persistence and no-results state,Drew,not_run
+map_search,new_game,Search and favorite maps,Case-insensitive filter and local favorites with native hover icon states,Full text editing IME clipboard and addon-name filtering,Drew,not_run
 newgame_settings,new_game,Adjust Sandbox settings before starting,Single-player Sandbox explicitly labeled,God mode noclip weapons PvP and entity limits with reference defaults,Drew,not_run
 newgame_players,new_game,Choose player count and server settings,Multiplayer explicitly unavailable,Networking server name password player limits and peer options,Drew,not_run
 newgame_modes,new_game,Choose game mode,Only Sandbox supported,Mounted mode inventory and actual mode runtime,Drew,not_run
@@ -28,7 +28,11 @@ multiplayer,main_menu,Browse and join a server,Explicit pending label,Server bro
 addons,main_menu,Browse and manage addons,Explicit pending label,Safe mounted addon inventory and compatible execution support,Drew,not_run
 demos_dupes,main_menu,Use demos and duplication browsers,Explicit pending label,Native formats and browser operations,Drew,not_run
 mounts,main_menu,Choose installed games,Explicit pending label,Mount discovery status permissions and safe runtime refresh,Drew,not_run
-footer,main_menu,Inspect language games problems and version footer,Not implemented,Reference footer layout actions diagnostics and localization,Drew,not_run
+footer,main_menu,Inspect language games problems and version footer,Anchored footer with responsive labels and page-preserving popups,Full diagnostics localization mounted game discovery and precise icon metrics,Drew,not_run
+footer_popup,main_menu,Open each footer popup then Escape outside click or same button,Sheet-authored anchors with input-blocking dismissal layer,Confirm dismissal does not select a map or resume gameplay,Drew,not_run
+footer_resize,main_menu,Resize across 940 logical pixels,Problems and Games labels collapse and center margin becomes15px,Compare reference icon baselines widths and label clipping,Drew,not_run
+favorite_hover,new_game,Move over map then favorite icon then off the card,Native normal add remove images with saved favorites visible,Compare hover transitions and ensure favorite never launches map,Drew,not_run
+label_hits,ui,Click every label thumbnail icon and button padding,Explicit FocusPolicy Pass on decorations,Confirm exactly one owning action per press including Q menu thumbnails,Drew,not_run
 feedback_open,feedback,Open button or F8 during play,Four-field local modal with category and gameplay pause,Compare accessibility and small window layout,Drew,not_run
 feedback_typing,feedback,Enter detailed multiline report,Append backspace newline Tab and click field selection,Cursor selection clipboard IME undo and richer text editing,Drew,not_run
 feedback_draft,feedback,Close feedback reopen and restart,Local JSON draft persisted on edits,Crash-safe atomic draft writes and explicit recovery UI,Drew,not_run

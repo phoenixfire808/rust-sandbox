@@ -298,6 +298,7 @@ pub(super) fn rebuild(world: &mut World) {
         if let Some(image) = icon {
             world.spawn((
                 ImageNode::new(image),
+                bevy::ui::FocusPolicy::Pass,
                 Node {
                     width: Val::Percent(100.),
                     height: Val::Percent(100.),

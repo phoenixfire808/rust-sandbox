@@ -1,9 +1,11 @@
 //! Local startup/pause navigation and a private, persistent player feedback inbox.
+mod view;
 use crate::{
     project_root,
     source_play::{PlayState, SpawnedProp},
     source_player::PlayerState,
 };
+use bevy::ui::FocusPolicy;
 use bevy::{
     input::{
         keyboard::{Key, KeyboardInput},
@@ -28,6 +30,13 @@ enum Page {
     Feedback,
     Confirm,
     Loading,
+    Info,
+}
+#[derive(Clone, Copy, PartialEq)]
+enum Popup {
+    Games,
+    Language,
+    Gamemodes,
 }
 #[derive(Resource)]
 pub struct Frontend {
@@ -43,6 +52,14 @@ pub struct Frontend {
     pending: String,
     child: Option<(Child, PathBuf)>,
     blocked_frame: bool,
+    map_search: String,
+    search_focus: bool,
+    favorites_only: bool,
+    favorites: std::collections::BTreeSet<String>,
+    last_map_click: Option<(String, std::time::Instant)>,
+    window_size: Vec2,
+    info: String,
+    popup: Option<Popup>,
 }
 impl Frontend {
     pub fn new(startup: bool, map: String) -> Self {
@@ -50,9 +67,19 @@ impl Frontend {
             .ok()
             .and_then(|b| serde_json::from_slice(&b).ok())
             .unwrap_or_default();
+        let prefs: (String, std::collections::BTreeSet<String>) =
+            std::fs::read(project_root().join("local/menu-preferences.json"))
+                .ok()
+                .and_then(|b| serde_json::from_slice(&b).ok())
+                .unwrap_or_else(|| ("gm_flatgrass".into(), Default::default()));
+        let selected = crate::compiled_source_maps()
+            .into_iter()
+            .find(|m| m.id == prefs.0)
+            .unwrap_or_else(|| crate::compiled_source_maps()[0].clone())
+            .id;
         Self {
             startup,
-            selected: crate::compiled_source_maps()[0].id.clone(),
+            selected,
             map,
             page: if startup { Page::Home } else { Page::Hidden },
             dirty: true,
@@ -63,6 +90,14 @@ impl Frontend {
             pending: String::new(),
             child: None,
             blocked_frame: false,
+            map_search: String::new(),
+            search_focus: false,
+            favorites_only: false,
+            favorites: prefs.1,
+            last_map_click: None,
+            window_size: Vec2::ZERO,
+            info: String::new(),
+            popup: None,
         }
     }
 }
@@ -83,16 +118,31 @@ enum Action {
     Save,
     Load,
     Setting(&'static str, f32),
+    Info(String),
+    Favorite(String),
+    MapCategory(bool),
+    Search,
+    Popup(Option<Popup>),
 }
 pub struct FrontendPlugin;
 impl Plugin for FrontendPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(
-            Update,
-            (typing, update).chain().before(crate::source_player::input),
-        )
-        .add_systems(PostUpdate, ready)
-        .add_systems(Update, scroll.after(update));
+        app.init_resource::<Actions>()
+            .add_systems(Startup, view::load_assets)
+            .add_systems(
+                Update,
+                (
+                    typing,
+                    collect_actions,
+                    update,
+                    view::hover,
+                    view::favorite_hover,
+                )
+                    .chain()
+                    .before(crate::source_player::input),
+            )
+            .add_systems(PostUpdate, ready)
+            .add_systems(Update, scroll.after(update));
     }
 }
 pub fn active(world: &World) -> bool {
@@ -127,6 +177,22 @@ fn draft(f: &Frontend) -> Result<()> {
     Ok(())
 }
 fn typing(mut events: EventReader<KeyboardInput>, mut f: ResMut<Frontend>) {
+    if f.page == Page::Maps && f.search_focus {
+        for e in events.read().filter(|e| e.state == ButtonState::Pressed) {
+            match &e.logical_key {
+                Key::Character(s) if f.map_search.len() + s.len() <= 256 => {
+                    f.map_search.push_str(s)
+                }
+                Key::Backspace => {
+                    f.map_search.pop();
+                }
+                Key::Enter | Key::Tab => f.search_focus = false,
+                _ => continue,
+            }
+            f.dirty = true;
+        }
+        return;
+    }
     if f.page != Page::Feedback {
         events.clear();
         return;
@@ -217,8 +283,45 @@ fn leave(world: &mut World, f: &mut Frontend) -> Result<()> {
     }
     Ok(())
 }
+#[derive(Resource, Default)]
+struct Actions(Vec<Action>);
+fn collect_actions(
+    buttons: Query<(&Interaction, &Action), Changed<Interaction>>,
+    mouse: Res<ButtonInput<MouseButton>>,
+    mut queue: ResMut<Actions>,
+) {
+    if !mouse.just_pressed(MouseButton::Left) {
+        return;
+    }
+    for (interaction, action) in &buttons {
+        if *interaction == Interaction::Pressed {
+            queue.0.push(action.clone());
+        }
+    }
+}
+fn save_preferences(f: &Frontend) -> Result<()> {
+    std::fs::create_dir_all(project_root().join("local"))?;
+    std::fs::write(
+        project_root().join("local/menu-preferences.json"),
+        serde_json::to_vec_pretty(&(&f.selected, &f.favorites))?,
+    )?;
+    Ok(())
+}
+fn start_map(f: &mut Frontend) -> Result<()> {
+    save_preferences(f)?;
+    if f.startup {
+        let map = f.selected.clone();
+        launch(f, Some(&map))
+    } else {
+        f.pending = "map".into();
+        f.page = Page::Confirm;
+        Ok(())
+    }
+}
 fn update(world: &mut World) {
     world.resource_scope(|world,mut f:Mut<Frontend>| {
+        let size=world.query_filtered::<&Window,With<PrimaryWindow>>().iter(world).next().map(|w|Vec2::new(w.width(),w.height())).unwrap_or(Vec2::new(1280.,800.));
+        if size!=f.window_size {f.window_size=size;f.dirty=true;}
         let previously_blocked = f.blocked_frame;
         f.blocked_frame=false;
         if let Some((child,ready))=f.child.as_mut() {
@@ -235,20 +338,28 @@ fn update(world: &mut World) {
             if keys.just_pressed(KeyCode::F10) {f.pending="quit".into();f.page=Page::Confirm;f.dirty=true;}
             else if keys.just_pressed(KeyCode::F8) {f.page=Page::Feedback;f.dirty=true;}
             else if keys.just_pressed(KeyCode::Escape) {
-                f.page=match f.page {Page::Hidden=>Page::Home,Page::Home if !f.startup=>Page::Hidden,_=>Page::Home};
+                if f.popup.take().is_none() {
+                    f.page=match f.page {Page::Hidden=>Page::Home,Page::Home if !f.startup=>Page::Hidden,_=>Page::Home};
+                }
                 f.blocked_frame=true; f.dirty=true;
             }
         }
-        let actions:Vec<_>=if f.page != Page::Loading && world.resource::<ButtonInput<MouseButton>>().just_pressed(MouseButton::Left) {
-            world.query::<(&Interaction,&Action)>().iter(world).filter(|(i,_)|**i==Interaction::Pressed).map(|(_,a)|a.clone()).collect()
-        } else {Vec::new()};
+        let mut actions=std::mem::take(&mut world.resource_mut::<Actions>().0);
+        if f.page==Page::Loading || f.page!=previous_page {actions.clear();}
         for action in actions {
             f.dirty=true;f.blocked_frame=true;
+            if !matches!(&action, Action::Map(_)) { f.last_map_click=None; }
             let result:Result<()>=match action {
-                Action::Page(p)=>{f.page=p;Ok(())}, Action::Map(map)=>{f.selected=map;Ok(())},
+                Action::Page(p)=>{f.page=p;f.search_focus=p==Page::Maps;f.message.clear();Ok(())},
+                Action::Map(map)=>{let double=f.last_map_click.as_ref().is_some_and(|(previous,time)|previous==&map && time.elapsed().as_secs_f32()<0.35);f.selected=map.clone();f.search_focus=false;f.last_map_click=Some((map,std::time::Instant::now()));if double {start_map(&mut f)} else {save_preferences(&f)}},
+                Action::Favorite(map)=>{if !f.favorites.remove(&map) {f.favorites.insert(map);}save_preferences(&f)},
+                Action::MapCategory(only)=>{f.favorites_only=only;f.search_focus=false;Ok(())},
+                Action::Search=>{f.search_focus=true;Ok(())},
+                Action::Popup(p)=>{f.popup=if f.popup==p {None} else {p};f.search_focus=false;Ok(())},
+                Action::Info(text)=>{f.info=text;f.page=Page::Info;f.search_focus=false;Ok(())},
                 Action::Field(i)=>{f.field=i;Ok(())}, Action::Category=>{f.category=(f.category+1)%4;Ok(())},
                 Action::Submit=>submit(world,&mut f),
-                Action::Start=>{if f.startup {let map=f.selected.clone();launch(&mut f,Some(&map))} else {f.pending="map".into();f.page=Page::Confirm;Ok(())}},
+                Action::Start=>start_map(&mut f),
                 Action::Leave(s)=>{f.pending=s;f.page=Page::Confirm;Ok(())},
                 Action::Confirm(save)=>{if save && !crate::source_play::menu_save(world) {Err("Save failed. Scene retained. See game status.".into())} else {leave(world,&mut f)}},
                 Action::Save=>{crate::source_play::menu_save(world);f.message=world.resource::<PlayState>().status.clone();Ok(())},
@@ -257,7 +368,7 @@ fn update(world: &mut World) {
             };
             if let Err(e)=result {f.message=e.to_string();}
         }
-        if f.page!=previous_page {for mut s in world.query_filtered::<&mut ScrollPosition,With<FrontScroll>>().iter_mut(world) {s.offset_y=0.;}}
+        if f.page!=previous_page {f.popup=None;f.last_map_click=None;for mut s in world.query_filtered::<&mut ScrollPosition,With<FrontScroll>>().iter_mut(world) {s.offset_y=0.;}}
         let open=f.page!=Page::Hidden || f.blocked_frame;
         if let Some(mut play)=world.get_resource_mut::<PlayState>() {
             if open {play.menu_open=true;play.search_focus=false;play.held=None;play.beam_active=false;}
@@ -283,6 +394,7 @@ fn label(world: &mut World, parent: Entity, value: impl Into<String>, size: f32)
             ..default()
         },
         TextColor(Color::WHITE),
+        FocusPolicy::Pass,
         ChildOf(parent),
     ));
 }
@@ -337,7 +449,14 @@ fn ready(mut frame: Local<u8>) {
 fn scroll(
     mut wheel: EventReader<bevy::input::mouse::MouseWheel>,
     f: Res<Frontend>,
-    mut panels: Query<(&mut ScrollPosition, &ComputedNode), With<FrontScroll>>,
+    mut panels: Query<
+        (
+            &mut ScrollPosition,
+            &ComputedNode,
+            &bevy::ui::RelativeCursorPosition,
+        ),
+        With<FrontScroll>,
+    >,
 ) {
     let delta: f32 = wheel
         .read()
@@ -350,283 +469,15 @@ fn scroll(
         })
         .sum();
     if f.page != Page::Hidden {
-        for (mut position, node) in &mut panels {
+        for (mut position, node, cursor) in &mut panels {
+            if !cursor.mouse_over() {
+                continue;
+            }
             let max = ((node.content_size.y - node.size.y) * node.inverse_scale_factor).max(0.);
             position.offset_y = (position.offset_y - delta).clamp(0., max);
         }
     }
 }
 fn draw(world: &mut World, f: &Frontend) {
-    let offset = world
-        .query_filtered::<&ScrollPosition, With<FrontScroll>>()
-        .iter(world)
-        .next()
-        .map(|s| s.offset_y)
-        .unwrap_or(0.);
-    let roots: Vec<_> = world
-        .query_filtered::<Entity, With<Root>>()
-        .iter(world)
-        .collect();
-    for e in roots {
-        world.despawn(e);
-    }
-    if f.page == Page::Hidden {
-        return;
-    }
-    let c = crate::compiled_frontend_config();
-    let root = world
-        .spawn((
-            Root,
-            GlobalZIndex(100),
-            Node {
-                position_type: PositionType::Absolute,
-                width: Val::Percent(100.),
-                height: Val::Percent(100.),
-                padding: UiRect::all(Val::Px(c.margin)),
-                column_gap: Val::Px(c.margin),
-                ..default()
-            },
-            BackgroundColor(Color::srgba(0.03, 0.06, 0.1, 0.97)),
-        ))
-        .id();
-    let nav = world
-        .spawn((
-            Node {
-                width: Val::Px(c.sidebar_width),
-                flex_shrink: 0.,
-                flex_direction: FlexDirection::Column,
-                ..default()
-            },
-            ChildOf(root),
-        ))
-        .id();
-    label(world, nav, "Rust Workshop", 28.);
-    if !f.startup {
-        button(world, Some(nav), "Resume Game", Action::Page(Page::Hidden));
-    }
-    button(world, Some(nav), "Start New Game", Action::Page(Page::Maps));
-    button(world, Some(nav), "Options", Action::Page(Page::Options));
-    if !f.startup {
-        button(world, Some(nav), "Saves", Action::Page(Page::Saves));
-    }
-    button(
-        world,
-        Some(nav),
-        "Detailed Feedback",
-        Action::Page(Page::Feedback),
-    );
-    if !f.startup {
-        button(
-            world,
-            Some(nav),
-            "Disconnect",
-            Action::Leave("disconnect".into()),
-        );
-    }
-    button(world, Some(nav), "Quit", Action::Leave("quit".into()));
-    label(
-        world,
-        nav,
-        "Multiplayer / Addons / Demos / Dupes / mounted games: pending",
-        13.,
-    );
-    let panel = world
-        .spawn((
-            Node {
-                flex_grow: 1.,
-                min_width: Val::Px(0.),
-                flex_direction: FlexDirection::Column,
-                row_gap: Val::Px(8.),
-                overflow: Overflow::scroll_y(),
-                ..default()
-            },
-            FrontScroll,
-            ScrollPosition {
-                offset_y: offset,
-                ..default()
-            },
-            ChildOf(root),
-        ))
-        .id();
-    match f.page {
-        Page::Home => {
-            label(
-                world,
-                panel,
-                if f.startup {
-                    "Start New Game"
-                } else {
-                    "Game paused"
-                },
-                32.,
-            );
-            label(world,panel,"Independent local sandbox. Stock menu appearance and all options are still being implemented.",c.font_size);
-        }
-        Page::Maps => {
-            label(world, panel, "Sandbox", 32.);
-            let content = world
-                .spawn((
-                    Node {
-                        flex_grow: 1.,
-                        column_gap: Val::Px(c.margin),
-                        ..default()
-                    },
-                    ChildOf(panel),
-                ))
-                .id();
-            let row = world
-                .spawn((
-                    Node {
-                        flex_grow: 1.,
-                        min_width: Val::Px(0.),
-                        align_content: AlignContent::Start,
-                        flex_wrap: FlexWrap::Wrap,
-                        column_gap: Val::Px(8.),
-                        row_gap: Val::Px(8.),
-                        ..default()
-                    },
-                    ChildOf(content),
-                ))
-                .id();
-            for map in crate::compiled_source_maps() {
-                let e = button(
-                    world,
-                    Some(row),
-                    format!(
-                        "{}{}",
-                        if f.selected == map.id {
-                            "Selected: "
-                        } else {
-                            ""
-                        },
-                        map.id
-                    ),
-                    Action::Map(map.id),
-                );
-                world.entity_mut(e).insert(Node {
-                    width: Val::Px(c.map_icon + 12.),
-                    height: Val::Px(c.map_icon),
-                    padding: UiRect::all(Val::Px(6.)),
-                    ..default()
-                });
-            }
-            let settings = world
-                .spawn((
-                    Node {
-                        width: Val::Px(c.settings_width),
-                        flex_shrink: 0.,
-                        flex_direction: FlexDirection::Column,
-                        row_gap: Val::Px(8.),
-                        ..default()
-                    },
-                    ChildOf(content),
-                ))
-                .id();
-            label(world,settings,"Single Player | Sandbox\nOnly authored supported maps are enabled. Multiplayer and other game modes are not implemented.",c.font_size);
-            button(
-                world,
-                Some(settings),
-                format!("Start Game: {}", f.selected),
-                Action::Start,
-            );
-        }
-        Page::Feedback => {
-            label(world, panel, "Detailed feedback for Jcode", 28.);
-            label(world,panel,"Saved on this computer only. Nothing is uploaded. Jcode can review local/feedback/*.json on your next request. Tab changes fields; Enter adds a line.",14.);
-            button(
-                world,
-                Some(panel),
-                format!(
-                    "Category: {}",
-                    ["Bug", "Feature request", "Visual mismatch", "Performance"][f.category]
-                ),
-                Action::Category,
-            );
-            for (i, title) in [
-                "Title",
-                "What happened / what is missing",
-                "What you expected",
-                "Steps to reproduce / additional notes",
-            ]
-            .iter()
-            .enumerate()
-            {
-                button(
-                    world,
-                    Some(panel),
-                    format!(
-                        "{}{}\n{}",
-                        if f.field == i { "> " } else { "" },
-                        title,
-                        if f.fields[i].is_empty() {
-                            "Click here to type"
-                        } else {
-                            &f.fields[i]
-                        }
-                    ),
-                    Action::Field(i),
-                );
-            }
-            button(world, Some(panel), "Save feedback locally", Action::Submit);
-        }
-        Page::Options => {
-            label(world, panel, "Options", 32.);
-            if let Some(p) = world.get_resource::<PlayState>() {
-                let values = [
-                    ("Field of view", "fov", p.fov, 5.),
-                    ("Noclip speed", "speed", p.speed, 1.),
-                    ("Mouse sensitivity", "sensitivity", p.sensitivity, 0.0005),
-                ];
-                for (name, key, value, step) in values {
-                    label(world, panel, format!("{name}: {value:.4}"), c.font_size);
-                    button(world, Some(panel), "-", Action::Setting(key, -step));
-                    button(world, Some(panel), "+", Action::Setting(key, step));
-                }
-            } else {
-                label(world,panel,"Start a map to change current player options. Full startup options and key binding pages are pending.",c.font_size);
-            }
-        }
-        Page::Saves => {
-            label(world, panel, "Local scenes", 32.);
-            button(world, Some(panel), "Save current scene", Action::Save);
-            button(
-                world,
-                Some(panel),
-                "Load latest local scene (Z can undo)",
-                Action::Load,
-            );
-            label(
-                world,
-                panel,
-                "These are local Rust scenes, not GMod save files or Workshop saves.",
-                14.,
-            );
-        }
-        Page::Confirm => {
-            label(world, panel, "Leave current session?", 32.);
-            label(world,panel,"Unsaved scene changes will be lost if you continue without saving. Your feedback draft is retained.",c.font_size);
-            if !f.startup {
-                button(
-                    world,
-                    Some(panel),
-                    "Save scene and continue",
-                    Action::Confirm(true),
-                );
-            }
-            button(
-                world,
-                Some(panel),
-                "Continue without saving",
-                Action::Confirm(false),
-            );
-            button(world, Some(panel), "Cancel", Action::Page(Page::Home));
-        }
-        Page::Loading => {
-            label(world, panel, "Loading...", 32.);
-        }
-        Page::Hidden => {}
-    }
-    if !f.message.is_empty() {
-        label(world, panel, &f.message, 14.);
-    }
+    view::draw(world, f);
 }

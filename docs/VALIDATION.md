@@ -2,6 +2,14 @@
 
 Date: 2026-09-29 UTC. Windows x86_64, Rust 1.97.1. Build artifacts isolated in `D:\jcode-build\rust-sandbox-20260929`. No remote compilation or remote asset upload.
 
+## Reference-menu repair and expanded inventory, 2026-09-29 19:28 UTC
+
+- Final `cargo build --locked -p rust-sandbox --bin source-map` succeeded in **1m30s**. The preceding build succeeded in 1m43s. Logs: `local/menu-parity-final-build.log` and `local/menu-parity-build.log`. The pre-existing binrw future-compatibility warning remains. No test, benchmark or Clippy run was performed.
+- The catalog exporter compiled in 9.16s and produced `spreadsheets/rust-sandbox-catalog-20260929-menu-parity.xlsx` with **96,763 data rows**, including the recursively expanded 368 HTML control/label and 1138 CSS declaration inventories, 140 native controls, 30 new-game settings, 46 menu reference rules, 40 menu work packages and updated frontend cases. Log: `local/menu-parity-workbook.log`. This is exporter success, not independent XLSX acceptance.
+- Launched the final executable normally without any automated inputs or screenshots. `local/menu-parity-launch.log` reported **MENU_ASSETS images=13**, with read-only source mounts. `local/menu-parity-launch.err.log` was empty at inspection. At 19:44 UTC the running binary had PID 37840 and a responding `gm_construct | Bevy local Source map` window. No active game was terminated or replaced by automation. Window/process availability is not a visual or interaction parity test.
+- Static review corrected label/icon hit blocking, preserved one action per fresh press, added responsive footer labels and original intrinsic PNG sizes, anchored page-preserving popups with isolated dismissal, favorite hover states, alphabetic map order, search autofocus, and clearing stale double-click history after unrelated actions. `git diff --check` reported no whitespace errors. These checks do not prove actual button behavior.
+- Drew retains all interaction/visual acceptance. Every acceptance row remains `not_run`. Full native Options, new-game settings effects, networking, Workshop, other mode/language runtime, full Q/C interfaces, Chromium typography and complete one-to-one menu parity remain open in `menu_work_items.csv` and `MENU_REPAIR_PLAN.md`.
+
 ## Spawn clearance and frontend awaiting Drew's testing
 
 `cargo build --locked -p rust-sandbox --bin source-map` succeeded in 56.70s after the final source changes. Log: `local/frontend-executable-build.log`. The first library build caught a JSON macro expression error in feedback category selection, fixed before successful library and executable builds. Static review added degenerate-normal fallback, F10 confirmation routing, page-scroll reset and the spreadsheet-authored map-settings column. These are implementation/build observations, not passing gameplay checks. The existing binrw future-compatibility warning remains.

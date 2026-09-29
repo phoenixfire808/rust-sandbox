@@ -2,6 +2,22 @@
 
 Research date: 2026-09-29 UTC. Citation IDs are maintained in `sheets/sources.csv`.
 
+## Nonworking menu repair and exact layout inventory, 2026-09-29
+
+Drew reported that the previous menu did not work and did not match stock placement. Read installed `html/template/main.html`, `newgame.html`, `menu.html`, `css/menu/PageOptions.css`, `NavBar.css`, `NewGame.css`, `Menu.css`, and `js/menu/control.NewGame.js`. Inspected the actual 288x128 Sandbox logo and one installed 1920x1080 PNG background. Stock main text starts at CSS x=50+20+16=86, not the prior 16px sidebar. Stock footer is 50px high. New Game has an independently anchored white map list and a 226px settings panel. The 46 rules in menu_reference.csv retain locations, selectors, responsive conditions and unimplemented boundaries.
+
+Inspected Bevy 0.16.1 `ui_node.rs` and `focus.rs:298-323`: Text and ImageNode require Node, whose FocusPolicy defaults to Block. The previous button children had no Pass policy, so label/image hits stop before their owning Button. Explicit pass-through decorations reuse the framework's actual hit-test system, not a separate rectangle-click engine. A changed-Interaction collector emits actions only on a fresh physical left press. Q-menu labels and model thumbnails receive the same correction. This diagnosis is from source inspection, not a gameplay test.
+
+The view reuses read-only mounted original PNGs and Windows Arial/Arial Bold (CSS fallback), with existing font defaults if unavailable. No artwork or fonts are copied into the repository. Background choice is authored and aspect-filled, not the native rotating background implementation. Native text letter spacing, blurred shadows, gradients and complete subpages still require work and Drew's comparison.
+
+`scripts/catalog-menu-reference.ps1` additionally inventories **140 literal controls** from the seven installed loose Options*.res files, preserving raw position/size/visibility/tab fields, and **30 Sandbox new-game settings** from sandbox.txt. These are metadata, not copied implementation source. Extraction is lexical for flat blocks and does not resolve inherited controls, proportional coordinates, archive-only resources or dynamic engine values. Native options are no longer an unenumerated generic row, but this is not exhaustive native engine discovery. See MENU_REPAIR_PLAN.md.
+
+## Expanded menu audit and follow-through, 2026-09-29 19:28 UTC
+
+Re-read installed PageOptions.css, NavBar.css, NewGame.css, menu.html and newgame.html. The expanded inventory records 368 literal HTML controls/labels and 1138 CSS layout/style declarations across menu templates including nested creations and all HTML CSS subdirectories, in addition to 140 native controls and 30 Sandbox options. This is an exhaustive pass over the scanner's stated literal files and properties, not complete dynamic native/Lua coverage. Quoted comparison operators are retained while HTML comments are excluded. Source lines are kept to resolve media conditions and inherited/repeated control ancestors.
+
+Corrected missing Problems/Games footer labels and the <=940px compact-label/15px-center-margin rule. Added page-preserving Games/Language/Gamemodes popup anchors from NavBar.css, with explicit unsupported backend notices and outside-click/Escape dismissal. English and Sandbox are the only active choices, not invented compatibility. Reference NewGame.css:7-28 specifies a normal favorite star visible on map hover or saved favorites, changing to add/remove only when hovering the star. The independent view now follows those states using Bevy RelativeCursorPosition and mounted images. No new package, third-party source copy, screenshot or input automation was introduced. No local feedback directory existed at review time.
+
 ## Startup, pause, feedback and spawn placement, 2026-09-29
 
 Read the installed `html/css/menu/Menu.css`, `html/css/menu/NewGame.css` and `resource/localization/en/main_menu.properties` under the unmodified Garry's Mod installation. NewGame.css specifies 128px thumbnails, 6px card padding, 2px card margin, 16px outer inset, 190px controls and a 226px game-settings region. Menu.css specifies the Helvetica/Arial family, 32px category titles and a 50px footer exclusion. These observations are references, not proof that the current independent Bevy layout matches them. `source_frontend.csv` authors the reused dimensions alongside independently chosen font size, row height, feedback limit and spawn clearance. Stock typography, map images, footer and full options remain pending.

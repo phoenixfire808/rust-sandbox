@@ -1,0 +1,47 @@
+id,screen,element,reference_rule,source,implementation_target,remaining,result
+home_origin,main_pause,Options column,Left padding 50; UL left margin 20; LI padding 16 gives text x86,PageOptions.css:2-49,Runtime sheet dimensions,Font browser line boxes require Drew comparison,not_run
+home_y,main_pause,Options top,Padding top50; UL standard one-em margin; inner padding2,PageOptions.css:2-49,Computed using selected font metrics,Browser default line box and logo baseline,not_run
+home_logo,main_pause,Gamemode logo,288x128 installed sandbox logo before separator,template/main.html:8,Read installed PNG without copying assets,Other gamemode logos need actual runtime support,not_run
+home_order,main_pause,Main entries,Logo gap Resume gap NewGame Multiplayer gap Addons Dupes Saves Demos gap Options gap Disconnect Quit,template/main.html:8-29,source_main_menu.csv with in-game visibility,No fake functional backend promises,not_run
+home_font,main_pause,Text,Arial fallback bold23 white; letter-spacing -1; shadow 2px2px1px,PageOptions.css:42-74,Runtime system Arial bold and text shadow,Bevy letter spacing and shadow blur differ,not_run
+home_hover,main_pause,Hover and active,Hover #ffffaa; active #ffff55,PageOptions.css:66-74,Interaction-driven colors,Hover sounds not implemented,not_run
+responsive_width,main_pause,Width breakpoint,At width <=1280 font16 and column250,PageOptions.css:111-132,Authored compact breakpoint and font,Compare DPI logical versus native CSS pixels,not_run
+responsive_short,main_pause,Height breakpoint,At height <=580 top0 font20 line19; at <=420 logo hidden and UL margin0,PageOptions.css:135-169,Short-window rules,Exact browser line-height overlap comparison,not_run
+responsive_narrow,main_pause,Narrow width,At width <=640 padding top0 left0,PageOptions.css:172-179,Small-window inset rules,Very narrow controls clipping,not_run
+background,main,Backdrop,Original installed rotating background behind transparent body,Menu.css:2-13 and backgrounds directory,Read one authored installed PNG with aspect-fill,Background rotation and transition fade,not_run
+pause_background,pause,Backdrop,Current game behind transparent menu,Menu.css:2-13,Keep game visible with readable shading,Exact native pause blur and shade,not_run
+version,all,Version badge,Right3 top3 padding5 font11 black rounded3,Menu.css:230-243,Independent application identification at reference location,Never imply native GMod build identity,not_run
+news,main,News panel,Right50 top75 with image and pagination,Menu.css:245 onward and template/main.html:35-45,Explicit ledger entry,Live news endpoint approval offline cache and UI remain,not_run
+footer,all,Bottom navigation,Bottom0 height50 black alpha0.5,NavBar.css:2-11,Runtime anchored footer,Exact shadow and corners,not_run
+footer_back,subpages,Back to Main Menu,Left5 top5 height40 icon and label,menu.html:48-50 and NavBar.css:31-115,Working Home route in original location,Pixel overlay comparison,not_run
+footer_resume,pause,Back to Game,Center group right-packed with 10 percent horizontal margins,menu.html:54-61 and NavBar.css:23-28,Working resume button,Favorite server control depends on multiplayer,not_run
+footer_right,all,Problems Games Language Gamemode,Right group icons with 3px gaps; height40 top5; white background,menu.html:63-71,Intrinsic-size mounted icons responsive labels and anchored popup routes,Real localization game mounts and mode switching pending,not_run
+footer_popup,all,Popup placement,Bottom50 right10 width230; games right150 width260 maxheight300; language right100,NavBar.css:139-299,Anchored Games Language and Gamemodes popups preserve underlying page,Full game discovery localization and mode runtime remain,not_run
+kinect,all,Motion sensor,Only visible when hardware available,menu.html:68 and 103-142,Do not show unsupported hardware control,Hardware integration not implemented,not_run
+newgame_page,new_game,Page bounds,Top0 left0 right0 bottom50,Menu.css:57-64,Exclude footer from map page,Reference comparison,not_run
+map_panel,new_game,White map browser,Left16 top16 right256 bottom16 radius5 padding10,NewGame.css:47-57,Absolute anchors rather than sidebar flex shell,Reference comparison,not_run
+map_controls,new_game,Category column,Left10 top10 bottom10 width190,NewGame.css:59-66,Authored absolute category column,All mounted categories depend on map support,not_run
+map_category,new_game,Category row,Height26 gap5 font11 bold #555 background #ddd; active #99ccff,NewGame.css:274-320,Sandbox and Favorites with counts,Actual native category discovery remains,not_run
+map_search,new_game,Search field,Controls bottom0 full width padding4; category list bottom32,NewGame.css:250-272,Focused case-insensitive map filtering,Clipboard selection IME and addon-name search pending,not_run
+map_grid,new_game,Map scrolling region,Left200 top0 right0 bottom0; category margin10,template/newgame.html:23 and Menu.css:66-84,Separate bounded scroll region,Native scrollbar appearance pending,not_run
+map_heading,new_game,Category heading,Font32 #444 padding5; count14 #999,Menu.css:72-84,Title and count above thumbnail grid,Exact text metrics,not_run
+map_card,new_game,Thumbnail and caption,Image128 square; content128 padding6 margin2 caption10,NewGame.css:2-44,Mounted original maps/thumb PNG and separate caption,No generated fake thumbnails,not_run
+map_selected,new_game,Selected state,Background #97c5ff radius3,NewGame.css:68-72,Selected map highlight,Keyboard navigation pending,not_run
+map_favorites,new_game,Favorite toggle,Top8 right8; hover visibility; add/remove image states,NewGame.css:7-28,Persistent local favorites and independent click target,Native star/add/remove hover states implemented; Drew visual acceptance pending,not_run
+map_click,new_game,Selection and launch,Single click selects; double click selects and starts,control.NewGame.js:115-125,Separate single selection and timed double-click start,OS double-click interval approximation,not_run
+map_default,new_game,Initial selection,gm_flatgrass unless retained map or favorites,control.NewGame.js:33-53 and 90,Persist selected supported map and favorites,Native last-category semantics,not_run
+settings_panel,new_game,White settings panel,Right16 top16 width226 bottom16 radius5,NewGame.css:74-83,Independent reference-sized settings region,All options inventory below,not_run
+players,new_game,Player count selector,Margin10 height28 green; 1 2 4 8 16 32 64 128 choices,NewGame.css:119-165 and control.NewGame.js:62-72,Single-player status with explanatory route,Networking prerequisite before other choices function,not_run
+settings_scroll,new_game,Settings scroll,Top32 bottom80 margin10 right0 paddingright2,template/newgame.html:60 and NewGame.css:181-188,Reference-positioned supported settings and honest pending list,Full native widgets and runtime effects,not_run
+settings_server,new_game,Server options,Hostname LAN P2P and friends-only conditional multiplayer,template/newgame.html:62-80,Inventory every conditional control,Networking and safe persistent settings remain,not_run
+settings_dynamic,new_game,Gamemode options,Text numeric checkbox entries from Lua settings; Singleplayer flag controls visibility,template/newgame.html:82-95,Inventory dynamic defaults separately,All native options must be enumerated from gamemode source,not_run
+start_game,new_game,Start Game,Settings bottom18 left18 right18 font20 padding10; blue gradient,NewGame.css:85-103,Anchored launch button independent of scroll,Gradient and native loading progress remain,not_run
+options_native,options,Options dialog,OpenOptionsDialog invokes native engine UI rather than HTML page,template/main.html:23,Current supported settings separated and labeled,Native panel geometry tabs controls bindings and reset require further reference,not_run
+saves,saves,Save browser,HTML workshop browser versus local Rust scenes,template/saves.html,Retain functional local scene save and load,Native save compatibility and full browser remain,not_run
+addons,addons,Addon browser,HTML addon_list plus Workshop controls,template/addon_list.html,Clickable honest unavailable route,Workshop browse subscriptions mounting and execution pending,not_run
+dupes,dupes,Duplication browser,HTML dupes template and Workshop content,template/dupes.html,Clickable honest unavailable route,Native dupe browser import and compatibility pending,not_run
+demos,demos,Demo browser,HTML demos template,template/demos.html,Clickable honest unavailable route,Recording playback and native format pending,not_run
+servers,servers,Server browser,HTML servers template and protocol controller,template/servers.html,Clickable honest unavailable route,Networking filtering favorites join and latency pending,not_run
+hit_labels,all,Text and icon targets,Bevy default Node FocusPolicy blocks at topmost node,bevy_ui0.16.1 focus.rs:298-323,Decorative text and images pass through to owning Button,User must check label image and padding clicks,not_run
+hit_once,all,Press handling,One accepted action per press; no repeats on held mouse,Independent input safety requirement,Explicit changed-Interaction action queue and pass-through decoration,User checks rapid clicks and drag boundaries,not_run
+feedback_extension,all,Feedback,Independent feature not native stock menu,User request20260929,F8 plus separate top-right button avoids shifting stock rows,Full editor and attachments remain,not_run
