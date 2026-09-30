@@ -1,4 +1,5 @@
 pub mod audio;
+pub mod footsteps;
 pub mod behavior;
 pub mod content;
 pub mod effects;

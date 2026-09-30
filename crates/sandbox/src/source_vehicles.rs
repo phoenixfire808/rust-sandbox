@@ -4,6 +4,8 @@ use crate::source_player::PlayerState;
 use sandbox_catalog::spawn::Vehicle;
 #[path = "source_vehicle_visuals.rs"]
 pub(super) mod visuals;
+#[path = "source_vehicle_audio.rs"]
+mod vehicle_audio;
 use visuals::CrashCooldown;
 
 #[derive(Component, Clone)]
@@ -23,6 +25,7 @@ pub struct Occupancy {
     previous_yaw: f32,
     throttle: f32,
     steering: f32,
+    steering_target: f32,
     brake: bool,
 }
 pub fn definition(world: &World, id: &str) -> Option<Vehicle> {
@@ -33,6 +36,20 @@ pub fn definition(world: &World, id: &str) -> Option<Vehicle> {
         .iter()
         .find(|v| v.id == id)
         .cloned()
+}
+/// Blend the authored low-speed wheel angle toward the existing high-speed cap.
+/// The same curve and speed input are used by tire directions and wheel visuals.
+pub(super) fn effective_wheel_angle(
+    steering: f32,
+    low_speed_angle: f32,
+    high_speed_cap: f32,
+    speed: f32,
+    steer_speed: f32,
+) -> f32 {
+    let low = low_speed_angle.max(0.);
+    let high = high_speed_cap.clamp(0., low);
+    let speed_fraction = (speed.abs() / steer_speed.max(0.001)).clamp(0., 1.);
+    steering * (low + (high - low) * speed_fraction)
 }
 pub fn attach(world: &mut World, entity: Entity, id: &str) -> Result<()> {
     let c = definition(world, id).ok_or("unknown vehicle identity")?;
@@ -323,6 +340,11 @@ pub fn update(world: &mut World) {
     let player_height = world.resource::<PlayerState>().config.height;
     let seat = transform.transform_point(Vec3::new(c.seat_x, c.seat_y, c.seat_z));
     let yaw = transform.rotation.to_euler(EulerRot::YXZ).0;
+    let steering_response = if c.kind == "wheels" {
+        vehicle_audio::steering_response(world, &c.id)
+    } else {
+        0.
+    };
     let (center, finished, delta_yaw) = {
         let mut s = world.resource_mut::<Occupancy>();
         s.elapsed += now_dt;
@@ -337,6 +359,7 @@ pub fn update(world: &mut World) {
             s.weight = 1. - t;
             s.throttle = 0.;
             s.steering = 0.;
+            s.steering_target = 0.;
             s.brake = true;
             (seated_center.lerp(exit, t), t >= 1., delta_yaw)
         } else {
@@ -348,11 +371,21 @@ pub fn update(world: &mut World) {
             } else {
                 0.
             };
-            s.steering = if drive {
+            s.steering_target = if drive {
                 (keys.pressed(KeyCode::KeyA) as i32 - keys.pressed(KeyCode::KeyD) as i32) as f32
             } else {
                 0.
             };
+            if c.kind == "wheels" {
+                let blend = 1. - (-steering_response * now_dt).exp();
+                s.steering += (s.steering_target - s.steering) * blend;
+                if !drive && s.steering.abs() < 0.002 {
+                    s.steering = 0.;
+                }
+            } else {
+                // Keep the separately approximated airboat's existing direct input response.
+                s.steering = s.steering_target;
+            }
             s.brake = !drive || keys.pressed(KeyCode::Space);
             (s.entry_from.lerp(seated_center, t), false, delta_yaw)
         }
@@ -379,6 +412,11 @@ pub fn update(world: &mut World) {
     player.vertical = 0.;
     player.grounded = true;
 }
+/// Return the authored event and playback rate for an occupied, powered wheeled vehicle.
+/// The shared audio system owns occupant-local playback and lifecycle cleanup.
+pub(crate) fn engine_loop(world: &World) -> Option<(String, f32)> {
+    vehicle_audio::engine_loop(world)
+}
 pub fn drive(world: &mut World) {
     let dt = world.resource::<Time<Fixed>>().delta_secs();
     let tuning = world.resource::<PlayState>().spawn_catalog.runtime.clone();
@@ -394,7 +432,7 @@ pub fn drive(world: &mut World) {
     let (throttle, steer, brake) = {
         let s = world.resource::<Occupancy>();
         if blocked {
-            (0., 0., true)
+            (0., s.steering, true)
         } else {
             (s.throttle, s.steering, s.brake)
         }
@@ -415,6 +453,11 @@ pub fn drive(world: &mut World) {
         let Some(c) = definition(world, &id) else {
             continue;
         };
+        let steering_input = if c.kind == "wheels" || (occupied == Some(e) && !blocked) {
+            steer
+        } else {
+            0.
+        };
         if c.kind == "seat" || body != RigidBody::Dynamic {
             world.entity_mut(e).insert(ExternalForce::default());
             continue;
@@ -425,6 +468,14 @@ pub fn drive(world: &mut World) {
         let local_right = frame * Vec3::X;
         let forward = t.rotation * local_forward;
         let right = t.rotation * local_right;
+        let low_speed_steer_angle = world
+            .resource::<PlayState>()
+            .spawn_catalog
+            .wheels
+            .iter()
+            .filter(|wheel| wheel.vehicle == id && wheel.attachment.starts_with("wheel_f"))
+            .map(|wheel| wheel.steer_angle)
+            .fold(0., f32::max);
         let width = local_right.abs().dot(half);
         let length = local_forward.abs().dot(half);
         let com = t.transform_point(center);
@@ -477,7 +528,13 @@ pub fn drive(world: &mut World) {
                 for (offset, load, front) in contacts {
                     let point_velocity = velocity.linvel + velocity.angvel.cross(offset);
                     let steer_angle = if active && front {
-                        steer * c.steer_rate * (speed.abs() / tuning.steer_speed).clamp(0., 1.)
+                        effective_wheel_angle(
+                            steering_input,
+                            low_speed_steer_angle,
+                            c.steer_rate,
+                            speed,
+                            tuning.steer_speed,
+                        )
                     } else {
                         0.
                     };
@@ -524,7 +581,9 @@ pub fn drive(world: &mut World) {
                         * (c.brake_accel * c.mass).min(speed.abs() * c.mass / dt.max(0.001));
                 }
                 if active {
-                    let desired = steer * c.steer_rate * (speed / tuning.steer_speed).clamp(-1., 1.);
+                    let desired = steering_input
+                        * c.steer_rate
+                        * (speed / tuning.steer_speed).clamp(-1., 1.);
                     torque += up * (desired - velocity.angvel.dot(up)) * c.mass * half.length_squared();
                 }
             }

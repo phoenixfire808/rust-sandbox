@@ -20,6 +20,13 @@ pub fn source_position(v: [f32; 3], scale: f32) -> Vec3 {
 /// Horizontal rendered water triangles. Surface support only, not native fluid volumes.
 #[derive(Resource, Default)]
 pub struct WaterSurfaces(pub Vec<[Vec3; 3]>);
+
+/// Original VMT metadata on imported collision surfaces. Empty properties are unknown.
+#[derive(Component, Clone, Debug)]
+pub struct SurfaceMaterial {
+    pub surface_prop: String,
+    pub material: String,
+}
 impl WaterSurfaces {
     pub fn height(&self, point: Vec3) -> Option<f32> {
         self.0
@@ -247,6 +254,7 @@ pub struct WaterMaterial {
     pub fog_distance: f32,
 }
 pub struct Surface {
+    pub surface_prop: String,
     pub water: Option<WaterMaterial>,
     pub name: String,
     pub geometry: Geometry,
@@ -509,6 +517,7 @@ pub fn load(install: &Path, def: &SourceMapDef) -> Result<LoadedMap> {
         println!("Material: {name}");
         triangles += geometry.positions.len() / 3;
         let mut surface = Surface {
+            surface_prop: String::new(),
             water: None,
             name: name.clone(),
             geometry,
@@ -520,6 +529,7 @@ pub fn load(install: &Path, def: &SourceMapDef) -> Result<LoadedMap> {
         };
         match mounts.material(&bsp, &name) {
             Ok(mat) => {
+                surface.surface_prop = mat.surface_prop().unwrap_or("").to_ascii_lowercase();
                 surface.alpha =
                     mat.alpha_test()
                         .map(AlphaMode::Mask)

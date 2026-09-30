@@ -1,4 +1,4 @@
-//! Render the original toolgun screen surface from a dedicated Bevy UI camera.
+//! Render the offscreen toolgun display and contextual gameplay HUD help.
 use super::*;
 use bevy::render::{camera::RenderTarget, render_resource::TextureUsages, view::RenderLayers};
 
@@ -7,6 +7,13 @@ struct Screen {
     image: Handle<Image>,
     camera: Entity,
     label: String,
+}
+#[derive(Resource)]
+struct HudHelp {
+    panel: Entity,
+    title: Entity,
+    description: Entity,
+    action: Entity,
 }
 #[derive(Component)]
 struct Marquee;
@@ -98,7 +105,89 @@ pub(super) fn ensure(world: &mut World) -> Result<Handle<Image>> {
     });
     Ok(image)
 }
+fn ensure_hud(world: &mut World) {
+    if world.contains_resource::<HudHelp>() {
+        return;
+    }
+    let Some(camera) = world
+        .query_filtered::<Entity, With<SourceCamera>>()
+        .iter(world)
+        .next()
+    else {
+        return;
+    };
+    let panel = world
+        .spawn((
+            Node {
+                position_type: PositionType::Absolute,
+                left: Val::Px(0.),
+                top: Val::Px(40.),
+                width: Val::Percent(60.),
+                padding: UiRect::new(
+                    Val::Px(50.),
+                    Val::Px(16.),
+                    Val::Px(12.),
+                    Val::Px(10.),
+                ),
+                flex_direction: FlexDirection::Column,
+                row_gap: Val::Px(8.),
+                display: Display::None,
+                ..default()
+            },
+            BackgroundColor(Color::srgba(0.12, 0.13, 0.15, 0.68)),
+            UiTargetCamera(camera),
+        ))
+        .id();
+    let title = world
+        .spawn((
+            Text::new(""),
+            TextFont {
+                font_size: 70.,
+                ..default()
+            },
+            TextColor(Color::WHITE),
+            ChildOf(panel),
+        ))
+        .id();
+    let description = world
+        .spawn((
+            Text::new(""),
+            TextFont {
+                font_size: 20.,
+                ..default()
+            },
+            TextColor(Color::WHITE),
+            ChildOf(panel),
+        ))
+        .id();
+    let action = world
+        .spawn((
+            Text::new(""),
+            TextFont {
+                font_size: 16.,
+                ..default()
+            },
+            TextColor(Color::srgb(0.35, 0.86, 1.)),
+            Node {
+                width: Val::Percent(100.),
+                padding: UiRect::axes(Val::Px(10.), Val::Px(4.)),
+                ..default()
+            },
+            BackgroundColor(Color::srgba(0.04, 0.05, 0.06, 0.78)),
+            ChildOf(panel),
+        ))
+        .id();
+    world.insert_resource(HudHelp {
+        panel,
+        title,
+        description,
+        action,
+    });
+}
+
 pub(super) fn update(world: &mut World) {
+    ensure_hud(world);
+    update_help_hud(world);
     if !world.contains_resource::<Screen>() {
         return;
     }
@@ -141,6 +230,118 @@ pub(super) fn update(world: &mut World) {
             .iter_mut(world)
         {
             node.left = Val::Px(-(time * speed).rem_euclid(width));
+        }
+    }
+}
+
+fn update_help_hud(world: &mut World) {
+    if !world.contains_resource::<HudHelp>() {
+        return;
+    }
+    let Some(play) = world.get_resource::<PlayState>() else {
+        return;
+    };
+    let menu_open = play.menu_open;
+    let active_toolgun = play.active_weapon == "weapon_gmod_tool";
+    let reference_height = play.layout.reference_height;
+    let selected = play.tool.clone();
+    let definition = play
+        .tools
+        .catalog
+        .tools
+        .iter()
+        .find(|tool| tool.id == selected)
+        .map(|tool| (tool.label.clone(), tool.left.clone()));
+    let context_blocked = menu_open
+        || crate::source_frontend::active(world)
+        || super::npcs::dead(world)
+        || super::tools::devices::viewing(world)
+        || world
+            .get_resource::<crate::source_player::PlayerState>()
+            .is_some_and(|player| player.vehicle.is_some())
+        || !world.query::<&Window>().iter(world).any(|window| window.focused);
+    if context_blocked {
+        let panel = world.resource::<HudHelp>().panel;
+        if let Some(mut node) = world.get_mut::<Node>(panel) {
+            node.display = Display::None;
+        }
+        return;
+    }
+    let button_action = if active_toolgun {
+        None
+    } else {
+        super::tools::devices::button_hint(world)
+    };
+    let title = if button_action.is_some() {
+        "Button".to_owned()
+    } else {
+        definition
+            .as_ref()
+            .map(|(label, _)| label.clone())
+            .unwrap_or_default()
+    };
+    let description = if button_action.is_some() {
+        "Press E to use this button.".to_owned()
+    } else {
+        definition
+            .map(|(_, description)| description)
+            .unwrap_or_default()
+    };
+    let action = if active_toolgun {
+        super::tools::help_hint(world)
+    } else {
+        button_action
+    };
+    let visible = active_toolgun || action.is_some();
+    let hud = world.resource::<HudHelp>();
+    let (panel, title_entity, description_entity, action_entity) = (
+        hud.panel,
+        hud.title,
+        hud.description,
+        hud.action,
+    );
+    let window_height = world
+        .query::<&Window>()
+        .iter(world)
+        .next()
+        .map(Window::height)
+        .unwrap_or(reference_height);
+    let scale = ((window_height / reference_height) * (reference_height / 720.))
+        .clamp(0.5, 1.5);
+    if let Some(mut node) = world.get_mut::<Node>(panel) {
+        node.left = Val::Px(0.);
+        node.top = Val::Px(40. * scale);
+        node.width = Val::Percent(60.);
+        node.padding = UiRect::new(
+            Val::Px(50. * scale),
+            Val::Px(16. * scale),
+            Val::Px(12. * scale),
+            Val::Px(10. * scale),
+        );
+        node.display = if visible { Display::Flex } else { Display::None };
+    }
+    if let Some(mut font) = world.get_mut::<TextFont>(title_entity) {
+        font.font_size = 70. * scale;
+    }
+    if let Some(mut font) = world.get_mut::<TextFont>(description_entity) {
+        font.font_size = 20. * scale;
+    }
+    if let Some(mut node) = world.get_mut::<Node>(action_entity) {
+        node.width = Val::Percent(100.);
+        node.padding = UiRect::axes(Val::Px(10. * scale), Val::Px(4. * scale));
+    }
+    if let Some(mut font) = world.get_mut::<TextFont>(action_entity) {
+        font.font_size = 18. * scale;
+    }
+    for (entity, value) in [
+        (title_entity, title),
+        (description_entity, description),
+        (action_entity, action.map(|text| format!("ℹ  {text}")).unwrap_or_default()),
+    ] {
+        if let Some(mut text) = world.get_mut::<Text>(entity) {
+            if text.0 != value {
+                text.0 = value;
+            }
         }
     }
 }

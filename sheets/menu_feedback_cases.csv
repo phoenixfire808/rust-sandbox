@@ -1,0 +1,17 @@
+case_id,scenario,expected,acceptance_owner,result
+ui_tool_help_selected,Equip tool gun and select a supported tool,Gameplay HUD card shows authored tool label and concise ToolDef.left description,Drew,not_run
+ui_tool_help_stage,Begin and advance a staged constraint action,Dark instruction strip changes to the current stage guidance,Drew,not_run
+ui_button_aimed,Look directly at a placed button within its use range,HUD instruction strip explains E activation and configured key or toggle state,Drew,not_run
+ui_button_out_of_range,Aim at button beyond the established E-use range,No aimed-button-specific usage hint is shown,Drew,not_run
+ui_button_other_weapon,Aim at an in-range button while holding another weapon,Button-use guidance can appear without initialized toolgun screen,Drew,not_run
+ui_help_menu_open,Open spawn menu while tool help is visible,Help card is hidden,Drew,not_run
+ui_help_unfocused,Remove game window focus while tool help is visible,Help card is hidden,Drew,not_run
+ui_help_dead,Die while tool help is visible,Help card is hidden,Drew,not_run
+ui_help_remote,View through a remote camera while tool help is visible,Help card is hidden,Drew,not_run
+ui_help_vehicle,Enter a vehicle while tool help is visible,Help card is hidden,Drew,not_run
+ui_hud_reference_size,Run at 1280x720,Title is approximately 70px and description 20px with a 50px text inset and FPS remains legible,Drew,not_run
+ui_hud_scaled,Resize window to shorter and taller heights,HUD font and insets scale with reference height without becoming oversized,Drew,not_run
+ui_tool_popup_inactive,Switch away from tool gun without an aimed usable button,General tool instruction card is not visible,Drew,not_run
+ui_info_icon,Show tool guidance,Strip uses information icon rather than mouse glyph,Drew,not_run
+ui_menu_button_feedback,Hover and press menu controls,Hover and press states remain visually distinct and readable,Drew,not_run
+ui_balloon_instructions,Select balloon tool,Authored title description and action guidance reflect available balloon behavior,Drew,not_run

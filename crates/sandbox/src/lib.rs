@@ -8,6 +8,7 @@ pub mod source_models;
 pub mod source_play;
 pub mod source_frontend;
 pub mod source_player;
+pub mod source_footsteps;
 mod source_pose;
 use bevy_rapier3d::prelude::*;
 use sandbox_catalog::{

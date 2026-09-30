@@ -81,6 +81,42 @@ impl ToolState {
         self.value(tool, key).parse().unwrap_or(0.)
     }
 }
+
+/// Read-only help contract for the tool HUD. Device targeting is cached by the
+/// device input system so drawing never performs a mutable physics query.
+pub(crate) fn help_hint(world: &World) -> Option<String> {
+    let play = world.get_resource::<PlayState>()?;
+    let button = devices::button_hint(world);
+    if play.active_weapon != "weapon_gmod_tool" {
+        return button;
+    }
+    let definition = play.tools.catalog.tools.iter().find(|t| t.id == play.tool);
+    let mut hint = if let Some((tool, _, action)) = &play.tools.stage {
+        let stage_action = if *action == 1 { "LMB" } else { "RMB" };
+        format!("{stage_action}: select the second target for {tool}")
+    } else if let Some(definition) = definition {
+        let mut controls = format!("LMB: {} · RMB: {}", definition.left, definition.right);
+        if definition.reload != "No reload action" {
+            controls.push_str(&format!(" · R: {}", definition.reload));
+        }
+        controls
+    } else {
+        "Choose a tool to see its controls".to_owned()
+    };
+    if play.tool == "balloon" {
+        hint.push_str(&format!(
+            "\nLift {:.0} N · rope {:.2} m · LMB tethers, RMB floats free",
+            play.tools.number("balloon", "force"),
+            play.tools.number("balloon", "ropelength")
+        ));
+    }
+    if let Some(button) = button {
+        hint.push('\n');
+        hint.push_str(&button);
+    }
+    Some(hint)
+}
+
 pub(super) fn setting(world: &mut World, key: String, direction: i32) {
     let mut play = world.resource_mut::<PlayState>();
     let tool = play.tool.clone();

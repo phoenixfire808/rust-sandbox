@@ -1,0 +1,8 @@
+surface_prop,left_event,right_event,walk_interval,run_interval,min_speed,run_speed,gain,crouch_interval_multiplier
+concrete,footstep.concrete.left,footstep.concrete.right,0.52,0.36,0.5,5.7,0.55,1.3
+solidmetal,footstep.solidmetal.left,footstep.solidmetal.right,0.52,0.36,0.5,5.7,0.55,1.3
+metalgrate,footstep.metalgrate.left,footstep.metalgrate.right,0.52,0.36,0.5,5.7,0.55,1.3
+dirt,footstep.dirt.left,footstep.dirt.right,0.52,0.36,0.5,5.7,0.55,1.3
+grass,footstep.grass.left,footstep.grass.right,0.52,0.36,0.5,5.7,0.55,1.3
+tile,footstep.tile.left,footstep.tile.right,0.52,0.36,0.5,5.7,0.55,1.3
+snow,footstep.snow.left,footstep.snow.right,0.52,0.36,0.5,5.7,0.55,1.3

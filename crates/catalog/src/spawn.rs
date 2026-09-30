@@ -51,6 +51,7 @@ pub struct SpawnCatalog {
     pub weapons: Vec<Weapon>,
     pub weapon_handling: Vec<WeaponHandling>,
     pub vehicles: Vec<Vehicle>,
+    pub vehicle_feedback: Vec<VehicleFeedback>,
     pub runtime: Runtime,
     pub wheels: Vec<Wheel>,
     pub model_categories: Vec<ModelCategory>,
@@ -124,6 +125,17 @@ pub struct Wheel {
     pub steer_angle: f32,
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+pub struct VehicleFeedback {
+    pub vehicle: String,
+    pub steering_response: f32,
+    pub engine_event: String,
+    pub engine_min_pitch: f32,
+    pub engine_max_pitch: f32,
+    pub scope: String,
+    pub remaining: String,
+}
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Runtime {
     pub impact_limit: usize,
     pub impact_seconds: f32,
@@ -172,6 +184,7 @@ pub struct WeaponHandling {
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Weapon {
+    pub hold_type: String,
     pub draw: String,
     pub id: String,
     pub kind: String,
@@ -340,7 +353,15 @@ pub fn load(dir: &Path) -> Result<SpawnCatalog> {
         weapons: rows(dir, "source_weapons.csv")?,
         weapon_handling: rows(dir, "source_weapon_handling.csv")?,
         vehicles: rows(dir, "source_vehicles.csv")?,
+        vehicle_feedback: rows(dir, "source_vehicle_feedback.csv")?,
     };
+    let (_, animation_states) = crate::presentation::load(dir)?;
+    for weapon in &c.weapons {
+        if !(weapon.kind == "disabled" && weapon.hold_type.is_empty())
+            && !animation_states.iter().any(|state| state.hold == weapon.hold_type) {
+            return Err(format!("weapon {} references unknown hold type {}", weapon.id, weapon.hold_type).into());
+        }
+    }
     #[derive(Deserialize)]
     struct Gap {
         id: String,
@@ -350,6 +371,25 @@ pub fn load(dir: &Path) -> Result<SpawnCatalog> {
         .map(|g| g.id)
         .collect();
     let mut wheel_keys = BTreeSet::new();
+    unique(c.vehicle_feedback.iter().map(|v| v.vehicle.as_str()))?;
+    for feedback in &c.vehicle_feedback {
+        if !c.vehicles.iter().any(|v| v.id == feedback.vehicle && v.kind == "wheels")
+            || !feedback.steering_response.is_finite()
+            || !(0.1..=30.).contains(&feedback.steering_response)
+            || !["vehicle.engine.jeep", "vehicle.engine.apc"].contains(&feedback.engine_event.as_str())
+            || !feedback.engine_min_pitch.is_finite()
+            || !feedback.engine_max_pitch.is_finite()
+            || !(0.25..=4.).contains(&feedback.engine_min_pitch)
+            || !(feedback.engine_min_pitch..=4.).contains(&feedback.engine_max_pitch)
+            || feedback.scope.is_empty()
+            || feedback.remaining.is_empty()
+        {
+            return Err(format!("invalid vehicle feedback mapping {}", feedback.vehicle).into());
+        }
+    }
+    if c.vehicles.iter().filter(|v| v.kind == "wheels").any(|v| !c.vehicle_feedback.iter().any(|f| f.vehicle == v.id)) {
+        return Err("every wheeled vehicle requires feedback tuning".into());
+    }
     for w in &c.wheels {
         if !c
             .vehicles

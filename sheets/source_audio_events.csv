@@ -1,4 +1,20 @@
 id,paths,volume,range,cooldown,evidence
+footstep.concrete.left,sound/player/footsteps/concrete1.wav|sound/player/footsteps/concrete3.wav,1.0,24,0,Public Source surfaceproperties StepLeft mapping; installed inventory confirms both WAVs
+footstep.concrete.right,sound/player/footsteps/concrete2.wav|sound/player/footsteps/concrete4.wav,1.0,24,0,Public Source surfaceproperties StepRight mapping; installed inventory confirms both WAVs
+footstep.solidmetal.left,sound/player/footsteps/metal1.wav|sound/player/footsteps/metal3.wav,1.0,24,0,Public Source surfaceproperties StepLeft mapping; installed inventory confirms both WAVs
+footstep.solidmetal.right,sound/player/footsteps/metal2.wav|sound/player/footsteps/metal4.wav,1.0,24,0,Public Source surfaceproperties StepRight mapping; installed inventory confirms both WAVs
+footstep.metalgrate.left,sound/player/footsteps/metalgrate1.wav|sound/player/footsteps/metalgrate3.wav,1.0,24,0,Public Source surfaceproperties StepLeft mapping; installed inventory confirms both WAVs
+footstep.metalgrate.right,sound/player/footsteps/metalgrate2.wav|sound/player/footsteps/metalgrate4.wav,1.0,24,0,Public Source surfaceproperties StepRight mapping; installed inventory confirms both WAVs
+footstep.dirt.left,sound/player/footsteps/dirt1.wav|sound/player/footsteps/dirt3.wav,1.0,24,0,Public Source surfaceproperties StepLeft mapping; installed inventory confirms both WAVs
+footstep.dirt.right,sound/player/footsteps/dirt2.wav|sound/player/footsteps/dirt4.wav,1.0,24,0,Public Source surfaceproperties StepRight mapping; installed inventory confirms both WAVs
+footstep.grass.left,sound/player/footsteps/grass1.wav|sound/player/footsteps/grass3.wav,1.0,24,0,Public Source surfaceproperties StepLeft mapping; installed inventory confirms both WAVs
+footstep.grass.right,sound/player/footsteps/grass2.wav|sound/player/footsteps/grass4.wav,1.0,24,0,Public Source surfaceproperties StepRight mapping; installed inventory confirms both WAVs
+footstep.tile.left,sound/player/footsteps/tile1.wav|sound/player/footsteps/tile3.wav,1.0,24,0,Public Source surfaceproperties StepLeft mapping; installed inventory confirms both WAVs
+footstep.tile.right,sound/player/footsteps/tile2.wav|sound/player/footsteps/tile4.wav,1.0,24,0,Public Source surfaceproperties StepRight mapping; installed inventory confirms both WAVs
+footstep.snow.left,sound/player/footsteps/snow1.wav|sound/player/footsteps/snow2.wav|sound/player/footsteps/snow3.wav,1.0,24,0,Public Source surfaceproperties StepLeft mapping; installed inventory confirms all three WAVs
+footstep.snow.right,sound/player/footsteps/snow4.wav|sound/player/footsteps/snow5.wav|sound/player/footsteps/snow6.wav,1.0,24,0,Public Source surfaceproperties StepRight mapping; installed inventory confirms all three WAVs
+vehicle.engine.jeep,sound/vehicles/v8/v8_idle_loop1.wav,0.28,55,0,Original installed V8 idle loop with independently authored occupied-only gain and pitch; no native gearbox or cue-marker looping
+vehicle.engine.apc,sound/vehicles/apc/apc_turbo_on_loop1.wav,0.22,65,0,Original installed APC loop with independently authored occupied-only gain and pitch; not the complete Source engine sound state machine
 weapon_weapon_physcannon.fire,sound/weapons/physcannon/superphys_launch1.wav|sound/weapons/physcannon/superphys_launch2.wav|sound/weapons/physcannon/superphys_launch4.wav,0.27,80,0.05,Original Weapon_PhysCannon.Launch paths and gain; authored event timing without native pitch
 weapon_weapon_physcannon.pull,sound/weapons/physcannon/physcannon_pickup.wav,0.22,20,0.05,Original Weapon_PhysCannon.Pickup on accepted attachment not repeated pulling
 weapon_weapon_physcannon.drop,sound/weapons/physcannon/physcannon_drop.wav,0.22,20,0.05,Original Weapon_PhysCannon.Drop on user release

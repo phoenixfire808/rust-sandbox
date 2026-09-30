@@ -113,6 +113,7 @@ fn run() -> Result<()> {
         .add_plugins((
             SourcePlayPlugin,
             rust_sandbox::source_player::SourcePlayerPlugin,
+            rust_sandbox::source_footsteps::SourceFootstepsPlugin,
         ))
         .insert_resource(Settings {
             def,
@@ -189,6 +190,10 @@ fn setup(
                 commands.spawn((
                     RigidBody::Fixed,
                     collider,
+                    source_assets::SurfaceMaterial {
+                        surface_prop: surface.surface_prop.clone(),
+                        material: surface.name.clone(),
+                    },
                     Transform::default(),
                     Visibility::default(),
                     bevy_rapier3d::prelude::CollisionGroups::new(

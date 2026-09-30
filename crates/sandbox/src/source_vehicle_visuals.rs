@@ -91,11 +91,10 @@ pub fn animate(world: &mut World) {
     }
     let dt = world.resource::<Time>().delta_secs();
     let eye = world.resource::<PlayerState>().eye.translation;
-    let distance = world
-        .resource::<PlayState>()
-        .spawn_catalog
-        .runtime
-        .wheel_visual_distance;
+    let (distance, steer_speed) = {
+        let runtime = &world.resource::<PlayState>().spawn_catalog.runtime;
+        (runtime.wheel_visual_distance, runtime.steer_speed)
+    };
     let (occupied, steer) = {
         let s = world.resource::<Occupancy>();
         (s.vehicle, s.steering)
@@ -130,7 +129,14 @@ pub fn animate(world: &mut World) {
         let bind = actor.skeleton.globals(&pose);
         for (bone, rule, spin) in wheels {
             let pivot = bind[bone].transform_point3(Vec3::ZERO);
-            let turn = Quat::from_axis_angle(Vec3::Z, steering * rule.steer_angle);
+            let angle = super::effective_wheel_angle(
+                steering,
+                rule.steer_angle,
+                c.steer_rate,
+                speed,
+                steer_speed,
+            );
+            let turn = Quat::from_axis_angle(Vec3::Z, angle);
             let roll = Quat::from_axis_angle(source_axle, spin);
             let global = Mat4::from_translation(pivot)
                 * Mat4::from_quat(turn * roll)

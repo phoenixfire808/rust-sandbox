@@ -39,6 +39,10 @@ pub struct AnimationState {
     pub jump: String,
     pub crouch_idle: String,
     pub crouch_walk: String,
+    pub swim_idle: String,
+    pub swim: String,
+    pub reload: String,
+    pub attack: String,
     pub walk_speed: f32,
     pub run_speed: f32,
 }
@@ -95,10 +99,13 @@ pub fn load(path: &Path) -> Result<(LayoutConfig, Vec<AnimationState>)> {
     let mut holds = BTreeSet::new();
     for s in &states {
         if !holds.insert(s.hold.as_str())
-            || !["physgun", "pistol"].contains(&s.hold.as_str())
+            || !["physgun", "pistol", "revolver", "smg1", "ar2", "shotgun", "crossbow", "rpg", "grenade", "melee", "melee2"].contains(&s.hold.as_str())
+            || s.reload.len() > 200
+            || s.attack.len() > 200
             || !s.walk.contains("{direction}")
             || !s.run.contains("{direction}")
             || !s.crouch_walk.contains("{direction}")
+            || !s.swim.contains("{direction}")
             || [
                 &s.idle,
                 &s.walk,
@@ -106,6 +113,8 @@ pub fn load(path: &Path) -> Result<(LayoutConfig, Vec<AnimationState>)> {
                 &s.jump,
                 &s.crouch_idle,
                 &s.crouch_walk,
+                &s.swim_idle,
+                &s.swim,
             ]
             .iter()
             .any(|s| s.is_empty() || s.len() > 200)
@@ -117,8 +126,8 @@ pub fn load(path: &Path) -> Result<(LayoutConfig, Vec<AnimationState>)> {
             return Err("invalid animation state mapping".into());
         }
     }
-    if holds.len() != 2 {
-        return Err("both supported hold types require animation mappings".into());
+    if !holds.contains("physgun") || !holds.contains("pistol") {
+        return Err("base physgun and pistol hold types require animation mappings".into());
     }
     Ok((c, states))
 }

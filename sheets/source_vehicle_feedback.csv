@@ -1,0 +1,4 @@
+vehicle,steering_response,engine_event,engine_min_pitch,engine_max_pitch,scope,remaining
+vehicle_jeep,8.0,vehicle.engine.jeep,0.85,1.25,Smoothed shared steering input for physical front tires and attachment-driven wheel visuals; occupied wheeled engine loop playback range,Original gearbox transitions tire skid cues native mixer DSP damage and exact audio parity
+vehicle_jalopy,8.0,vehicle.engine.jeep,0.85,1.25,Smoothed shared steering input for physical front tires and attachment-driven wheel visuals; occupied wheeled engine loop playback range,Native jalopy-specific engine blend suspension damage and exact audio parity
+vehicle_prop_vehicle_apc,6.0,vehicle.engine.apc,0.8,1.15,Smoothed shared steering input for physical front tires and attachment-driven wheel visuals; occupied wheeled engine loop playback range,Native APC drivetrain pitch turbine transitions turret audio damage and exact audio parity

@@ -14,6 +14,7 @@ fn main() {
         "source_gravity.csv",
         "source_audio.csv",
         "source_audio_events.csv",
+        "source_footsteps.csv",
         "source_layout.csv",
         "source_animation_states.csv",
         "source_performance.csv",
@@ -31,6 +32,7 @@ fn main() {
         "source_weapon_handling.csv",
         "source_vehicles.csv",
         "source_vehicle_wheels.csv",
+        "source_vehicle_feedback.csv",
         "source_gameplay.csv",
         "source_model_categories.csv",
         "source_water.csv",
@@ -73,6 +75,9 @@ fn main() {
     ));
     generated.push_str(&sandbox_catalog::gravity::generate(
         &sandbox_catalog::gravity::load(&sheets).expect("invalid gravity weapon spreadsheet"),
+    ));
+    generated.push_str(&sandbox_catalog::footsteps::generate(
+        &sandbox_catalog::footsteps::load(&sheets).expect("invalid footstep spreadsheet"),
     ));
     generated.push_str(&sandbox_catalog::effects::generate(
         &sandbox_catalog::effects::load(&sheets).expect("invalid effects spreadsheet"),

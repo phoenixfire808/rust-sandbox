@@ -52,6 +52,7 @@ pub(crate) fn viewing(world: &World) -> bool {
 pub(crate) struct Controls {
     pub down: BTreeSet<String>,
     pub pressed: BTreeSet<String>,
+    pub(crate) aimed_button: Option<Entity>,
     previous: BTreeSet<String>,
     blocked: BTreeSet<String>,
 }
@@ -130,6 +131,14 @@ pub(crate) fn attach(world: &mut World, entity: Entity, mut d: Device) -> Result
     d.enabled = d.number("starton") == 1.;
     d.deadline = None;
     d.last_emit = 0.;
+    if d.kind == "balloon" {
+        // The stock gmod_balloon entity disables gravity and supplies its own
+        // continuous upward force in PhysicsSimulate.
+        if let Some(mut properties) = world.get_mut::<Properties>(entity) {
+            properties.gravity = false;
+        }
+        world.entity_mut(entity).insert(GravityScale(0.));
+    }
     let color = Color::srgb(
         d.number("r") / 255.,
         d.number("g") / 255.,
@@ -312,7 +321,13 @@ pub(crate) fn operate(world: &mut World, tool: &str, action: u8, hit: Target) ->
             hit.normal,
         )?;
         if attach_kind == "rope" {
-            link.length += rope_length;
+            if tool == "balloon" {
+                // The balloon tool's ropelength is the constraint's full length,
+                // not additional slack on top of the initial anchor separation.
+                link.length = rope_length.max(0.001);
+            } else {
+                link.length += rope_length;
+            }
         }
         constraints::create(world, entity, target, link)?;
     }
@@ -339,10 +354,22 @@ pub(crate) fn input(world: &mut World) {
         .collect();
     if blocked || !focused {
         world.resource_mut::<Remote>().0 = None;
-        let mut c = world.resource_mut::<Controls>();
-        c.blocked.extend(physical);
-        c.down.clear();
-        c.pressed.clear();
+        {
+            let mut c = world.resource_mut::<Controls>();
+            c.blocked.extend(physical);
+            c.down.clear();
+            c.pressed.clear();
+            c.aimed_button = None;
+        }
+        // A momentary gmod_button must release when focus/UI blocks the use input.
+        // Toggle buttons retain their latched state.
+        for mut device in world
+            .query::<&mut Device>()
+            .iter_mut(world)
+            .filter(|device| device.kind == "button" && device.number("toggle") != 1.)
+        {
+            device.enabled = false;
+        }
         return;
     }
     let hit = crate::source_player::aim_eye(world)
@@ -359,6 +386,12 @@ pub(crate) fn input(world: &mut World) {
                         .enter_range
         })
         .map(|(h, _)| h.entity);
+    let aimed_button = usable.filter(|entity| {
+        world
+            .get::<Device>(*entity)
+            .is_some_and(|device| device.kind == "button")
+    });
+    world.resource_mut::<Controls>().aimed_button = aimed_button;
     let buttons: Vec<_> = world
         .query::<(Entity, &Device)>()
         .iter(world)
@@ -424,6 +457,20 @@ pub(crate) fn input(world: &mut World) {
         .iter(world)
         .find(|(_, d)| d.kind == "camera" && d.enabled)
         .map(|(e, _)| e);
+}
+pub(crate) fn button_hint(world: &World) -> Option<String> {
+    let entity = world.get_resource::<Controls>()?.aimed_button?;
+    let device = world.get::<Device>(entity).filter(|d| d.kind == "button")?;
+    let mode = if device.number("toggle") == 1. {
+        "toggle"
+    } else {
+        "hold"
+    };
+    let state = if device.enabled { "on" } else { "off" };
+    Some(format!(
+        "E: use button · output {} · {mode} · {state}",
+        device.text("key")
+    ))
 }
 pub(crate) fn view(world: &mut World) {
     let active = world.resource::<Remote>().0;

@@ -1,3 +1,12 @@
-hold,idle,walk,run,jump,walk_speed,run_speed,crouch_idle,crouch_walk
-physgun,@idle_physgun,a_walking_walk_physgun_{direction},a_running_run_physgun_{direction},@jump_physgun,3.81,7.62,@cidle_physgun,a_CrouchWalking_cwalk_physgun_{direction}
-pistol,@idle_pistol,a_walking_walk_pistol_{direction},a_running_run_pistol_{direction},@jump_pistol,3.81,7.62,@cidle_pistol,a_CrouchWalking_cwalk_pistol_{direction}
+hold,idle,walk,run,jump,walk_speed,run_speed,crouch_idle,crouch_walk,swim_idle,swim,reload,attack
+physgun,@idle_physgun,a_walking_walk_physgun_{direction},a_running_run_physgun_{direction},@jump_physgun,3.81,7.62,@cidle_physgun,a_CrouchWalking_cwalk_physgun_{direction},@swim_idle_all,a_swimming_swimming_gravgun_{direction},,
+pistol,@idle_pistol,a_walking_walk_pistol_{direction},a_running_run_pistol_{direction},@jump_pistol,3.81,7.62,@cidle_pistol,a_CrouchWalking_cwalk_pistol_{direction},@swim_idle_all,a_swimming_swimming_pistol_{direction},@reload_pistol_original,
+revolver,@idle_revolver,a_walking_walk_revolver_{direction},a_running_run_revolver_{direction},@jump_revolver,3.81,7.62,@cidle_revolver,a_CrouchWalking_cwalk_revolver_{direction},@swim_idle_all,a_swimming_swimming_revolver_{direction},@reload_revolver_original,
+smg1,@idle_smg1,a_walking_walk_smg1_{direction},a_running_run_smg1_{direction},@jump_smg1,3.81,7.62,@cidle_smg1,a_CrouchWalking_cwalk_smg1_{direction},@swim_idle_all,a_swimming_swimming_smg1_{direction},@reload_smg1_original,
+ar2,@idle_ar2,a_walking_walk_ar2_{direction},a_running_run_ar2_{direction},@jump_ar2,3.81,7.62,@cidle_ar2,a_CrouchWalking_cwalk_ar2_{direction},@swim_idle_all,a_swimming_swimming_ar2_{direction},@reload_ar2_original,
+shotgun,@idle_shotgun,a_walking_walk_shotgun_{direction},a_running_run_shotgun_{direction},@jump_shotgun,3.81,7.62,@cidle_shotgun,a_CrouchWalking_cwalk_shotgun_{direction},@swim_idle_all,a_swimming_swimming_shotgun_{direction},@reload_shotgun_original,
+crossbow,@idle_crossbow,a_walking_walk_crossbow_{direction},a_running_run_crossbow_{direction},@jump_crossbow,3.81,7.62,@cidle_crossbow,a_CrouchWalking_cwalk_crossbow_{direction},@swim_idle_all,a_swimming_swimming_crossbow_{direction},,
+rpg,@idle_rpg,a_walking_walk_rpg_{direction},a_running_run_rpg_{direction},@jump_rpg,3.81,7.62,@cidle_rpg,a_CrouchWalking_cwalk_rpg_{direction},@swim_idle_all,a_swimming_swimming_rpg_{direction},,
+grenade,@idle_grenade,a_walking_walk_grenade_{direction},a_running_run_grenade_{direction},@jump_grenade,3.81,7.62,@cidle_grenade,a_CrouchWalking_cwalk_grenade_{direction},@swim_idle_all,a_swimming_swimming_grenade_{direction},,
+melee,@idle_melee,a_walking_walk_melee_{direction},a_running_run_melee_{direction},@jump_melee,3.81,7.62,@cidle_melee,a_CrouchWalking_cwalk_melee_{direction},@swim_idle_all,a_swimming_swimming_melee_{direction},,@seq_meleeattack01
+melee2,@idle_melee2,a_walking_walk_melee2_{direction},a_running_run_melee2_{direction},@jump_melee2,3.81,7.62,@cidle_melee2,a_CrouchWalking_cwalk_melee2_{direction},@swim_idle_all,a_swimming_swimming_melee2_{direction},,@seq_meleeattack01

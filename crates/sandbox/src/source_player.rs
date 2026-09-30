@@ -519,7 +519,7 @@ pub(crate) fn walk(
     s.jump = false;
 }
 
-fn finish_walk(
+pub(crate) fn finish_walk(
     time: Res<Time<Fixed>>,
     play: Res<PlayState>,
     state: Option<ResMut<PlayerState>>,
@@ -723,6 +723,7 @@ struct Scene {
     weapon_id: String,
     draw_started: f32,
     playback: crate::source_pose::PosePlayback,
+    swim_playback: crate::source_pose::PosePlayback,
     animation_states: Vec<sandbox_catalog::presentation::AnimationState>,
     layout: sandbox_catalog::presentation::LayoutConfig,
 }
@@ -732,18 +733,42 @@ fn create_scene(world: &mut World) -> Result<Scene> {
     let weapon_id = world.resource::<PlayState>().active_weapon.clone();
     let mut body = actor(world, &c.model, 0, None)?;
     let animation_states = crate::compiled_animation_states();
+    let mut loaded_body_clips = std::collections::BTreeSet::new();
     for mapping in &animation_states {
-        add_clip(world, &mut body, &c.animations, &mapping.idle)?;
-        add_clip(world, &mut body, &c.animations, &mapping.jump)?;
-        add_clip(world, &mut body, &c.animations, &mapping.crouch_idle)?;
+        for name in [
+            &mapping.idle,
+            &mapping.jump,
+            &mapping.crouch_idle,
+            &mapping.swim_idle,
+        ] {
+            if !name.is_empty()
+                && !body.clips.contains_key(name)
+                && loaded_body_clips.insert(name.clone())
+            {
+                add_clip(world, &mut body, &c.animations, name)?;
+            }
+        }
+        for name in [&mapping.reload, &mapping.attack] {
+            if !name.is_empty()
+                && !body.clips.contains_key(name)
+                && loaded_body_clips.insert(name.clone())
+            {
+                if let Err(error) = add_clip(world, &mut body, &c.animations, name) {
+                    eprintln!("PLAYER_ACTION_CLIP_MISSING {}: {error}", name);
+                }
+            }
+        }
         for direction in crate::source_pose::DIRECTIONS {
-            for template in [&mapping.walk, &mapping.run, &mapping.crouch_walk] {
-                add_clip(
-                    world,
-                    &mut body,
-                    &c.animations,
-                    &template.replace("{direction}", direction),
-                )?;
+            for template in [
+                &mapping.walk,
+                &mapping.run,
+                &mapping.crouch_walk,
+                &mapping.swim,
+            ] {
+                let name = template.replace("{direction}", direction);
+                if !body.clips.contains_key(&name) && loaded_body_clips.insert(name.clone()) {
+                    add_clip(world, &mut body, &c.animations, &name)?;
+                }
             }
         }
     }
@@ -790,6 +815,7 @@ fn create_scene(world: &mut World) -> Result<Scene> {
         weapon_id,
         draw_started: world.resource::<Time>().elapsed_secs(),
         playback: crate::source_pose::PosePlayback::default(),
+        swim_playback: crate::source_pose::PosePlayback::default(),
         animation_states,
         layout: crate::compiled_layout_config(),
     })
@@ -1030,6 +1056,7 @@ pub(crate) fn visuals(world: &mut World) {
             (s.third_person && aim_fraction == 0.) || source_play::tools::devices::viewing(world);
         let local_velocity = s.local_velocity;
         let airborne = !s.grounded || s.vertical > 0.1;
+        let swimming = s.water_level >= 2 && !s.noclip && !occupied;
         let noclip = s.noclip;
         let yaw = s.yaw;
         let player_entity = s.entity;
@@ -1118,7 +1145,17 @@ pub(crate) fn visuals(world: &mut World) {
         }
         *world.get_mut::<Transform>(scene.body.root).unwrap() = body_transform;
         let time = world.resource::<Time>().elapsed_secs();
-        let hold = if physgun { "physgun" } else { "pistol" };
+        let weapon_def = world
+            .resource::<PlayState>()
+            .spawn_catalog
+            .weapons
+            .iter()
+            .find(|weapon| weapon.id == scene.weapon_id)
+            .cloned();
+        let hold = weapon_def
+            .as_ref()
+            .map(|weapon| weapon.hold_type.as_str())
+            .unwrap_or(if physgun { "physgun" } else { "pistol" });
         let dt = world.resource::<Time>().delta_secs();
         let mut pose = {
             let scene = &mut *scene;
@@ -1126,19 +1163,83 @@ pub(crate) fn visuals(world: &mut World) {
                 .animation_states
                 .iter()
                 .find(|m| m.hold == hold)
-                .unwrap();
-            scene.playback.sample(
-                &scene.body.clips,
-                mapping,
-                &scene.layout,
-                local_velocity,
-                airborne,
-                noclip,
-                crouched,
-                c.crouch_speed,
-                dt,
-            )
+                .or_else(|| scene.animation_states.iter().find(|m| m.hold == "pistol"))
+                .expect("validated base player animation state");
+            if swimming {
+                let mut swim_mapping = mapping.clone();
+                swim_mapping.idle = mapping.swim_idle.clone();
+                swim_mapping.jump = mapping.swim_idle.clone();
+                swim_mapping.crouch_idle = mapping.swim_idle.clone();
+                swim_mapping.walk = mapping.swim.clone();
+                swim_mapping.run = mapping.swim.clone();
+                swim_mapping.crouch_walk = mapping.swim.clone();
+                scene.swim_playback.sample(
+                    &scene.body.clips,
+                    &swim_mapping,
+                    &scene.layout,
+                    local_velocity,
+                    false,
+                    false,
+                    false,
+                    c.crouch_speed,
+                    dt,
+                )
+            } else {
+                scene.playback.sample(
+                    &scene.body.clips,
+                    mapping,
+                    &scene.layout,
+                    local_velocity,
+                    airborne,
+                    noclip,
+                    crouched,
+                    c.crouch_speed,
+                    dt,
+                )
+            }
         };
+        if !swimming && !occupied && !noclip && !airborne && !crouched {
+            let weapon_state = world.resource::<source_play::weapons::WeaponState>();
+            let action = weapon_state
+                .reload
+                .as_ref()
+                .filter(|(id, _, end)| id == &scene.weapon_id && time < *end)
+                .and_then(|(_, start, end)| {
+                    let name = scene
+                        .animation_states
+                        .iter()
+                        .find(|m| m.hold == hold)
+                        .map(|m| m.reload.as_str())?;
+                    let clip = scene.body.clips.get(name)?;
+                    let elapsed = (time - *start).max(0.);
+                    let progress = ((time - *start) / (*end - *start).max(0.001)).clamp(0., 1.);
+                    let weight = (progress / 0.12).min((1. - progress) / 0.12).clamp(0., 1.);
+                    Some((clip.sample_mode(elapsed / (*end - *start).max(0.001) * clip.duration(), false), weight))
+                })
+                .or_else(|| {
+                    let definition = weapon_def.as_ref()?;
+                    if definition.kind != "melee" {
+                        return None;
+                    }
+                    let started = weapon_state.fired_at?;
+                    let name = scene
+                        .animation_states
+                        .iter()
+                        .find(|m| m.hold == hold)
+                        .map(|m| m.attack.as_str())?;
+                    let clip = scene.body.clips.get(name)?;
+                    let elapsed = time - started;
+                    if elapsed < 0. || elapsed >= clip.duration() {
+                        return None;
+                    }
+                    let progress = elapsed / clip.duration();
+                    let weight = (progress / 0.1).min((1. - progress) / 0.1).clamp(0., 1.);
+                    Some((clip.sample_mode(elapsed, false), weight))
+                });
+            if let Some((action_pose, weight)) = action {
+                blend_action_pose(&mut pose, &action_pose, &scene.body.skeleton.bones, weight);
+            }
+        }
         if occupied {
             let seat = world.resource::<source_play::vehicles::Occupancy>();
             if let Some(clip) = scene.body.clips.get(&seat.pose) {
@@ -1280,6 +1381,27 @@ pub(crate) fn visuals(world: &mut World) {
         skin(world, &scene.hands, &hands_globals);
     });
 }
+fn blend_action_pose(
+    base: &mut [Transform],
+    action: &[Transform],
+    bones: &[source_animation::Bone],
+    weight: f32,
+) {
+    for ((base, action), bone) in base.iter_mut().zip(action).zip(bones) {
+        let name = bone.name.to_ascii_lowercase();
+        let upper_body = [
+            "spine", "neck", "head", "clavicle", "shoulder", "upperarm", "lowerarm", "forearm",
+            "hand", "finger",
+        ]
+        .iter()
+        .any(|part| name.contains(part));
+        if upper_body {
+            base.translation = base.translation.lerp(action.translation, weight);
+            base.rotation = base.rotation.slerp(action.rotation, weight);
+        }
+    }
+}
+
 fn update_effect_attachments(world: &mut World, actor: &Actor, globals: &[Mat4], root: Mat4) {
     let position = |bone: usize, local: Mat4| {
         (root * source_animation::bevy_matrix(globals[bone] * local, 0.01905))

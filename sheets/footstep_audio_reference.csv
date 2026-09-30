@@ -1,0 +1,15 @@
+id,paths,volume,range,cooldown,evidence
+footstep.concrete.left,sound/player/footsteps/concrete1.wav|sound/player/footsteps/concrete3.wav,1.0,24,0,Public Source surfaceproperties StepLeft mapping; installed inventory confirms both WAVs
+footstep.concrete.right,sound/player/footsteps/concrete2.wav|sound/player/footsteps/concrete4.wav,1.0,24,0,Public Source surfaceproperties StepRight mapping; installed inventory confirms both WAVs
+footstep.solidmetal.left,sound/player/footsteps/metal1.wav|sound/player/footsteps/metal3.wav,1.0,24,0,Public Source surfaceproperties StepLeft mapping; installed inventory confirms both WAVs
+footstep.solidmetal.right,sound/player/footsteps/metal2.wav|sound/player/footsteps/metal4.wav,1.0,24,0,Public Source surfaceproperties StepRight mapping; installed inventory confirms both WAVs
+footstep.metalgrate.left,sound/player/footsteps/metalgrate1.wav|sound/player/footsteps/metalgrate3.wav,1.0,24,0,Public Source surfaceproperties StepLeft mapping; installed inventory confirms both WAVs
+footstep.metalgrate.right,sound/player/footsteps/metalgrate2.wav|sound/player/footsteps/metalgrate4.wav,1.0,24,0,Public Source surfaceproperties StepRight mapping; installed inventory confirms both WAVs
+footstep.dirt.left,sound/player/footsteps/dirt1.wav|sound/player/footsteps/dirt3.wav,1.0,24,0,Public Source surfaceproperties StepLeft mapping; installed inventory confirms both WAVs
+footstep.dirt.right,sound/player/footsteps/dirt2.wav|sound/player/footsteps/dirt4.wav,1.0,24,0,Public Source surfaceproperties StepRight mapping; installed inventory confirms both WAVs
+footstep.grass.left,sound/player/footsteps/grass1.wav|sound/player/footsteps/grass3.wav,1.0,24,0,Public Source surfaceproperties StepLeft mapping; installed inventory confirms both WAVs
+footstep.grass.right,sound/player/footsteps/grass2.wav|sound/player/footsteps/grass4.wav,1.0,24,0,Public Source surfaceproperties StepRight mapping; installed inventory confirms both WAVs
+footstep.tile.left,sound/player/footsteps/tile1.wav|sound/player/footsteps/tile3.wav,1.0,24,0,Public Source surfaceproperties StepLeft mapping; installed inventory confirms both WAVs
+footstep.tile.right,sound/player/footsteps/tile2.wav|sound/player/footsteps/tile4.wav,1.0,24,0,Public Source surfaceproperties StepRight mapping; installed inventory confirms both WAVs
+footstep.snow.left,sound/player/footsteps/snow1.wav|sound/player/footsteps/snow2.wav|sound/player/footsteps/snow3.wav,1.0,24,0,Public Source surfaceproperties StepLeft mapping; installed inventory confirms all three WAVs
+footstep.snow.right,sound/player/footsteps/snow4.wav|sound/player/footsteps/snow5.wav|sound/player/footsteps/snow6.wav,1.0,24,0,Public Source surfaceproperties StepRight mapping; installed inventory confirms all three WAVs

@@ -252,11 +252,16 @@ pub(crate) fn update(world: &mut World) {
         && p.beam_active
         && world.resource::<vehicles::Occupancy>().vehicle.is_none()
         && !tools::devices::viewing(world))
-    .then_some(if p.held.is_some() {
+    .then(|| (if p.held.is_some() {
         "physgun.hold"
     } else {
         "physgun.scan"
-    });
+    }.to_owned(), 1.0));
+    // Occupied vehicle and physgun loops are mutually exclusive. Engine ownership is
+    // the live occupancy, not the currently selected weapon.
+    let desired_loop = vehicles::engine_loop(world).or(desired_loop);
+    let desired_id = desired_loop.as_ref().map(|(id, _)| id.as_str());
+    let loop_speed = desired_loop.as_ref().map_or(1., |(_, speed)| *speed);
     let voices: Vec<_> = world
         .query::<(Entity, &Voice)>()
         .iter(world)
@@ -276,7 +281,7 @@ pub(crate) fn update(world: &mut World) {
         if (loop_id.is_none() && now - born > ttl)
             || loop_id
                 .as_deref()
-                .is_some_and(|id| Some(id) != desired_loop)
+                .is_some_and(|id| Some(id) != desired_id)
             || weapon
                 .as_ref()
                 .is_some_and(|id| id != &world.resource::<PlayState>().active_weapon)
@@ -292,12 +297,18 @@ pub(crate) fn update(world: &mut World) {
         let v = Volume::Linear(volume * gain * attenuation);
         if let Some(mut sink) = world.get_mut::<AudioSink>(e) {
             sink.set_volume(v);
+            if loop_id.is_some() {
+                sink.set_speed(loop_speed);
+            }
         }
         if let Some(mut sink) = world.get_mut::<SpatialAudioSink>(e) {
             sink.set_volume(v);
+            if loop_id.is_some() {
+                sink.set_speed(loop_speed);
+            }
         }
     }
-    if let Some(id) = desired_loop {
+    if let Some(id) = desired_id {
         let exists = world
             .query::<&Voice>()
             .iter(world)
@@ -319,7 +330,8 @@ pub(crate) fn update(world: &mut World) {
                     if world.query::<&Voice>().iter(world).count()
                         < world.resource::<Audio>().catalog.config.max_voices
                     {
-                        let weapon = Some(world.resource::<PlayState>().active_weapon.clone());
+                        let weapon = id.starts_with("physgun.")
+                            .then(|| world.resource::<PlayState>().active_weapon.clone());
                         world.spawn((
                             Voice {
                                 born: now,
@@ -332,6 +344,7 @@ pub(crate) fn update(world: &mut World) {
                             AudioPlayer::new(handle),
                             PlaybackSettings {
                                 volume: Volume::Linear(volume * event.volume),
+                                speed: loop_speed,
                                 ..PlaybackSettings::LOOP
                             },
                         ));

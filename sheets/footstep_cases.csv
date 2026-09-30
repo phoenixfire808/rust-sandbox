@@ -1,0 +1,9 @@
+id,area,scenario,expected,acceptance_owner,result
+footstep-ground,ground,Walk then run over a known concrete floor,Alternating concrete left/right step events follow grounded displacement and authored walk/run intervals,Drew,not_run
+footstep-surface,surface,Walk across concrete metal grate dirt grass tile and snow surfaces,Each known surface selects its authored left/right event paths,Drew,not_run
+footstep-unknown,surface,Walk on a collider with missing or unsupported surface_prop metadata,No generic fallback footstep is emitted,Drew,not_run
+footstep-idle,movement,Stand still and make small sub-threshold adjustments,No steps are emitted without sufficient planar displacement,Drew,not_run
+footstep-crouch,movement,Walk crouched and stop,Steps track actual movement and use the longer crouched interval; stopping silences them,Drew,not_run
+footstep-teleport,movement,Respawn or teleport while grounded,Position discontinuity does not emit a footstep,Drew,not_run
+footstep-suppression,state,Open menu or search typing then move; repeat while dead in a vehicle noclip or any water level,No footsteps are emitted while any suppressed state is active,Drew,not_run
+footstep-cadence,config,Review the generated event catalog and authored CSV after integration,Missing audio event IDs or invalid surface/timing/gain values prevent catalog generation,Drew,not_run
