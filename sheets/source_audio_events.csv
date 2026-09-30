@@ -1,4 +1,9 @@
 id,paths,volume,range,cooldown,evidence
+weapon_weapon_physcannon.fire,sound/weapons/physcannon/superphys_launch1.wav|sound/weapons/physcannon/superphys_launch2.wav|sound/weapons/physcannon/superphys_launch4.wav,0.27,80,0.05,Original Weapon_PhysCannon.Launch paths and gain; authored event timing without native pitch
+weapon_weapon_physcannon.pull,sound/weapons/physcannon/physcannon_pickup.wav,0.22,20,0.05,Original Weapon_PhysCannon.Pickup on accepted attachment not repeated pulling
+weapon_weapon_physcannon.drop,sound/weapons/physcannon/physcannon_drop.wav,0.22,20,0.05,Original Weapon_PhysCannon.Drop on user release
+weapon_weapon_physcannon.denied,sound/weapons/physcannon/physcannon_tooheavy.wav,0.4,20,0.2,Original Weapon_PhysCannon.TooHeavy on rejected gesture
+npc.ar2.fire,sound/weapons/ar2/fire1.wav,0.8,80,0,Original Weapon_AR2.Single payload with independent NPC spatial event timing
 physgun.on,sound/weapons/physcannon/physcannon_pickup.wav,0.22,20,0.05,Independent activation cue using original PhysCannon.Pickup; stock Physgun.On waveform absent from mounted catalog
 physgun.off,sound/weapons/physgun_off.wav,0.22,20,0.05,Weapon_Physgun.Off original Source script; independent GMod state integration
 physgun.scan,sound/weapons/physcannon/physcannon_charge.wav,0.22,20,0,Independent scan loop using original PhysCannon.Charge; native physgun_loop2 absent

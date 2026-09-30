@@ -1,6 +1,8 @@
 //! Stock-inspired panel geometry from authored reference sheets. Not a Derma emulator.
 use super::*;
 use bevy::ui::{RelativeCursorPosition, ScrollPosition};
+#[path = "source_menu_favorites.rs"]
+pub(crate) mod favorites;
 
 #[derive(Component)]
 pub(super) struct ScrollPane(u8);
@@ -113,12 +115,17 @@ fn catalog_browser(world: &mut World, body: Entity, tree_width: f32) {
     let search = s.search.clone();
     let focused = s.search_focus;
     let selected = s.catalog_selected.clone();
+    let favorites_only = s.favorites_only;
     let page_size = s.config.page_size;
     let page = s.page;
     let entries: Vec<_> = catalog
         .entries
         .iter()
-        .filter(|e| e.kind == tab.kind && e.visibility == "spawnmenu")
+        .filter(|e| {
+            e.kind == tab.kind
+                && e.visibility == "spawnmenu"
+                && (!favorites_only || favorites::contains(world, &format!("entry:{}", e.id)))
+        })
         .collect();
     let browser = column(world, body, Val::Px(tree_width));
     action(
@@ -132,6 +139,16 @@ fn catalog_browser(world: &mut World, body: Entity, tree_width: f32) {
         UiAction::Search,
         focused,
     );
+    action(
+        world,
+        browser,
+        if favorites_only { "★ Favorites" } else { "☆ Favorites" },
+        UiAction::Favorites(!favorites_only),
+        favorites_only,
+    );
+    if let Some(warning) = favorites::warning(world) {
+        text(world, browser, warning, c.font_size);
+    }
     if tab.kind == "npc" {
         let settings = world.resource::<npcs::NpcSettings>();
         let disabled = settings.disabled;
@@ -168,7 +185,18 @@ fn catalog_browser(world: &mut World, body: Entity, tree_width: f32) {
     let categories: std::collections::BTreeSet<_> =
         entries.iter().map(|e| e.category.clone()).collect();
     for cat in categories {
-        let count = entries.iter().filter(|e| e.category == cat).count();
+        let count = entries
+            .iter()
+            .filter(|e| {
+                e.category == cat
+                    && format!("{} {} {} {}", e.label, e.spawn_name, e.class_name, e.category)
+                        .to_lowercase()
+                        .contains(&search.to_lowercase())
+            })
+            .count();
+        if !search.is_empty() && count == 0 {
+            continue;
+        }
         action(
             world,
             tree,
@@ -266,6 +294,15 @@ fn catalog_browser(world: &mut World, body: Entity, tree_width: f32) {
             "Request improvement for this definition (F8)",
             UiAction::Feedback(format!("{} [{}]", e.label, e.id)),
             false,
+        );
+        let favorite_id = format!("entry:{}", e.id);
+        let is_favorite = favorites::contains(world, &favorite_id);
+        action(
+            world,
+            viewport,
+            if is_favorite { "★ Remove favorite" } else { "☆ Add favorite" },
+            UiAction::ToggleFavorite(favorite_id),
+            is_favorite,
         );
         text(
             world,
@@ -581,6 +618,10 @@ pub(super) fn rebuild(world: &mut World) {
             format!("{}{}", search, if search_focus { "|" } else { "" })
         };
         action(world, browser, label, UiAction::Search, search_focus);
+        let favorites_only = world.resource::<PlayState>().favorites_only;
+        if let Some(warning) = favorites::warning(world) {
+            text(world, browser, warning, c.font_size);
+        }
         let tree = scroll_panel(world, browser, 0);
         text(world, tree, "Browse installed models", c.font_size);
         action(
@@ -589,6 +630,13 @@ pub(super) fn rebuild(world: &mut World) {
             "All models",
             UiAction::Category(String::new()),
             category.is_empty(),
+        );
+        action(
+            world,
+            tree,
+            if favorites_only { "★ Favorites" } else { "☆ Favorites" },
+            UiAction::Favorites(!favorites_only),
+            favorites_only,
         );
         let mut categories = std::collections::BTreeSet::new();
         for label in models.iter().flat_map(|m| &m.categories) {
@@ -613,11 +661,21 @@ pub(super) fn rebuild(world: &mut World) {
             let prefix = format!("{cat} / ");
             let branch = categories.iter().any(|c| c.starts_with(&prefix));
             let depth = cat.matches(" / ").count();
+            let needle = search.to_lowercase();
+            let count = models.iter().filter(|m| {
+                (m.model.to_lowercase().contains(&needle)
+                    || m.categories.iter().any(|c| c.to_lowercase().contains(&needle)))
+                    && m.categories.iter().any(|c| c == cat || c.starts_with(&format!("{cat} / ")))
+                    && (!favorites_only || favorites::contains(world, &format!("model:{}", m.model.to_ascii_lowercase())))
+            }).count();
+            if (!search.is_empty() || favorites_only) && count == 0 {
+                continue;
+            }
             action(
                 world,
                 tree,
                 format!(
-                    "{}{} {label}",
+                    "{}{} {label} ({count})",
                     "  ".repeat(depth),
                     if branch { ">" } else { " " }
                 ),
@@ -646,6 +704,7 @@ pub(super) fn rebuild(world: &mut World) {
             },
             c.font_size,
         );
+        let needle = search.to_lowercase();
         let results: Vec<_> = models
             .into_iter()
             .filter(|m| {
@@ -653,10 +712,12 @@ pub(super) fn rebuild(world: &mut World) {
                     || m.categories
                         .iter()
                         .any(|c| c == &category || c.starts_with(&format!("{category} / "))))
-                    && (m.model.to_lowercase().contains(&search.to_lowercase())
+                    && (m.model.to_lowercase().contains(&needle)
                         || m.categories
                             .iter()
-                            .any(|c| c.to_lowercase().contains(&search.to_lowercase())))
+                            .any(|c| c.to_lowercase().contains(&needle)))
+                    && (!favorites_only
+                        || favorites::contains(world, &format!("model:{}", m.model.to_ascii_lowercase())))
             })
             .collect();
         let pages = results.len().div_ceil(page_size).max(1);
@@ -679,11 +740,21 @@ pub(super) fn rebuild(world: &mut World) {
             },
         );
         for model in results.iter().skip(page * page_size).take(page_size) {
-            let icon = thumbnail(world, &model.model);
-            let e = action(world, grid, "", UiAction::Spawn(model.model.clone()), false);
-            world.entity_mut(e).insert((
+            let tile = container(
+                world,
+                grid,
                 Node {
                     width: Val::Px(c.icon_size),
+                    flex_direction: FlexDirection::Column,
+                    flex_shrink: 0.,
+                    ..default()
+                },
+            );
+            let icon = thumbnail(world, &model.model);
+            let e = action(world, tile, "", UiAction::Spawn(model.model.clone()), false);
+            world.entity_mut(e).insert((
+                Node {
+                    width: Val::Percent(100.),
                     height: Val::Px(c.icon_size),
                     flex_shrink: 0.,
                     overflow: Overflow::clip(),
@@ -713,6 +784,21 @@ pub(super) fn rebuild(world: &mut World) {
                     .trim_end_matches(".mdl");
                 text(world, e, name, c.font_size);
             }
+            let favorite_id = format!("model:{}", model.model.to_ascii_lowercase());
+            let is_favorite = favorites::contains(world, &favorite_id);
+            let favorite = action(
+                world,
+                tile,
+                if is_favorite { "★ Favorite" } else { "☆ Favorite" },
+                UiAction::ToggleFavorite(favorite_id),
+                is_favorite,
+            );
+            world.entity_mut(favorite).insert(Node {
+                width: Val::Percent(100.),
+                min_height: Val::Px(c.row_height),
+                height: Val::Px(c.row_height),
+                ..default()
+            });
         }
         let footer = row(world, content, c.row_height);
         if pages > 1 {

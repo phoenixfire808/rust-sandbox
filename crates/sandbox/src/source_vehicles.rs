@@ -430,7 +430,7 @@ pub fn drive(world: &mut World) {
         let com = t.transform_point(center);
         let mut force = Vec3::ZERO;
         let mut torque = Vec3::ZERO;
-        let mut contacts = 0;
+        let mut contacts = Vec::new();
         for x in [-tuning.wheel_span_x, tuning.wheel_span_x] {
             for z in [-tuning.wheel_span_z, tuning.wheel_span_z] {
                 let local = center
@@ -460,26 +460,73 @@ pub fn drive(world: &mut World) {
                     let f = up * magnitude;
                     force += f;
                     torque += offset.cross(f);
-                    contacts += 1;
+                    // Store the actual support points so the wheeled tire model
+                    // can distribute force by supported load.
+                    contacts.push((offset, magnitude, z > 0.));
                 }
             }
         }
-        if contacts > 0 && up.y > tuning.min_up {
+        if !contacts.is_empty() && up.y > tuning.min_up {
             let active = occupied == Some(e);
             let gas = if active { throttle } else { 0. };
             let speed = velocity.linvel.dot(forward);
-            if speed.abs() < c.max_speed || gas.signum() != speed.signum() {
-                force += forward * gas * c.engine_accel * c.mass;
-            }
-            force -= right * velocity.linvel.dot(right) * c.grip * c.mass;
-            if (active && brake) || !active {
-                force -= forward
-                    * speed.signum()
-                    * (c.brake_accel * c.mass).min(speed.abs() * c.mass / dt.max(0.001));
-            }
-            if active {
-                let desired = steer * c.steer_rate * (speed / tuning.steer_speed).clamp(-1., 1.);
-                torque += up * (desired - velocity.angvel.dot(up)) * c.mass * half.length_squared();
+            let braking = (active && brake) || !active;
+            if c.kind == "wheels" {
+                let tire_count = contacts.len().max(1) as f32;
+                let total_load: f32 = contacts.iter().map(|(_, load, _)| *load).sum();
+                for (offset, load, front) in contacts {
+                    let point_velocity = velocity.linvel + velocity.angvel.cross(offset);
+                    let steer_angle = if active && front {
+                        steer * c.steer_rate * (speed.abs() / tuning.steer_speed).clamp(0., 1.)
+                    } else {
+                        0.
+                    };
+                    let wheel_forward = Quat::from_axis_angle(up, steer_angle) * forward;
+                    let wheel_right = Quat::from_axis_angle(up, steer_angle) * right;
+
+                    // Grip is an authored tire friction multiplier, not a chassis
+                    // damping rate. Allocate corrective force by support load and
+                    // clamp combined lateral/longitudinal demand at each tire.
+                    let share = load / total_load.max(0.001);
+                    let lateral_speed = point_velocity.dot(wheel_right);
+                    let lateral_limit = load * c.grip;
+                    let lateral = (-lateral_speed * c.mass * share / dt.max(0.001))
+                        .clamp(-lateral_limit, lateral_limit);
+                    let mut longitudinal = 0.;
+                    if active && gas != 0. {
+                        let at_limit = speed.abs() >= c.max_speed && gas.signum() == speed.signum();
+                        if !at_limit {
+                            longitudinal += gas * c.engine_accel * c.mass * share;
+                        }
+                    }
+                    if braking {
+                        let tire_brake = (c.brake_accel * c.mass / tire_count)
+                            .min(speed.abs() * c.mass / dt.max(0.001) / tire_count);
+                        longitudinal -= speed.signum() * tire_brake;
+                    }
+                    let longitudinal_limit = (lateral_limit * lateral_limit - lateral * lateral)
+                        .max(0.)
+                        .sqrt();
+                    longitudinal = longitudinal.clamp(-longitudinal_limit, longitudinal_limit);
+                    let tire_force = wheel_right * lateral + wheel_forward * longitudinal;
+                    force += tire_force;
+                    torque += offset.cross(tire_force);
+                }
+            } else {
+                // Preserve the established airboat surface-drive approximation.
+                if speed.abs() < c.max_speed || gas.signum() != speed.signum() {
+                    force += forward * gas * c.engine_accel * c.mass;
+                }
+                force -= right * velocity.linvel.dot(right) * c.grip * c.mass;
+                if braking {
+                    force -= forward
+                        * speed.signum()
+                        * (c.brake_accel * c.mass).min(speed.abs() * c.mass / dt.max(0.001));
+                }
+                if active {
+                    let desired = steer * c.steer_rate * (speed / tuning.steer_speed).clamp(-1., 1.);
+                    torque += up * (desired - velocity.angvel.dot(up)) * c.mass * half.length_squared();
+                }
             }
         }
         world.entity_mut(e).insert(ExternalForce { force, torque });

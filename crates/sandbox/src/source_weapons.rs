@@ -2,6 +2,9 @@
 use super::*;
 use bevy::window::CursorGrabMode;
 
+#[path = "source_weapon_gravity.rs"]
+mod gravity;
+
 #[derive(Clone, serde::Serialize, serde::Deserialize)]
 pub struct Ammo {
     pub loaded: u32,
@@ -86,6 +89,7 @@ pub fn equip(world: &mut World, id: &str) {
     let now = world.resource::<Time>().elapsed_secs();
     let tuning = world.resource::<PlayState>().spawn_catalog.runtime.clone();
     physgun::reset(world);
+    reset_special(world);
     {
         let mut state = world.resource_mut::<WeaponState>();
         state.ammo.entry(id.into()).or_insert(Ammo {
@@ -115,6 +119,7 @@ pub fn equip(world: &mut World, id: &str) {
     );
 }
 pub fn input(world: &mut World) {
+    gravity::input(world);
     update_handling(world);
     fire(world);
     // Single owner of world FOV, including restoring the user's base value in UI.
@@ -136,6 +141,10 @@ pub fn input(world: &mut World) {
             p.fov = fov;
         }
     }
+}
+/// Clear held-object ownership before scene/equipment/frontend transitions.
+pub fn reset_special(world: &mut World) {
+    gravity::reset(world);
 }
 fn update_handling(world: &mut World) {
     let play = world.resource::<PlayState>();
@@ -212,7 +221,7 @@ fn fire(world: &mut World) {
     else {
         return;
     };
-    if ["disabled", "physgun", "toolgun"].contains(&w.kind.as_str()) {
+    if ["disabled", "physgun", "toolgun", "gravity"].contains(&w.kind.as_str()) {
         return;
     }
     world
@@ -491,6 +500,7 @@ pub fn draw(mut gizmos: Gizmos, state: Res<WeaponState>) {
     }
 }
 pub fn clear_transients(world: &mut World) {
+    reset_special(world);
     impacts::clear(world);
     let mut s = world.resource_mut::<WeaponState>();
     s.reset_handling();

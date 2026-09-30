@@ -57,6 +57,16 @@ pub struct SpawnCatalog {
     pub water: Water,
     pub npcs: Vec<Npc>,
     pub npc_rules: NpcRules,
+    pub npc_equipment: Vec<NpcEquipment>,
+}
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct NpcEquipment {
+    pub id: String,
+    pub weapon: String,
+    pub magazine: u16,
+    pub reload_seconds: f32,
+    pub burst: u8,
+    pub burst_spacing: f32,
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Npc {
@@ -319,6 +329,7 @@ pub fn load(dir: &Path) -> Result<SpawnCatalog> {
     let mut c = SpawnCatalog {
         wheels: rows(dir, "source_vehicle_wheels.csv")?,
         npcs: rows(dir, "source_npcs.csv")?,
+        npc_equipment: rows(dir, "source_npc_equipment.csv")?,
         npc_rules,
         water,
         runtime,
@@ -369,6 +380,25 @@ pub fn load(dir: &Path) -> Result<SpawnCatalog> {
         }
     }
     unique(c.npcs.iter().map(|e| e.id.as_str()))?;
+    unique(c.npc_equipment.iter().map(|e| e.id.as_str()))?;
+    for equipment in &c.npc_equipment {
+        if !c.npcs.iter().any(|n| n.id == equipment.id && n.kind == "ranged")
+            || equipment.weapon != "weapon_ar2"
+            || !(1..=256).contains(&equipment.magazine)
+            || !(1..=8).contains(&equipment.burst)
+            || !equipment.burst_spacing.is_finite()
+            || !(0.02..=2.).contains(&equipment.burst_spacing)
+            || !equipment.reload_seconds.is_finite()
+            || !(0.1..=30.).contains(&equipment.reload_seconds)
+        {
+            return Err(format!("invalid NPC equipment row {}", equipment.id).into());
+        }
+    }
+    for npc in c.npcs.iter().filter(|n| n.kind == "ranged") {
+        if !c.npc_equipment.iter().any(|e| e.id == npc.id) {
+            return Err(format!("ranged NPC requires explicit equipment: {}", npc.id).into());
+        }
+    }
     for entry in c.entries.iter().filter(|e| e.kind == "npc") {
         if !c.npcs.iter().any(|n| n.id == entry.id) {
             return Err(format!("missing NPC coverage: {}", entry.id).into());
@@ -479,6 +509,7 @@ pub fn load(dir: &Path) -> Result<SpawnCatalog> {
                 "disabled",
                 "physgun",
                 "toolgun",
+                "gravity",
                 "hitscan",
                 "projectile",
                 "grenade",
@@ -501,7 +532,7 @@ pub fn load(dir: &Path) -> Result<SpawnCatalog> {
         }
         if matches!(
             w.kind.as_str(),
-            "hitscan" | "projectile" | "grenade" | "melee"
+            "hitscan" | "projectile" | "grenade" | "melee" | "gravity"
         ) && [&w.idle, &w.fire, &w.draw]
             .iter()
             .any(|clip| clip.trim().is_empty())
@@ -523,6 +554,7 @@ pub fn load(dir: &Path) -> Result<SpawnCatalog> {
         }
         if (w.kind == "physgun" && w.id != "weapon_weapon_physgun")
             || (w.kind == "toolgun" && w.id != "weapon_gmod_tool")
+            || (w.kind == "gravity" && w.id != "weapon_weapon_physcannon")
         {
             return Err("special weapon routes must retain their native identity".into());
         }

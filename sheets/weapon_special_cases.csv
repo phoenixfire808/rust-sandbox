@@ -1,0 +1,10 @@
+case_id,interaction,expected,implementation_boundary,acceptance_owner,result
+gravity_punt,Left click eligible dynamic prop,Prop receives authored directional impulse,Mass limits compare against computed or explicit collider mass,Drew,not_run
+gravity_pull,Right click eligible prop within pull range,Prop moves toward aim and attaches only at hold clearance,Bounded velocity spring differs from Source shadow control,Drew,not_run
+gravity_hold,Maintain object after pull attachment,Prop tracks a clearance-safe point ahead of view,No native orientation alignment or collision hold controller,Drew,not_run
+gravity_drop,Right click while holding,Prop wakes and releases retaining velocity,Drop has independent authored action cooldown,Drew,not_run
+gravity_launch,Left click while holding,Prop wakes and launches with authored forward impulse,No native mass scaling or full fire presentation,Drew,not_run
+gravity_reject_heavy,Target exceeds configured operation mass limit,No acquisition or punt occurs,Synchronized Rapier/readback or explicit collider mass only,Drew,not_run
+gravity_mass_not_ready,Target has no valid computed or explicit mass,Gesture rejected with mass-not-ready status,No bounding-box estimate fallback,Drew,not_run
+gravity_occlusion,World or prop blocks line of sight during pull or hold,Pull cancels or held prop releases,Ray visibility approximation,Drew,not_run
+gravity_lifecycle,Switch weapon/remove target/open frontend or focus,Private hold/pull state clears without changing physgun held state,Restore is covered through clear_transients,Drew,not_run

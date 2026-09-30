@@ -1,0 +1,12 @@
+id,area,scenario,expected,acceptance_owner,result
+favorite_model_add,favorites,Star a mounted model without clicking its spawn tile,Favorite changes without spawning or selecting the model,Drew,not_run
+favorite_model_remove,favorites,Remove a previously starred model,Favorite is removed without spawning,Drew,not_run
+favorite_restart,favorites,Restart after starring a model,Favorite is still loaded from local menu-favorites.json,Drew,not_run
+favorite_catalog,favorites,Favorite a catalog definition from its details panel,Definition favorite changes without activating the use action,Drew,not_run
+favorite_filter,search,Toggle Favorites and combine with query and category,Only favorites matching all active filters are shown,Drew,not_run
+favorite_bad_file,persistence,Attempt toggle with malformed or unsupported existing favorites data,Original file is untouched and UI reports read-only recovery,Drew,not_run
+favorite_io_failure,persistence,Attempt toggle when local save cannot be written,UI reports save failure and existing file and in-memory favorites remain unchanged,Drew,not_run
+favorite_limit,persistence,Add beyond 512 unique favorite IDs,Additional ID is refused with explicit status,Drew,not_run
+category_counts,navigation,Search catalog or model browser,Visible category counts reflect matching results,Drew,not_run
+category_empty,navigation,Search with no matches,Zero-match categories disappear and empty results stay explicit,Drew,not_run
+category_reset,navigation,Select All after choosing a category,Search remains while category filter clears,Drew,not_run

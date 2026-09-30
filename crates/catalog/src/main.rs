@@ -15,6 +15,7 @@ fn run() -> Result<()> {
             sandbox_catalog::player::load(Path::new(dir))?;
             sandbox_catalog::play::load(Path::new(dir))?;
             sandbox_catalog::effects::load(Path::new(dir))?;
+            sandbox_catalog::gravity::load(Path::new(dir))?;
             sandbox_catalog::audio::load(Path::new(dir))?;
             sandbox_catalog::presentation::load(Path::new(dir))?;
             sandbox_catalog::performance::load(Path::new(dir))?;
@@ -35,6 +36,7 @@ fn run() -> Result<()> {
             code.push_str(&sandbox_catalog::player::generate(&sandbox_catalog::player::load(Path::new(dir))?));
             code.push_str(&sandbox_catalog::play::generate(&sandbox_catalog::play::load(Path::new(dir))?));
             code.push_str(&sandbox_catalog::effects::generate(&sandbox_catalog::effects::load(Path::new(dir))?));
+            code.push_str(&sandbox_catalog::gravity::generate(&sandbox_catalog::gravity::load(Path::new(dir))?));
             code.push_str(&sandbox_catalog::performance::generate(&sandbox_catalog::performance::load(Path::new(dir))?));
             code.push_str(&sandbox_catalog::toolgun::generate(&sandbox_catalog::toolgun::load(Path::new(dir))?));
             code.push_str(&sandbox_catalog::frontend::generate(&sandbox_catalog::frontend::load(Path::new(dir))?));

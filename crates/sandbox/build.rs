@@ -11,6 +11,7 @@ fn main() {
         "source_play.csv",
         "source_player.csv",
         "source_effects.csv",
+        "source_gravity.csv",
         "source_audio.csv",
         "source_audio_events.csv",
         "source_layout.csv",
@@ -35,6 +36,7 @@ fn main() {
         "source_water.csv",
         "source_npcs.csv",
         "source_npc_rules.csv",
+        "source_npc_equipment.csv",
         "parity_gaps.csv",
     ] {
         println!("cargo:rerun-if-changed={}", sheets.join(name).display());
@@ -68,6 +70,9 @@ fn main() {
     ));
     generated.push_str(&sandbox_catalog::audio::generate(
         &sandbox_catalog::audio::load(&sheets).expect("invalid audio sheets"),
+    ));
+    generated.push_str(&sandbox_catalog::gravity::generate(
+        &sandbox_catalog::gravity::load(&sheets).expect("invalid gravity weapon spreadsheet"),
     ));
     generated.push_str(&sandbox_catalog::effects::generate(
         &sandbox_catalog::effects::load(&sheets).expect("invalid effects spreadsheet"),

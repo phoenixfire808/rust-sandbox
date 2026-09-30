@@ -35,6 +35,7 @@ pub struct PlayerState {
     pub noclip: bool,
     pub moving: bool,
     pub grounded: bool,
+    pub water_level: u8,
     pub yaw: f32,
     pub pitch: f32,
     pub direction: Vec3,
@@ -102,6 +103,7 @@ pub fn spawn(commands: &mut Commands, eye: Vec3, forward: Vec3) {
         noclip: false,
         moving: false,
         grounded: false,
+        water_level: 0,
         yaw,
         pitch,
         direction: Vec3::ZERO,
@@ -195,7 +197,9 @@ pub fn input(
                 - (keys.pressed(KeyCode::ControlLeft) || keys.pressed(KeyCode::ControlRight)) as i32
                     as f32
         } else {
-            0.
+            keys.pressed(KeyCode::Space) as i32 as f32
+                - (keys.pressed(KeyCode::ControlLeft) || keys.pressed(KeyCode::ControlRight)) as i32
+                    as f32
         },
         axis(KeyCode::KeyS, KeyCode::KeyW),
     );
@@ -290,6 +294,8 @@ pub(crate) fn walk(
     life: Option<Res<source_play::npcs::PlayerLife>>,
     play: Res<PlayState>,
     state: Option<ResMut<PlayerState>>,
+    water: Option<Res<crate::source_assets::WaterSurfaces>>,
+    rapier: ReadRapierContext,
     mut q: Query<(&mut Transform, &mut KinematicCharacterController), With<PlayerBody>>,
 ) {
     let Some(mut s) = state else { return };
@@ -297,6 +303,81 @@ pub(crate) fn walk(
         return;
     };
     let dt = time.delta_secs();
+    let hull_height = if s.crouched {
+        s.config.crouch_height
+    } else {
+        s.config.height
+    };
+    let eye_height = s.config.eye_height
+        + (s.config.crouch_eye - s.config.eye_height) * s.duck_fraction;
+    let foot = t.translation.y - hull_height * 0.5;
+    let eye = t.translation.y + eye_height - hull_height * 0.5;
+    let sampled_level = if !s.noclip {
+        water
+            .as_ref()
+            .and_then(|surfaces| surfaces.height(t.translation))
+            .map(|surface| {
+                if surface >= eye {
+                    3
+                } else if surface >= t.translation.y {
+                    2
+                } else if surface >= foot {
+                    1
+                } else {
+                    0
+                }
+            })
+            .unwrap_or(0)
+    } else {
+        0
+    };
+    // Rendered water polygons provide a top boundary only. Require a clear vertical
+    // path to that boundary and a nearby solid bottom before treating it as a volume.
+    let water_level = if sampled_level > 0 {
+        let surface = water
+            .as_ref()
+            .and_then(|surfaces| surfaces.height(t.translation));
+        let clear_volume = surface.is_some_and(|surface| {
+            let Ok(context) = rapier.single() else {
+                return false;
+            };
+            let filter = || {
+                QueryFilter::default()
+                    .exclude_collider(s.entity)
+                    .exclude_sensors()
+            };
+            let surface_origin = Vec3::new(t.translation.x, surface + 0.01, t.translation.z);
+            let bottom = context.cast_ray(
+                surface_origin,
+                Vec3::NEG_Y,
+                s.config.swim_max_depth,
+                true,
+                filter(),
+            );
+            let Some((_, floor_distance)) = bottom else {
+                return false;
+            };
+            let floor_y = surface_origin.y - floor_distance;
+            if foot < floor_y - 0.1 {
+                return false;
+            }
+            let delta = surface - t.translation.y;
+            delta.abs() <= 0.01
+                || context
+                    .cast_ray(
+                        t.translation,
+                        Vec3::Y * delta.signum(),
+                        delta.abs(),
+                        true,
+                        filter(),
+                    )
+                    .is_none()
+        });
+        if clear_volume { sampled_level } else { 0 }
+    } else {
+        sampled_level
+    };
+    s.water_level = water_level;
     s.movement_submitted = false;
     s.jumped = false;
     if s.vehicle.is_some() || life.is_some_and(|l| l.health <= 0.) {
@@ -322,8 +403,9 @@ pub(crate) fn walk(
     );
     // Forward follows pitch, but Space/Ctrl remains world vertical, as in FullNoClipMove.
     let direction = (rotation * Vec3::new(s.direction.x, 0., s.direction.z)
-        + Vec3::Y * s.direction.y)
+        + if s.noclip { Vec3::Y * s.direction.y } else { Vec3::ZERO })
         .normalize_or_zero();
+    let swimming = water_level >= 2;
     let speed = if s.noclip {
         play.speed
             * if s.precision_flight {
@@ -333,6 +415,8 @@ pub(crate) fn walk(
             } else {
                 1.
             }
+    } else if swimming {
+        s.config.swim_speed
     } else if s.crouched {
         s.config.walk_speed * s.config.crouch_speed
     } else if s.running {
@@ -340,7 +424,8 @@ pub(crate) fn walk(
     } else {
         s.config.walk_speed
     };
-    s.moving = s.direction.length_squared() > 0.01;
+    s.moving = Vec2::new(s.direction.x, s.direction.z).length_squared() > 0.01
+        || ((s.noclip || swimming) && s.direction.y != 0.);
     if s.noclip {
         controller.translation = None;
         t.translation += direction * speed * dt;
@@ -353,7 +438,7 @@ pub(crate) fn walk(
         if s.grounded {
             s.vertical = 0.;
         }
-        let jumping = s.jump && s.grounded;
+        let jumping = s.jump && s.grounded && !swimming;
         if jumping {
             s.vertical = s.config.jump_speed;
             s.grounded = false;
@@ -361,7 +446,7 @@ pub(crate) fn walk(
         s.jumped = jumping;
         let c = &s.config;
         let mut velocity = s.horizontal_velocity;
-        if s.grounded {
+        if s.grounded && !swimming {
             let current = velocity.length();
             if current > f32::EPSILON {
                 // At crouch wish speed, the standing stop floor could remove
@@ -376,14 +461,17 @@ pub(crate) fn walk(
                 velocity *= remaining / current;
             }
         }
+        if swimming {
+            velocity *= (-c.swim_drag * dt).exp();
+        }
         if direction.length_squared() > 0. {
-            let cap = if s.grounded {
+            let cap = if s.grounded || swimming {
                 speed
             } else {
                 speed.min(c.air_speed_cap)
             };
             let missing = (cap - velocity.dot(direction)).max(0.);
-            let acceleration = if s.grounded {
+            let acceleration = if s.grounded || swimming {
                 c.ground_acceleration
             } else {
                 c.air_acceleration
@@ -394,22 +482,33 @@ pub(crate) fn walk(
         if s.grounded && velocity.length() < c.minimum_move_speed {
             velocity = Vec3::ZERO;
         }
+        let swim_gravity = c.swim_gravity;
         s.horizontal_velocity = velocity;
-        if !s.grounded {
+        if swimming {
+            s.grounded = false;
+            if s.direction.y > 0. {
+                s.vertical = s.config.swim_jump_speed;
+            } else if s.direction.y < 0. {
+                s.vertical = -s.config.swim_speed;
+            } else {
+                s.vertical = (s.vertical + play.config.gravity * swim_gravity * dt * 0.5)
+                    .clamp(-s.config.swim_speed, s.config.swim_speed);
+            }
+        } else if !s.grounded {
             s.vertical = (s.vertical + play.config.gravity * dt * 0.5).max(-50.);
         }
-        controller.autostep = s.grounded.then_some(CharacterAutostep {
+        controller.autostep = (s.grounded && !swimming).then_some(CharacterAutostep {
             max_height: CharacterLength::Absolute(s.config.step_height),
             min_width: CharacterLength::Absolute(0.1),
             include_dynamic_bodies: false,
         });
-        controller.snap_to_ground = if s.grounded {
+        controller.snap_to_ground = if s.grounded && !swimming {
             Some(CharacterLength::Absolute(s.config.step_height))
         } else {
             None
         };
         // This downward support probe enables Rapier snapping. It is NOT falling velocity.
-        let vertical_move = if s.grounded {
+        let vertical_move = if s.grounded && !swimming {
             -s.config.ground_probe
         } else {
             s.vertical * dt
@@ -461,11 +560,19 @@ fn finish_walk(
     // Successful steps/snaps can report support without a floor collision event.
     // Keep Rapier's support result, not a heuristic over sweep events. Source's
     // hull/quadrant ground trace remains a separate parity boundary.
-    s.grounded = output.grounded && s.vertical <= 0.;
+    let swimming = s.water_level >= 2;
+    s.grounded = output.grounded && s.vertical <= 0. && !swimming;
+    let gravity_scale = if swimming { s.config.swim_gravity } else { 1. };
+    let controlled_vertical = swimming && s.direction.y != 0.;
     s.vertical = if s.grounded {
         0.
     } else {
-        (velocity.y + play.config.gravity * time.delta_secs() * 0.5).max(-50.)
+        let gravity = if controlled_vertical {
+            0.
+        } else {
+            play.config.gravity * gravity_scale * time.delta_secs() * 0.5
+        };
+        (velocity.y + gravity).max(-50.)
     };
     s.horizontal_velocity = Vec3::new(velocity.x, 0., velocity.z);
     if s.jumped {

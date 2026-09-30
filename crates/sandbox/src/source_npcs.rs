@@ -1,8 +1,11 @@
-//! Bounded ground NPC subset. Native schedules, equipment and ragdolls remain separate work.
+//! Bounded ground NPC subset. Native schedules, visible equipment and ragdolls remain separate work.
 use super::*;
 use crate::source_player::{self, Actor, PlayerState};
 use sandbox_catalog::spawn::Npc;
 use std::sync::Arc;
+
+#[path = "source_npc_equipment.rs"]
+mod equipment;
 
 #[derive(Component)]
 pub struct NpcBody {
@@ -205,6 +208,12 @@ pub fn attach(world: &mut World, entity: Entity, id: &str) -> Result<()> {
             cooldown: 0.,
         },
     ));
+    let ranged = world
+        .get::<NpcBody>(entity)
+        .is_some_and(|npc| npc.definition.kind == "ranged");
+    if ranged {
+        equipment::attach(world, entity, id)?;
+    }
     Ok(())
 }
 
@@ -268,6 +277,7 @@ pub fn think(world: &mut World) {
         });
     }
     let dt = world.resource::<Time<Fixed>>().delta_secs();
+    equipment::tick(world, dt);
     let paused = crate::source_frontend::active(world)
         || !world
             .query_filtered::<&Window, With<PrimaryWindow>>()
@@ -333,7 +343,7 @@ pub fn think(world: &mut World) {
         };
         let c = n.definition.clone();
         let mut vertical = n.vertical;
-        let cooldown = (n.cooldown - dt).max(0.);
+        let mut cooldown = (n.cooldown - dt).max(0.);
         let from = world.get::<Transform>(entity).unwrap().translation + Vec3::Y * c.height * 0.5;
         let mut candidates: Vec<_> = actors
             .iter()
@@ -377,19 +387,44 @@ pub fn think(world: &mut World) {
             } else {
                 phase = "attack";
                 if cooldown <= 0. {
-                    if target == player_id {
-                        let mut life = world.resource_mut::<PlayerLife>();
-                        life.health = (life.health - c.damage).max(0.);
-                        let health = life.health;
-                        world.resource_mut::<PlayState>().status = if health <= 0. {
-                            "You died. Respawning...".into()
-                        } else {
-                            format!("Health: {health:.0}")
-                        };
+                    if c.kind == "ranged" {
+                        match equipment::fire(world, entity, c.interval) {
+                            equipment::FireResult::Fired { next_attack } => {
+                                cooldown = next_attack;
+                                if target == player_id {
+                                    let mut life = world.resource_mut::<PlayerLife>();
+                                    life.health = (life.health - c.damage).max(0.);
+                                    let health = life.health;
+                                    world.resource_mut::<PlayState>().status = if health <= 0. {
+                                        "You died. Respawning...".into()
+                                    } else {
+                                        format!("Health: {health:.0}")
+                                    };
+                                } else {
+                                    weapons::damage(world, target, c.damage, flat);
+                                }
+                                attacked = true;
+                            }
+                            equipment::FireResult::Reloading { next_attack } => {
+                                phase = "idle";
+                                cooldown = next_attack;
+                            }
+                        }
                     } else {
-                        weapons::damage(world, target, c.damage, flat);
+                        if target == player_id {
+                            let mut life = world.resource_mut::<PlayerLife>();
+                            life.health = (life.health - c.damage).max(0.);
+                            let health = life.health;
+                            world.resource_mut::<PlayState>().status = if health <= 0. {
+                                "You died. Respawning...".into()
+                            } else {
+                                format!("Health: {health:.0}")
+                            };
+                        } else {
+                            weapons::damage(world, target, c.damage, flat);
+                        }
+                        attacked = true;
                     }
-                    attacked = true;
                 }
             }
         }
@@ -406,7 +441,10 @@ pub fn think(world: &mut World) {
         }
         if let Some(mut n) = world.get_mut::<NpcBody>(entity) {
             n.vertical = vertical;
-            n.cooldown = if attacked { c.interval } else { cooldown };
+            if attacked && c.kind != "ranged" {
+                cooldown = c.interval;
+            }
+            n.cooldown = cooldown;
             if n.phase != phase || attacked {
                 n.phase = phase;
                 n.phase_time = 0.;

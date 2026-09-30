@@ -55,6 +55,8 @@ pub struct SpawnedProp {
 }
 #[derive(Component, Clone)]
 enum UiAction {
+    ToggleFavorite(String),
+    Favorites(bool),
     NpcSetting(&'static str),
     UseEntry(String),
     CreationTab(String),
@@ -82,6 +84,7 @@ pub struct PlayState {
     pub config: PlayConfig,
     pub layout: sandbox_catalog::presentation::LayoutConfig,
     pub search_focus: bool,
+    pub favorites_only: bool,
     pub menu_size: Vec2,
     pub menu_scroll: [f32; 4],
     pub held_anchor: Vec3,
@@ -159,6 +162,7 @@ impl PlayState {
             config,
             layout: crate::compiled_layout_config(),
             search_focus: false,
+            favorites_only: false,
             menu_size: Vec2::ZERO,
             menu_scroll: [0.; 4],
             held_anchor: Vec3::ZERO,
@@ -224,6 +228,7 @@ impl Plugin for SourcePlayPlugin {
         .init_resource::<tools::posers::Selection>()
         .init_resource::<audio::Audio>()
         .init_resource::<physgun::State>()
+        .insert_resource(menu::favorites::FavoritesState::load())
         .add_systems(FixedUpdate, audio::record_motion.before(PhysicsSet::SyncBackend).after(vehicles::drive).after(tools::devices::physics))
         .add_systems(FixedUpdate, audio::contacts.after(PhysicsSet::Writeback))
         .add_systems(Update, audio::update.after(tools::devices::view).after(tools::input).after(tools::devices::effects).after(weapons::simulate))
@@ -675,6 +680,7 @@ pub(crate) fn search_input(mut events: EventReader<KeyboardInput>, mut state: Re
 
 pub fn update_play(world: &mut World) {
     if crate::source_frontend::active(world) {
+        weapons::reset_special(world);
         physgun::reset(world);
         let menus: Vec<_> = world
             .query_filtered::<Entity, With<MenuRoot>>()
@@ -914,6 +920,8 @@ pub fn update_play(world: &mut World) {
         let vehicle = world.resource::<vehicles::Occupancy>();
         let mode = if vehicle.vehicle.is_some() {
             "WASD: drive | Space: brake | E: exit | F4: view"
+        } else if s.active_weapon == "weapon_weapon_physcannon" {
+            "LMB: punt / launch | RMB: pull / hold / drop | Q: build"
         } else if s.physgun {
             "LMB: hold | E + Shift: snap rotation | RMB: freeze held | R: unfreeze | Double R: all | Wheel: distance"
         } else {
@@ -972,6 +980,15 @@ fn perform(world: &mut World, action: UiAction) {
                 _ => {}
             }
             world.resource_mut::<PlayState>().dirty = true;
+        }
+        UiAction::ToggleFavorite(id) => menu::favorites::toggle(world, id),
+        UiAction::Favorites(enabled) => {
+            let mut s = world.resource_mut::<PlayState>();
+            s.favorites_only = enabled;
+            s.page = 0;
+            s.menu_scroll[0] = 0.;
+            s.menu_scroll[1] = 0.;
+            s.dirty = true;
         }
         UiAction::UseEntry(id) => {
             world.resource_mut::<PlayState>().catalog_selected = id.clone();

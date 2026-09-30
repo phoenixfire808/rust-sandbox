@@ -1,0 +1,2 @@
+punt_range,pull_range,hold_range,hold_distance,punt_mass_limit,hold_mass_limit,punt_impulse,pull_speed,hold_stiffness,hold_damping,launch_impulse,action_cooldown
+5,5,5,2,200,50,22,18,38,8,34,0.25

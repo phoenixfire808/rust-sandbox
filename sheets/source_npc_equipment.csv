@@ -1,0 +1,4 @@
+id,weapon,magazine,reload_seconds,burst,burst_spacing,scope,remaining
+npc_npc_combine_s,weapon_ar2,30,2.5,3,0.1,"Prototype AR2 magazine, reload and burst timing use authored tuning rather than native measured values","Native firing schedules, visible held weapon equipment, hitgroups and gameplay acceptance remain incomplete"
+npc_combineelite,weapon_ar2,30,2.5,3,0.1,"Prototype AR2 magazine, reload and burst timing use authored tuning rather than native measured values","Native firing schedules, visible held weapon equipment, hitgroups and gameplay acceptance remain incomplete"
+npc_combineprison,weapon_ar2,30,2.5,3,0.1,"Prototype AR2 magazine, reload and burst timing use authored tuning rather than native measured values","Native firing schedules, visible held weapon equipment, hitgroups and gameplay acceptance remain incomplete"

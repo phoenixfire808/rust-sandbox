@@ -2,6 +2,7 @@ pub mod audio;
 pub mod behavior;
 pub mod content;
 pub mod effects;
+pub mod gravity;
 pub mod performance;
 pub mod toolgun;
 pub mod frontend;

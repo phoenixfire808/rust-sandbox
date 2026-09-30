@@ -13,7 +13,7 @@ npc_navigation,npc,navigation_data,Ground air and special locomotion navigation,
 npc_senses,npc,npc_ai,Perception memory and target selection,partial,P1,npc_defaults,Occlusion distance and hearing alter target acquisition,lua/autorun/base_npcs.lua,not_run
 npc_disposition,npc,npc_ai,Factions relationships squads and alliances,partial,P1,npc_senses,Hacked and resistance aliases do not behave as hostile originals,lua/autorun/base_npcs.lua,not_run
 npc_schedule,npc,npc_ai,Schedules tasks pursuit cover and combat,partial,P1,npc_navigation|npc_senses,Transitions handle interruption and unreachable targets,lua/autorun/base_npcs.lua,not_run
-npc_equipment,npc,npc_ai,NPC usable weapon assignment,missing,P1,npc_defaults,Allowed NPC weapons and default versus none are distinct,lua/autorun/game_hl2.lua,not_run
+npc_equipment,npc,npc_ai,NPC usable weapon assignment,partial,P1,npc_defaults,Three authored AR2 magazine and burst routes exist; native assignment menus none selection and visible equipment remain,lua/autorun/game_hl2.lua,not_run
 npc_damage,npc,npc_ai,NPC hitboxes damage death and ragdolls,partial,P1,npc_animation,Damage reaches correct actor and death stops AI with requested ragdoll,lua/autorun/base_npcs.lua,not_run
 npc_settings,npc,npc_controls,Disable thinking ignore players ragdolls autosquad and weapon drawer,partial,P1,npc_schedule,All four stock checkbox semantics and weapon selection reach AI,gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenttypes/npcs.lua,not_run
 npc_nextbot,npc,nextbot_runtime,NextBot runtime separate from native NPCs,missing,P2,npc_navigation,Coroutine-style behavior and locomotion supported without marking example spawnable,lua/entities,not_run

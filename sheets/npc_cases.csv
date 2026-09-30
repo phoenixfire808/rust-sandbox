@@ -10,6 +10,9 @@ npc_faction,NPC,Spawn same-faction soldiers plus zombie and passive Odessa,Soldi
 npc_thinking,NPC,Toggle Disable Thinking during movement and attack,AI motion attack timers and animation remain stopped until enabled,not_run,Drew
 npc_ignore,NPC,Toggle Ignore Players during combat,Player ceases to be an AI target while opposing NPC combat can continue,not_run,Drew
 npc_weapons,NPC,Damage each enabled actor with hitscan melee bolt and blast,Health decreases and lethal damage removes actor controller and visual children,not_run,Drew
+npc_magazine,NPC,Keep a Combine ranged NPC in visible range until its authored AR2 magazine empties,One damage event per accepted shot; magazine stops firing then reloads after authored delay,not_run,Drew
+npc_burst_los,NPC,Observe a Combine burst then block line of sight or move out of range mid-burst,Each scheduled round rechecks a live visible target; no damage or sound is emitted while blocked,not_run,Drew
+npc_ar2_audio,NPC,Observe an enabled Combine ranged NPC fire and reload,Accepted rounds emit the spatial npc.ar2.fire cue; no cue during reload,not_run,Drew
 npc_remove,NPC,Remove NPC with remover then undo,No orphan controller; restored identity and health remain typed,not_run,Drew
 npc_tools,NPC,Try physgun freeze and construction tools on live actor,Unsupported manipulations reject without turning NPC into a dynamic prop,not_run,Drew
 npc_save,NPC,Save injured mixed NPC prop vehicle scene and reload,Version4 preserves typed identities and health; older saves still load,not_run,Drew

@@ -1,0 +1,14 @@
+id,setup,action,expected,scope,acceptance_owner,result
+water_level_0,Walk on dry ground beside a water surface,Walk and jump on land,Existing ground movement remains unchanged and water_level stays 0,manual,Drew,not_run
+water_level_1,Enter shallow edge until water crosses player feet,Walk release movement and press Space,Water level becomes 1; ordinary ground speed and jump remain enabled,manual,Drew,not_run
+water_level_2,Submerge player waist while remaining in authored water triangles,Use WASD and release,Water level becomes 2 and swim speed/drag apply,manual,Drew,not_run
+water_level_3,Submerge eyes beneath water surface,Hold Space then Control,Water level 3; Space swims upward and Control downward with configured reduced gravity,manual,Drew,not_run
+water_exit,Swim upward through surface and land outside water triangles,Release controls and walk/jump,Water level returns to 0 and standard air/ground movement resumes,manual,Drew,not_run
+noclip_water,Enable noclip and fly through a water surface,Use WASD Space Control,Water has no effect on noclip movement or vertical control,manual,Drew,not_run
+water_boundary,Walk along the edge of authored water triangles,Enter and exit the triangle footprint repeatedly,Water level changes only while the sampled player point lies on a rendered triangle,manual,Drew,not_run
+water_bottom_jump,Stand on the solid floor underwater at waist depth,Hold Space,Character controller disables ground snap and leaves the bottom without remaining grounded,manual,Drew,not_run
+water_crouch,Enter water while crouching and while duck fraction animates,Compare reported immersion levels with the current hull and interpolated eye position,Crouched dimensions drive feet/eye sampling,manual,Drew,not_run
+water_occlusion,Stand below a rendered water surface with a solid ceiling between the player and surface,Move and jump,Occluding solid geometry rejects the apparent water column,manual,Drew,not_run
+water_depth_limit,Stand below a water polygon with no solid bottom within configured maximum depth,Move and jump,No water immersion is inferred without a nearby solid bottom,manual,Drew,not_run
+water_pitch,Look sharply up/down while swimming and press W/S,Move forward/back while observing vertical travel,W/S remains yaw-horizontal; pitch is not used for swim direction,manual,Drew,not_run
+water_tunnel,Inspect stacked water or submerged tunnel behind a rendered surface,Walk below a surface where geometry does not describe actual BSP contents,Ray-checked surface approximation still cannot prove true BSP contents or classify all overlapping volumes,manual,Drew,not_run
