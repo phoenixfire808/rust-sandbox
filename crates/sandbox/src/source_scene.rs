@@ -7,6 +7,8 @@ pub(super) struct SavedScene {
     pub version: u32,
     pub props: Vec<SavedModel>,
     pub links: Vec<constraints::SavedLink>,
+    #[serde(default)]
+    pub paint: Vec<tools::render_tools::SavedPaint>,
 }
 #[derive(serde::Deserialize)]
 #[serde(untagged)]
@@ -21,6 +23,7 @@ pub(super) fn read(bytes: &[u8]) -> Result<SavedScene> {
             version: 2,
             props,
             links: Vec::new(),
+            paint: Vec::new(),
         },
     })
 }
@@ -29,7 +32,9 @@ pub(super) fn snapshot(world: &mut World) -> SavedScene {
         .query_filtered::<Entity, With<SpawnedProp>>()
         .iter(world)
         .collect();
-    snapshot_selection(world, &ids)
+    let mut save = snapshot_selection(world, &ids);
+    save.paint = tools::render_tools::snapshot(world, &ids, true);
+    save
 }
 pub(super) fn snapshot_selection(world: &mut World, ids: &[Entity]) -> SavedScene {
     let props = ids
@@ -39,6 +44,7 @@ pub(super) fn snapshot_selection(world: &mut World, ids: &[Entity]) -> SavedScen
             let t = world.get::<Transform>(*e)?;
             let b = world.get::<RigidBody>(*e)?;
             Some(SavedModel {
+                device: world.get::<tools::devices::Device>(*e).cloned(),
                 vehicle: world.get::<vehicles::VehicleBody>(*e).map(|v| v.id.clone()),
                 npc: world.get::<npcs::NpcBody>(*e).map(|n| n.id.clone()),
                 health: world.get::<weapons::Health>(*e).copied(),
@@ -54,9 +60,10 @@ pub(super) fn snapshot_selection(world: &mut World, ids: &[Entity]) -> SavedScen
         })
         .collect();
     SavedScene {
-        version: 4,
+        version: 5,
         props,
         links: constraints::snapshot(world, ids),
+        paint: tools::render_tools::snapshot(world, ids, false),
     }
 }
 pub(super) fn remember(world: &mut World) {
@@ -69,12 +76,18 @@ pub(super) fn remember(world: &mut World) {
 }
 pub(super) fn validate_scene(world: &mut World, save: &SavedScene) -> Result<()> {
     let p = world.resource::<PlayState>();
-    if ![2, 3, 4].contains(&save.version)
+    if ![2, 3, 4, 5].contains(&save.version)
+        || save.props.iter().filter(|p| p.device.is_some()).count()
+            > p.tools.catalog.gun.max_devices
         || save.props.iter().filter(|p| p.npc.is_some()).count() > p.spawn_catalog.npc_rules.limit
         || save.props.len() > p.config.max_props
         || save.links.len() > p.tools.catalog.gun.max_constraints
+        || save.paint.len() > p.tools.catalog.gun.max_marks
     {
         return Err("unsupported scene version or scene limit exceeded".into());
+    }
+    for mark in &save.paint {
+        tools::render_tools::validate_paint(world, mark, save.props.len())?;
     }
     for l in &save.links {
         constraints::validate(l, save.props.len())?;
@@ -87,6 +100,12 @@ pub(super) fn validate_scene(world: &mut World, save: &SavedScene) -> Result<()>
         }
     }
     for p in &save.props {
+        if let Some(d) = &p.device {
+            if p.npc.is_some() || p.vehicle.is_some() {
+                return Err("conflicting construction entity state".into());
+            }
+            tools::devices::validate(world, d, &p.model)?;
+        }
         if p.npc.is_some() && (p.vehicle.is_some() || p.frozen) {
             return Err("conflicting NPC scene state".into());
         }
@@ -138,6 +157,17 @@ pub(super) fn validate_scene(world: &mut World, save: &SavedScene) -> Result<()>
     Ok(())
 }
 pub(super) fn spawn_scene(world: &mut World, scene: SavedScene, offset: Vec3) -> Result<()> {
+    if tools::render_tools::count(world) + scene.paint.len()
+        > world.resource::<PlayState>().tools.catalog.gun.max_marks
+    {
+        return Err("paint limit reached".into());
+    }
+    if world.query::<&tools::devices::Device>().iter(world).count()
+        + scene.props.iter().filter(|p| p.device.is_some()).count()
+        > world.resource::<PlayState>().tools.catalog.gun.max_devices
+    {
+        return Err("construction device limit reached".into());
+    }
     if world.query::<&npcs::NpcBody>().iter(world).count()
         + scene.props.iter().filter(|p| p.npc.is_some()).count()
         > world.resource::<PlayState>().spawn_catalog.npc_rules.limit
@@ -155,6 +185,13 @@ pub(super) fn spawn_scene(world: &mut World, scene: SavedScene, offset: Vec3) ->
             p.frozen,
         )?;
         tools::apply_properties(world, id, p.properties)?;
+        if let Some(mut device) = p.device {
+            device.height += offset.y;
+            if let Some(point) = &mut device.look_at {
+                *point = (Vec3::from_array(*point) + offset).to_array();
+            }
+            tools::devices::attach(world, id, device)?;
+        }
         if let Some(vehicle) = p.vehicle {
             vehicles::attach(world, id, &vehicle)?;
         }
@@ -166,7 +203,19 @@ pub(super) fn spawn_scene(world: &mut World, scene: SavedScene, offset: Vec3) ->
         }
         ids.push(id);
     }
+    for mut mark in scene.paint {
+        let owner = mark.target.map(|i| ids[i]);
+        if owner.is_none() {
+            mark.point = (Vec3::from_array(mark.point) + offset).to_array();
+        }
+        tools::render_tools::mark(world, owner, mark)?;
+    }
     for mut l in scene.links {
+        if let Some(p) = &mut l.pulley {
+            for guide in &mut p.guides {
+                *guide = (Vec3::from_array(*guide) + offset).to_array();
+            }
+        }
         let a = if let Some(i) = l.a {
             ids[i]
         } else {
@@ -185,6 +234,8 @@ pub(super) fn spawn_scene(world: &mut World, scene: SavedScene, offset: Vec3) ->
 }
 pub(super) fn restore(world: &mut World, save: SavedScene) -> Result<()> {
     validate_scene(world, &save)?;
+    tools::render_tools::clear(world);
+    world.resource_mut::<tools::devices::Remote>().0 = None;
     vehicles::release(world, None);
     weapons::clear_transients(world);
     spawn::clear(world);

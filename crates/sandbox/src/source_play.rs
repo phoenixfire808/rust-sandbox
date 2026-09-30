@@ -6,16 +6,16 @@ use crate::{
 use bevy::{
     asset::RenderAssetUsages,
     input::{
+        ButtonState,
         keyboard::{Key, KeyboardInput},
         mouse::MouseWheel,
-        ButtonState,
     },
     prelude::*,
     render::render_resource::{Extent3d, TextureDimension, TextureFormat},
     window::PrimaryWindow,
 };
 use bevy_rapier3d::prelude::*;
-use sandbox_catalog::{play::PlayConfig, Result};
+use sandbox_catalog::{Result, play::PlayConfig};
 use std::collections::BTreeMap;
 #[path = "source_impacts.rs"]
 pub(crate) mod impacts;
@@ -36,7 +36,7 @@ pub(crate) mod vehicles;
 #[path = "source_weapons.rs"]
 pub(crate) mod weapons;
 use scene::{
-    remember, restore, snapshot, snapshot_selection, spawn_scene, validate_scene, SavedScene,
+    SavedScene, remember, restore, snapshot, snapshot_selection, spawn_scene, validate_scene,
 };
 
 #[derive(Component)]
@@ -120,6 +120,8 @@ pub(crate) struct GpuModel {
 }
 #[derive(Clone, serde::Serialize, serde::Deserialize)]
 struct SavedModel {
+    #[serde(default)]
+    device: Option<tools::devices::Device>,
     #[serde(default)]
     vehicle: Option<String>,
     #[serde(default)]
@@ -210,6 +212,9 @@ impl Plugin for SourcePlayPlugin {
         .add_plugins(RapierPhysicsPlugin::<NoUserData>::default().in_fixed_schedule())
         .init_resource::<spawn::PendingSpawns>()
         .init_resource::<weapons::WeaponState>()
+        .init_resource::<tools::devices::Controls>()
+        .init_resource::<tools::devices::Remote>()
+        .init_resource::<tools::pulley::Stage>()
         .init_resource::<impacts::Impacts>()
         .init_resource::<vehicles::Occupancy>()
         .init_resource::<npcs::NpcSettings>()
@@ -227,7 +232,27 @@ impl Plugin for SourcePlayPlugin {
             vehicles::visuals::crashes.after(PhysicsSet::Writeback),
         )
         .add_systems(FixedUpdate, vehicles::drive.before(PhysicsSet::SyncBackend))
+        .add_systems(
+            FixedUpdate,
+            tools::devices::physics.before(PhysicsSet::SyncBackend),
+        )
+        .add_systems(
+            FixedUpdate,
+            tools::constraints::drive.before(PhysicsSet::SyncBackend),
+        )
+        .add_systems(
+            FixedUpdate,
+            tools::pulley::physics.before(PhysicsSet::SyncBackend),
+        )
         .add_systems(Update, weapons::draw.after(weapons::simulate))
+        .add_systems(
+            Update,
+            tools::devices::view.after(crate::source_player::visuals),
+        )
+        .add_systems(
+            Update,
+            tools::render_tools::update.after(tools::devices::view),
+        )
         .add_systems(
             Update,
             (impacts::expire, impacts::draw)
@@ -240,11 +265,15 @@ impl Plugin for SourcePlayPlugin {
                 search_input,
                 update_play,
                 vehicles::update,
+                tools::devices::input,
+                tools::constraints::input,
+                tools::pulley::clear_stage,
                 weapons::input,
                 weapons::simulate,
                 tools::input,
                 tool_screen::update,
                 tools::constraints::update,
+                tools::devices::effects,
                 menu::tool_sliders,
                 spawn::complete,
                 spawn::report,
@@ -641,7 +670,11 @@ pub fn update_play(world: &mut World) {
         return;
     }
     let keys = world.resource::<ButtonInput<KeyCode>>().clone();
-    let mouse = world.resource::<ButtonInput<MouseButton>>().clone();
+    let mouse = if tools::devices::viewing(world) {
+        ButtonInput::<MouseButton>::default()
+    } else {
+        world.resource::<ButtonInput<MouseButton>>().clone()
+    };
     if !world.resource::<PlayState>().weapon_attempted
         && world.resource::<PlayState>().weapon_visible
     {

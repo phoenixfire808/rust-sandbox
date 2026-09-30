@@ -21,6 +21,8 @@ use std::collections::BTreeMap;
 
 #[derive(Component)]
 pub struct PlayerBody;
+#[derive(Component)]
+pub(crate) struct PlayerViewCamera;
 #[derive(Resource)]
 pub struct PlayerState {
     pub config: PlayerConfig,
@@ -123,6 +125,7 @@ pub fn input(
     mut motion: EventReader<MouseMotion>,
     play: Res<PlayState>,
     weapon: Res<source_play::weapons::WeaponState>,
+    remote: Res<source_play::tools::devices::Remote>,
     state: Option<ResMut<PlayerState>>,
     window: Query<&Window, With<PrimaryWindow>>,
     frontend: Option<Res<crate::source_frontend::Frontend>>,
@@ -144,6 +147,7 @@ pub fn input(
     s.wants_crouch = false;
     if !w.focused
         || play.menu_open
+        || remote.0.is_some()
         || frontend.as_ref().is_some_and(|f| f.is_open())
         || life.is_some_and(|l| l.health <= 0.)
     {
@@ -650,6 +654,7 @@ fn create_scene(world: &mut World) -> Result<Scene> {
     let view_camera = world
         .spawn((
             Camera3d::default(),
+            PlayerViewCamera,
             Camera {
                 order: 1,
                 clear_color: ClearColorConfig::None,
@@ -893,7 +898,8 @@ pub(crate) fn visuals(world: &mut World) {
         let weapon = world.resource::<source_play::weapons::WeaponState>();
         let aim_fraction = weapon.aim_fraction;
         let kick = weapon.kick;
-        let third = s.third_person && aim_fraction == 0.;
+        let third =
+            (s.third_person && aim_fraction == 0.) || source_play::tools::devices::viewing(world);
         let local_velocity = s.local_velocity;
         let airborne = !s.grounded || s.vertical > 0.1;
         let noclip = s.noclip;

@@ -38,3 +38,133 @@ elastic,material,Cable material (pending),choice,cable/cable,0,0,1,cable/cable|c
 elastic,color_r,Red,number,255,0,255,1,,true
 elastic,color_g,Green,number,255,0,255,1,,true
 elastic,color_b,Blue,number,255,0,255,1,,true
+balloon,model,Model,choice,models/maxofs2d/balloon_classic.mdl,0,0,1,models/maxofs2d/balloon_classic.mdl,true
+balloon,mass,Mass kg,number,2,0.1,100,0.1,,true
+balloon,force,Upward force N,number,100,0,10000,10,,true
+balloon,ropelength,Added rope length m,number,1.2192,0,20,0.1,,true
+button,model,Model,choice,models/maxofs2d/button_05.mdl,0,0,1,models/maxofs2d/button_05.mdl,true
+button,mass,Mass kg,number,2,0.1,100,0.1,,true
+button,key,Output group,choice,Numpad1,0,0,1,Numpad0|Numpad1|Numpad2|Numpad3|Numpad4|Numpad5|Numpad6|Numpad7|Numpad8|Numpad9,true
+button,toggle,Toggle with E,bool,1,0,1,1,,true
+dynamite,model,Model,choice,models/dav0r/tnt/tnt.mdl,0,0,1,models/dav0r/tnt/tnt.mdl,true
+dynamite,mass,Mass kg,number,5,0.1,100,0.1,,true
+dynamite,key,Detonate key,choice,Numpad1,0,0,1,Numpad0|Numpad1|Numpad2|Numpad3|Numpad4|Numpad5|Numpad6|Numpad7|Numpad8|Numpad9,true
+dynamite,damage,Damage,number,200,1,1000,10,,true
+dynamite,radius,Blast radius m,number,4,0.1,20,0.1,,true
+dynamite,delay,Fuse seconds,number,1,0,30,0.1,,true
+dynamite,remove,Remove after blast,bool,1,0,1,1,,true
+emitter,model,Model,choice,models/props_lab/tpplug.mdl,0,0,1,models/props_lab/tpplug.mdl,true
+emitter,mass,Mass kg,number,2,0.1,100,0.1,,true
+emitter,key,Activation key,choice,Numpad1,0,0,1,Numpad0|Numpad1|Numpad2|Numpad3|Numpad4|Numpad5|Numpad6|Numpad7|Numpad8|Numpad9,true
+emitter,toggle,Toggle,bool,1,0,1,1,,true
+emitter,starton,Start active,bool,0,0,1,1,,true
+emitter,delay,Spark interval seconds,number,1,0.05,10,0.05,,true
+hoverball,model,Model,choice,models/dav0r/hoverball.mdl,0,0,1,models/dav0r/hoverball.mdl,true
+hoverball,mass,Mass kg,number,10,0.1,100,0.1,,true
+hoverball,key,Enable toggle,choice,Numpad5,0,0,1,Numpad0|Numpad1|Numpad2|Numpad3|Numpad4|Numpad5|Numpad6|Numpad7|Numpad8|Numpad9,true
+hoverball,up,Raise target,choice,Numpad8,0,0,1,Numpad0|Numpad1|Numpad2|Numpad3|Numpad4|Numpad5|Numpad6|Numpad7|Numpad8|Numpad9,true
+hoverball,down,Lower target,choice,Numpad2,0,0,1,Numpad0|Numpad1|Numpad2|Numpad3|Numpad4|Numpad5|Numpad6|Numpad7|Numpad8|Numpad9,true
+hoverball,starton,Start active,bool,1,0,1,1,,true
+hoverball,speed,Target speed m per s,number,1,0.1,10,0.1,,true
+hoverball,strength,Altitude gain,number,20,1,100,1,,true
+hoverball,damping,Vertical damping,number,10,1,50,1,,true
+hoverball,max_accel,Acceleration cap,number,100,1,500,1,,true
+light,model,Model,choice,models/maxofs2d/light_tubular.mdl,0,0,1,models/maxofs2d/light_tubular.mdl,true
+light,mass,Mass kg,number,2,0.1,100,0.1,,true
+light,key,Activation key,choice,Numpad1,0,0,1,Numpad0|Numpad1|Numpad2|Numpad3|Numpad4|Numpad5|Numpad6|Numpad7|Numpad8|Numpad9,true
+light,toggle,Toggle,bool,1,0,1,1,,true
+light,starton,Start active,bool,1,0,1,1,,true
+light,brightness,Intensity lumens,number,3000,0,50000,100,,true
+light,range,Range m,number,8,0.1,50,0.1,,true
+light,r,Red,number,255,0,255,1,,true
+light,g,Green,number,255,0,255,1,,true
+light,b,Blue,number,255,0,255,1,,true
+light,ropelength,Added rope length m,number,1.2192,0,20,0.1,,true
+lamp,model,Model,choice,models/lamps/torch.mdl,0,0,1,models/lamps/torch.mdl,true
+lamp,mass,Mass kg,number,5,0.1,100,0.1,,true
+lamp,key,Activation key,choice,Numpad1,0,0,1,Numpad0|Numpad1|Numpad2|Numpad3|Numpad4|Numpad5|Numpad6|Numpad7|Numpad8|Numpad9,true
+lamp,toggle,Toggle,bool,1,0,1,1,,true
+lamp,starton,Start active,bool,1,0,1,1,,true
+lamp,brightness,Intensity lumens,number,5000,0,50000,100,,true
+lamp,range,Range m,number,20,0.1,50,0.1,,true
+lamp,fov,Cone FOV degrees,number,90,5,150,1,,true
+lamp,r,Red,number,255,0,255,1,,true
+lamp,g,Green,number,255,0,255,1,,true
+lamp,b,Blue,number,255,0,255,1,,true
+thruster,model,Model,choice,models/props_phx2/garbage_metalcan001a.mdl,0,0,1,models/props_phx2/garbage_metalcan001a.mdl,true
+thruster,mass,Mass kg,number,5,0.1,100,0.1,,true
+thruster,key,Forward key,choice,Numpad8,0,0,1,Numpad0|Numpad1|Numpad2|Numpad3|Numpad4|Numpad5|Numpad6|Numpad7|Numpad8|Numpad9,true
+thruster,reverse,Reverse key,choice,Numpad2,0,0,1,Numpad0|Numpad1|Numpad2|Numpad3|Numpad4|Numpad5|Numpad6|Numpad7|Numpad8|Numpad9,true
+thruster,toggle,Toggle forward,bool,0,0,1,1,,true
+thruster,force,Force N,number,1500,0,10000,10,,true
+wheel,model,Model,choice,models/props_vehicles/carparts_wheel01a.mdl,0,0,1,models/props_vehicles/carparts_wheel01a.mdl,true
+wheel,mass,Mass kg,number,10,0.1,100,0.1,,true
+wheel,key,Forward key,choice,Numpad8,0,0,1,Numpad0|Numpad1|Numpad2|Numpad3|Numpad4|Numpad5|Numpad6|Numpad7|Numpad8|Numpad9,true
+wheel,reverse,Reverse key,choice,Numpad2,0,0,1,Numpad0|Numpad1|Numpad2|Numpad3|Numpad4|Numpad5|Numpad6|Numpad7|Numpad8|Numpad9,true
+wheel,toggle,Toggle forward,bool,0,0,1,1,,true
+wheel,axis,Model axle axis,choice,Z,0,0,1,X|Y|Z,true
+wheel,torque,Torque Nm,number,50,0,1000,1,,true
+wheel,friction,Axle damping,number,1,0,100,0.1,,true
+motor,key,Forward key,choice,Numpad8,0,0,1,Numpad0|Numpad1|Numpad2|Numpad3|Numpad4|Numpad5|Numpad6|Numpad7|Numpad8|Numpad9,true
+motor,reverse,Reverse key,choice,Numpad2,0,0,1,Numpad0|Numpad1|Numpad2|Numpad3|Numpad4|Numpad5|Numpad6|Numpad7|Numpad8|Numpad9,true
+motor,toggle,Toggle forward,bool,0,0,1,1,,true
+motor,speed,Target radians per second,number,6,0,100,0.1,,true
+motor,max_force,Torque limit Nm,number,100,0,10000,10,,true
+motor,hingefriction,Stopped axle friction,number,1,0,100,0.1,,true
+motor,nocollide,No collision,bool,1,0,1,1,,true
+hydraulic,key,Extend key,choice,Numpad8,0,0,1,Numpad0|Numpad1|Numpad2|Numpad3|Numpad4|Numpad5|Numpad6|Numpad7|Numpad8|Numpad9,true
+hydraulic,reverse,Retract key,choice,Numpad2,0,0,1,Numpad0|Numpad1|Numpad2|Numpad3|Numpad4|Numpad5|Numpad6|Numpad7|Numpad8|Numpad9,true
+hydraulic,toggle,Toggle extension,bool,1,0,1,1,,true
+hydraulic,travel,Travel m,number,2,0,20,0.1,,true
+hydraulic,speed,Speed m per s,number,1.2192,0.01,20,0.1,,true
+hydraulic,constant,Spring stiffness,number,1000,1,10000,10,,true
+hydraulic,damping,Damping,number,100,0,1000,1,,true
+hydraulic,max_force,Force cap N,number,10000,0,50000,100,,true
+hydraulic,width,Cable width Source units,number,3,0.1,10,0.1,,true
+hydraulic,color_r,Red,number,255,0,255,1,,true
+hydraulic,color_g,Green,number,255,0,255,1,,true
+hydraulic,color_b,Blue,number,255,0,255,1,,true
+muscle,key,Toggle key,choice,Numpad8,0,0,1,Numpad0|Numpad1|Numpad2|Numpad3|Numpad4|Numpad5|Numpad6|Numpad7|Numpad8|Numpad9,true
+muscle,reverse,Stop key,choice,Numpad2,0,0,1,Numpad0|Numpad1|Numpad2|Numpad3|Numpad4|Numpad5|Numpad6|Numpad7|Numpad8|Numpad9,true
+muscle,toggle,Toggle,bool,1,0,1,1,,true
+muscle,starton,Start active,bool,0,0,1,1,,true
+muscle,travel,Travel m,number,2,0,20,0.1,,true
+muscle,period,Period seconds,number,2,0.1,30,0.1,,true
+muscle,constant,Spring stiffness,number,1000,1,10000,10,,true
+muscle,damping,Damping,number,100,0,1000,1,,true
+muscle,max_force,Force cap N,number,10000,0,50000,100,,true
+muscle,width,Cable width Source units,number,2,0.1,10,0.1,,true
+muscle,color_r,Red,number,255,0,255,1,,true
+muscle,color_g,Green,number,255,0,255,1,,true
+muscle,color_b,Blue,number,255,0,255,1,,true
+winch,key,Extend key,choice,Numpad8,0,0,1,Numpad0|Numpad1|Numpad2|Numpad3|Numpad4|Numpad5|Numpad6|Numpad7|Numpad8|Numpad9,true
+winch,reverse,Retract key,choice,Numpad2,0,0,1,Numpad0|Numpad1|Numpad2|Numpad3|Numpad4|Numpad5|Numpad6|Numpad7|Numpad8|Numpad9,true
+winch,speed,Speed m per s,number,1.2192,0.01,20,0.1,,true
+winch,travel,Extra extension m,number,10,0,100,1,,true
+winch,width,Cable width Source units,number,3,0.1,10,0.1,,true
+winch,color_r,Red,number,255,0,255,1,,true
+winch,color_g,Green,number,255,0,255,1,,true
+winch,color_b,Blue,number,255,0,255,1,,true
+pulley,constant,Cable stiffness,number,1000,1,10000,10,,true
+pulley,damping,Cable damping,number,100,0,1000,1,,true
+pulley,max_force,Tension cap N,number,10000,0,50000,100,,true
+pulley,rigid,Resist slack too,bool,0,0,1,1,,true
+pulley,width,Cable width Source units,number,3,0.1,10,0.1,,true
+pulley,color_r,Red,number,255,0,255,1,,true
+pulley,color_g,Green,number,255,0,255,1,,true
+pulley,color_b,Blue,number,255,0,255,1,,true
+paint,material,Decal material,choice,decals/smile,0,0,1,decals/smile|decals/dark|decals/light|decals/eye|decals/cross|decals/nought,true
+paint,size,Mark size m,number,0.4,0.01,4,0.01,,true
+trails,material,Ribbon material,choice,trails/laser,0,0,1,trails/laser|trails/smoke,true
+trails,length,History seconds,number,5,0.1,20,0.1,,true
+trails,startsize,Start width m,number,0.3,0.001,4,0.01,,true
+trails,endsize,End width m,number,0,0,4,0.01,,true
+trails,r,Red,number,255,0,255,1,,true
+trails,g,Green,number,255,0,255,1,,true
+trails,b,Blue,number,255,0,255,1,,true
+trails,a,Alpha,number,255,0,255,1,,true
+camera,model,Model,choice,models/dav0r/camera.mdl,0,0,1,models/dav0r/camera.mdl,true
+camera,mass,Mass kg,number,5,0.1,100,0.1,,true
+camera,key,View key,choice,Numpad0,0,0,1,Numpad0|Numpad1|Numpad2|Numpad3|Numpad4|Numpad5|Numpad6|Numpad7|Numpad8|Numpad9,true
+camera,toggle,Toggle view,bool,1,0,1,1,,true
+camera,fov,View FOV degrees,number,75,20,110,1,,true

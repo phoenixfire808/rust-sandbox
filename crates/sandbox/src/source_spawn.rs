@@ -1,6 +1,6 @@
 //! Bounded FIFO for interactive spawns. Only immutable asset data leaves the World.
 use super::*;
-use bevy::tasks::{block_on, poll_once, AsyncComputeTaskPool, Task};
+use bevy::tasks::{AsyncComputeTaskPool, Task, block_on, poll_once};
 use std::{collections::VecDeque, time::Instant};
 
 #[derive(Default)]
@@ -37,9 +37,14 @@ pub(super) fn report(
     samples.values.sort_unstable_by(f32::total_cmp);
     let n = samples.values.len();
     let over = samples.values.iter().filter(|v| **v > budget).count();
-    println!("FRAME_TIMING frames={n} median_ms={:.2} p95_ms={:.2} max_ms={:.2} budget_ms={budget:.3} over_budget={over} props={} pending={}",
-        samples.values[n/2], samples.values[((n as f32 * 0.95).ceil() as usize).saturating_sub(1)],
-        samples.values[n-1], props.iter().count(), queue.requests.len());
+    println!(
+        "FRAME_TIMING frames={n} median_ms={:.2} p95_ms={:.2} max_ms={:.2} budget_ms={budget:.3} over_budget={over} props={} pending={}",
+        samples.values[n / 2],
+        samples.values[((n as f32 * 0.95).ceil() as usize).saturating_sub(1)],
+        samples.values[n - 1],
+        props.iter().count(),
+        queue.requests.len()
+    );
     samples.values.clear();
     samples.elapsed = 0.;
 }

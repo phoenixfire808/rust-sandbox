@@ -216,8 +216,26 @@ fn catalog_browser(world: &mut World, body: Entity, tree_width: f32) {
     world.resource_mut::<PlayState>().page = page;
     let viewport = scroll_panel(world, content, 1);
     if let Some(e) = results.iter().find(|e| e.id == selected) {
-        text(world, viewport, format!("{} | {}\nClass: {}\nAvailability: {} (mount not checked) | Admin: {}\nReference: {}:{}\nModel: {}", e.label, e.spawn_name, e.class_name, e.condition, e.admin_only, e.source, e.line,
-            if e.model.is_empty() { "native/inherited default; not inferred" } else { &e.model }), c.font_size);
+        text(
+            world,
+            viewport,
+            format!(
+                "{} | {}\nClass: {}\nAvailability: {} (mount not checked) | Admin: {}\nReference: {}:{}\nModel: {}",
+                e.label,
+                e.spawn_name,
+                e.class_name,
+                e.condition,
+                e.admin_only,
+                e.source,
+                e.line,
+                if e.model.is_empty() {
+                    "native/inherited default; not inferred"
+                } else {
+                    &e.model
+                }
+            ),
+            c.font_size,
+        );
         if let Some(w) = catalog.weapons.iter().find(|w| w.id == e.id) {
             text(
                 world,

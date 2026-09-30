@@ -16,6 +16,9 @@ pub struct ToolgunConfig {
     pub tracer_width: f32,
     pub trace_range: f32,
     pub max_constraints: usize,
+    pub max_devices: usize,
+    pub max_marks: usize,
+    pub trail_points: usize,
 }
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -92,6 +95,9 @@ pub fn load(path: &Path) -> Result<ToolCatalog> {
     if !(64..=1024).contains(&gun.screen_size)
         || !gun.screen_size.is_power_of_two()
         || !(1..=10000).contains(&gun.max_constraints)
+        || !(1..=256).contains(&gun.max_devices)
+        || !(1..=2048).contains(&gun.max_marks)
+        || !(2..=256).contains(&gun.trail_points)
         || gun.fire_clip.is_empty()
         || !material_path(&gun.screen_material)
         || !material_path(&gun.screen_background)

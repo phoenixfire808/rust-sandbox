@@ -4,6 +4,12 @@ use sandbox_catalog::toolgun::ToolCatalog;
 use serde::{Deserialize, Serialize};
 #[path = "source_constraints.rs"]
 pub(crate) mod constraints;
+#[path = "source_devices.rs"]
+pub(crate) mod devices;
+#[path = "source_pulley.rs"]
+pub(crate) mod pulley;
+#[path = "source_render_tools.rs"]
+pub(crate) mod render_tools;
 
 #[derive(Clone, Copy)]
 pub struct Shot {
@@ -161,6 +167,7 @@ pub(crate) struct Properties {
     pub gravity: bool,
     pub physics_material: String,
     pub world_only: bool,
+    pub trail: Option<render_tools::Trail>,
 }
 impl Default for Properties {
     fn default() -> Self {
@@ -170,10 +177,14 @@ impl Default for Properties {
             gravity: true,
             physics_material: String::new(),
             world_only: false,
+            trail: None,
         }
     }
 }
 pub(crate) fn validate_properties(world: &World, p: &Properties) -> Result<()> {
+    if let Some(trail) = &p.trail {
+        render_tools::validate_trail(world, trail)?;
+    }
     if p.color
         .iter()
         .any(|v| !v.is_finite() || !(0.0..=1.0).contains(v))
@@ -228,6 +239,9 @@ fn material(world: &mut World, path: &str) -> Result<StandardMaterial> {
 }
 pub(crate) fn prepare_properties(world: &mut World, p: &Properties) -> Result<()> {
     validate_properties(world, p)?;
+    if let Some(trail) = &p.trail {
+        render_tools::prepare_trail(world, trail)?;
+    }
     if !p.material.is_empty() {
         material(world, &p.material)?;
     }
@@ -282,6 +296,12 @@ pub(crate) fn apply_visual_properties(
 }
 pub(crate) fn apply_properties(world: &mut World, entity: Entity, p: Properties) -> Result<()> {
     apply_visual_properties(world, entity, &p)?;
+    if world
+        .get::<Properties>(entity)
+        .is_none_or(|old| old.trail != p.trail)
+    {
+        render_tools::apply_trail(world, entity, p.trail.clone())?;
+    }
     let physical = world
         .resource::<PlayState>()
         .tools
@@ -342,7 +362,9 @@ pub(crate) fn trace(world: &mut World, eye: Transform, exclude: Option<Entity>) 
 }
 pub(crate) fn input(world: &mut World) {
     let p = world.resource::<PlayState>();
-    if npcs::dead(world)
+    if crate::source_frontend::active(world)
+        || npcs::dead(world)
+        || devices::viewing(world)
         || p.active_weapon != "weapon_gmod_tool"
         || p.menu_open
         || p.tools.input_blocked
@@ -374,6 +396,7 @@ pub(crate) fn input(world: &mut World) {
     let Some(eye) = camera(world) else { return };
     let Some(hit) = trace(world, eye, None) else {
         if action == 3 {
+            world.resource_mut::<pulley::Stage>().0.clear();
             let mut p = world.resource_mut::<PlayState>();
             p.tools.stage = None;
             if p.tool == "duplicator" {
@@ -397,12 +420,21 @@ pub(crate) fn input(world: &mut World) {
     }
 }
 fn operate(world: &mut World, tool: &str, action: u8, hit: Target) -> Result<bool> {
+    if matches!(tool, "paint" | "trails") {
+        return render_tools::operate(world, tool, action, hit);
+    }
+    if devices::supported(tool) || tool == "editentity" {
+        return devices::operate(world, tool, action, hit);
+    }
     if world.get::<npcs::NpcBody>(hit.entity).is_some() && tool != "remover" {
         return Err(
             "This tool does not yet support live NPCs; use Remover or scene save/load".into(),
         );
     }
     if constraints::supported(tool) {
+        if tool == "pulley" {
+            return pulley::operate(world, action, hit);
+        }
         return constraints::operate(world, tool, action, hit);
     }
     if tool == "duplicator" {

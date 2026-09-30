@@ -1,5 +1,14 @@
 # Research record
 
+## Construction tool expansion, 2026-09-30
+
+- Re-reviewed all 18 private feedback reports and the entire 38-row runtime tool inventory. Read the installed original `gamemodes/sandbox/entities/weapons/gmod_tool/stools` scripts for all 22 formerly missing entries. Examined ClientConVar declarations, LeftClick/RightClick/Reload, construction calls, constraints and numpad callbacks. Public reference location: [Facepunch stock stools](https://github.com/Facepunch/garrysmod/tree/master/garrysmod/gamemodes/sandbox/entities/weapons/gmod_tool/stools). No proprietary scripts or extracted payloads are redistributed.
+- Reused the observed separation between device configuration, key groups and tool action modes. Original defaults remain in `tool_reference_options.csv`. New SI forces, servo constants, lumens, caps and keypad naming in `source_tool_options.csv` are independent authored choices, not equivalent Source units or measured tuning. Existing Rapier joints, model/material loading, whole-scene undo and effect rendering were reused rather than replaced.
+- Original paint uses decal tracing and a small original decal gallery. This implementation uses bounded persistent textured quads instead of claiming native clipping/projection or continuous spray. Trails use bounded historical ribbons, not native UV/fade equivalence.
+- Installed metadata confirms all ten authored construction-model paths have VVD/VTX companions and all six paint plus two trail VMT paths exist. This is path inventory evidence, not successful runtime decoding or visual acceptance. Device entity implementation files were not available at the attempted loose locations, so no claim is made to have reproduced their engine force implementation.
+- Camera uses an independent frozen remote view with optional fixed world look point. Original moving-entity tracking and lock semantics remain open. Eye poser requires eye-target material behavior; face poser requires flex decoding and weights; finger poser requires hand/bone manipulation; inflator requires ragdoll bone scale/deformation. These four tools remain missing rather than being substituted with rigid whole-model transforms.
+- All 18 new subsets remain partial. Native sounds, projected lamp textures, dynamic lighting on unlit imported models, original particle catalog, native hard pulley mechanics, force breaking, per-model axle conformance and full tool settings remain gaps. See `TOOLS_IMPLEMENTATION_PLAN.md`, `source_tools.csv` and `tool_cases.csv`.
+
 ## 2026-09-30 complete feedback review: flight, aim and recoil
 
 - Reviewed all 18 private reports locally, preserving originals. The new `feedback_review.csv` is an engineering inventory without raw report text or filenames. Three latest reports concern sprint flight, gun recoil and universal right-click aiming. Existing unresolved topics remain represented.

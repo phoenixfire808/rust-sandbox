@@ -217,6 +217,9 @@ pub fn release(world: &mut World, center: Option<Vec3>) {
     *world.resource_mut::<Occupancy>() = Occupancy::default();
 }
 pub fn update(world: &mut World) {
+    if tools::devices::viewing(world) {
+        return;
+    }
     let Some(player) = world.get_resource::<PlayerState>() else {
         return;
     };

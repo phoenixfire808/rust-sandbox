@@ -1,5 +1,15 @@
 # Validation record
 
+## Construction tools integration, 2026-09-30 04:42 UTC
+
+- Reviewed all 38 tool rows and 18 private reports. Added 18 independent runtime subsets, leaving 31 partial rows including custom Freeze, four missing posers and three reference-only entries. Added 21 manual cases for a total of 45, and four F7 cards for a total of 26. All gameplay acceptance remains Drew-owned and not run.
+- The first actual executable build failed because a private Remote resource type appeared in the public player-input system signature used by the binary. Corrected the visibility. Static review also moved toggle edges out of FixedUpdate, isolated remote-view physgun and vehicle entry, rejected unsafe wheel-axis edits, and initialized restored powered joints from saved target length/force limits. These are inspection-backed fixes, not exercised gameplay tests.
+- The repaired actual game compiled in 50.33 seconds. After final sheet and restore changes, the final actual game compiled in **49.40 seconds**. Command: `cargo rustc --offline --locked -p rust-sandbox --bin source-map -- -o D:\jcode-build\rust-sandbox-20260929\source-map-construction-tools.exe -C link-arg=/DEBUG:NONE -C link-arg=/INCREMENTAL:NO`, with private `CARGO_TARGET_DIR=D:\jcode-build\rust-sandbox-20260929`. Read both build logs. Only explicit output-name/out-dir warnings and the existing binrw future-compatibility notice remained.
+- Production `sandbox-catalog --features workbook -- validate sheets` succeeded, including player/sandbox configuration, 197 spawn references, eight tabs, 56 capabilities, two maps and 101 base behavior specifications. The production workbook exporter wrote **107673 data rows** to `spreadsheets/rust-sandbox-catalog-20260930-construction-tools.xlsx`. CSV remains authoritative. Excel was not manually opened.
+- Read-only installed metadata confirms all ten construction-model paths and VVD/VTX companions, plus the six paint and two trail VMT paths. Successful decode, model alignment, button/keypad behavior, light appearance, device forces, restore/undo/duplication and bounded rendering have not been accepted in gameplay.
+- No tests, test compilation, Clippy, benchmarks, screenshots or input automation were run. No game process was terminated and no saves or private feedback were modified. No `source-map*` process was present at the final process inspection. The new executable was not launched during this integration.
+- Four poser tools, full native settings, sounds, projected decals/lamps, native pulley mechanics, force breaking and broader Source parity remain unfinished. A passing build and catalog export do not close these gaps.
+
 ## Complete feedback review: flight, aim and recoil, 2026-09-30 03:40 UTC
 
 - Reviewed all 18 local reports, including legacy observed/expected/notes fields and full latest context. Private originals remain unchanged and unpublished. Added an 18-row engineering review, eight required handling definitions, and 20 Drew-owned manual cases. All new acceptance results remain `not_run`.

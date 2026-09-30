@@ -20,13 +20,32 @@ pub(crate) struct SavedLink {
     pub friction: f32,
     pub width: f32,
     pub color: [f32; 3],
+    #[serde(default)]
+    pub drive: Option<Drive>,
+    #[serde(default)]
+    pub pulley: Option<pulley::Pulley>,
+}
+#[derive(Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub(crate) struct Drive {
+    key: String,
+    reverse: String,
+    toggle: bool,
+    pub enabled: bool,
+    min: f32,
+    max: f32,
+    current: f32,
+    speed: f32,
+    period: f32,
+    force: f32,
 }
 #[derive(Component, Clone)]
 pub(crate) struct Link {
     pub a: Entity,
     pub b: Entity,
     pub data: SavedLink,
-    visual: Option<Entity>,
+    visual: Vec<Entity>,
+    phase: f32,
 }
 #[derive(Resource)]
 struct WorldAnchor(Entity);
@@ -35,10 +54,52 @@ struct CableMesh(Handle<Mesh>);
 pub(crate) fn supported(tool: &str) -> bool {
     matches!(
         tool,
-        "weld" | "axis" | "ballsocket" | "rope" | "slider" | "elastic" | "nocollide"
+        "weld"
+            | "axis"
+            | "ballsocket"
+            | "rope"
+            | "slider"
+            | "elastic"
+            | "nocollide"
+            | "motor"
+            | "hydraulic"
+            | "muscle"
+            | "winch"
+            | "pulley"
     )
 }
 pub(crate) fn validate(d: &SavedLink, n: usize) -> Result<()> {
+    if let Some(p) = &d.pulley {
+        if d.kind != "pulley"
+            || p.guides
+                .iter()
+                .flatten()
+                .any(|v| !v.is_finite() || v.abs() > 1e6)
+            || [p.stiffness, p.damping, p.force]
+                .iter()
+                .any(|v| !v.is_finite() || *v < 0. || *v > 100000.)
+        {
+            return Err("invalid pulley settings".into());
+        }
+    } else if d.kind == "pulley" {
+        return Err("pulley requires two guides".into());
+    }
+    if let Some(a) = &d.drive {
+        if !matches!(d.kind.as_str(), "motor" | "hydraulic" | "muscle" | "winch")
+            || !devices::KEYS.iter().any(|(k, _)| *k == a.key)
+            || !devices::KEYS.iter().any(|(k, _)| *k == a.reverse)
+            || [a.min, a.max, a.current, a.speed, a.period, a.force]
+                .iter()
+                .any(|v| !v.is_finite() || *v < 0. || *v > 100000.)
+            || a.min > a.max
+            || !(a.min..=a.max).contains(&a.current)
+            || a.period < 0.05
+        {
+            return Err("invalid powered constraint settings".into());
+        }
+    } else if matches!(d.kind.as_str(), "motor" | "hydraulic" | "muscle" | "winch") {
+        return Err("powered constraint needs drive settings".into());
+    }
     if !supported(&d.kind)
         || d.a.is_some_and(|i| i >= n)
         || d.b.is_some_and(|i| i >= n)
@@ -81,7 +142,7 @@ pub(crate) fn create(world: &mut World, a: Entity, b: Entity, d: SavedLink) -> R
     }
     let axes = match d.kind.as_str() {
         "weld" => JointAxesMask::LOCKED_FIXED_AXES,
-        "axis" => JointAxesMask::LOCKED_REVOLUTE_AXES,
+        "axis" | "motor" => JointAxesMask::LOCKED_REVOLUTE_AXES,
         "ballsocket" => JointAxesMask::LOCKED_SPHERICAL_AXES,
         "slider" => JointAxesMask::LOCKED_PRISMATIC_AXES,
         _ => JointAxesMask::empty(),
@@ -93,17 +154,21 @@ pub(crate) fn create(world: &mut World, a: Entity, b: Entity, d: SavedLink) -> R
         .local_basis2(Quat::from_array(d.basis2))
         .build();
     joint.set_contacts_enabled(!d.nocollide && d.kind != "nocollide");
-    if d.kind == "rope" {
+    let target_length = d.drive.as_ref().map_or(d.length, |drive| drive.current);
+    if matches!(d.kind.as_str(), "rope" | "winch") {
         joint.set_coupled_axes(JointAxesMask::LIN_AXES);
         joint.set_limits(
             JointAxis::LinX,
-            [if d.rigid { d.length } else { 0. }, d.length],
+            [if d.rigid { target_length } else { 0. }, target_length],
         );
     }
-    if d.kind == "elastic" {
+    if matches!(d.kind.as_str(), "elastic" | "hydraulic" | "muscle") {
         joint.set_coupled_axes(JointAxesMask::LIN_AXES);
         joint.set_motor_model(JointAxis::LinX, MotorModel::ForceBased);
-        joint.set_motor_position(JointAxis::LinX, d.length, d.stiffness, d.damping);
+        joint.set_motor_position(JointAxis::LinX, target_length, d.stiffness, d.damping);
+        if let Some(drive) = &d.drive {
+            joint.set_motor_max_force(JointAxis::LinX, drive.force);
+        }
     }
     if d.kind == "axis" && d.friction > 0. {
         joint.set_motor_velocity(JointAxis::AngX, 0., 1.);
@@ -117,7 +182,10 @@ pub(crate) fn create(world: &mut World, a: Entity, b: Entity, d: SavedLink) -> R
             Visibility::default(),
         ))
         .id();
-    let visual = if matches!(d.kind.as_str(), "rope" | "slider" | "elastic") {
+    let visual = if matches!(
+        d.kind.as_str(),
+        "rope" | "slider" | "elastic" | "hydraulic" | "muscle" | "winch" | "pulley"
+    ) {
         if !world.contains_resource::<CableMesh>() {
             let mesh = world
                 .resource_mut::<Assets<Mesh>>()
@@ -145,16 +213,80 @@ pub(crate) fn create(world: &mut World, a: Entity, b: Entity, d: SavedLink) -> R
     } else {
         None
     };
+    let mut visual: Vec<_> = visual.into_iter().collect();
+    if d.pulley.is_some() {
+        if let Some(&first) = visual.first() {
+            let mesh = world.get::<Mesh3d>(first).unwrap().clone();
+            let material = world
+                .get::<MeshMaterial3d<StandardMaterial>>(first)
+                .unwrap()
+                .clone();
+            for _ in 0..2 {
+                visual.push(
+                    world
+                        .spawn((
+                            mesh.clone(),
+                            material.clone(),
+                            Transform::default(),
+                            ChildOf(entity),
+                        ))
+                        .id(),
+                );
+            }
+        }
+    }
     world.entity_mut(entity).insert(Link {
         a,
         b,
         data: d,
         visual,
+        phase: 0.,
     });
     for e in [a, b] {
         world.entity_mut(e).insert(Sleeping::default());
     }
     Ok(())
+}
+pub(crate) fn between(
+    world: &World,
+    kind: &str,
+    a: Entity,
+    b: Entity,
+    start: Vec3,
+    end: Vec3,
+    axis: Vec3,
+) -> Result<SavedLink> {
+    let ta = world.get::<Transform>(a).ok_or("first body missing")?;
+    let tb = world.get::<Transform>(b).ok_or("second body missing")?;
+    let basis = Quat::from_rotation_arc(Vec3::X, axis.normalize_or(Vec3::Y));
+    Ok(SavedLink {
+        kind: kind.into(),
+        a: None,
+        b: None,
+        anchor1: ta
+            .compute_matrix()
+            .inverse()
+            .transform_point3(start)
+            .to_array(),
+        anchor2: tb
+            .compute_matrix()
+            .inverse()
+            .transform_point3(end)
+            .to_array(),
+        basis1: (ta.rotation.inverse() * basis).to_array(),
+        basis2: (tb.rotation.inverse() * basis).to_array(),
+        length: start.distance(end).max(0.001),
+        nocollide: true,
+        rigid: false,
+        stiffness: 0.,
+        damping: 0.,
+        stretch_only: false,
+        friction: 0.,
+        width: world.resource::<PlayState>().tools.catalog.gun.tracer_width,
+        color: [1.; 3],
+        drive: None,
+        pulley: None,
+    })
 }
 pub(crate) fn snapshot(world: &mut World, ids: &[Entity]) -> Vec<SavedLink> {
     world
@@ -215,6 +347,7 @@ pub(crate) fn remove(world: &mut World, target: Entity, kind: Option<&str>, undo
     count
 }
 pub(crate) fn clear(world: &mut World) {
+    world.resource_mut::<pulley::Stage>().0.clear();
     let ids: Vec<_> = world
         .query_filtered::<Entity, With<Link>>()
         .iter(world)
@@ -309,7 +442,7 @@ pub(crate) fn operate(world: &mut World, tool: &str, action: u8, hit: Target) ->
         return Err("constraint limit reached".into());
     }
     remember(world);
-    if (tool == "axis" && action == 1) || (tool == "weld" && action == 2) {
+    if (matches!(tool, "axis" | "motor") && action == 1) || (tool == "weld" && action == 2) {
         let mut t = world
             .get_mut::<Transform>(first.entity)
             .ok_or("first target removed")?;
@@ -321,7 +454,7 @@ pub(crate) fn operate(world: &mut World, tool: &str, action: u8, hit: Target) ->
     }
     let t1 = *world.get::<Transform>(first.entity).unwrap();
     let t2 = *world.get::<Transform>(hit.entity).unwrap();
-    let point1 = if matches!(tool, "weld" | "ballsocket" | "axis") {
+    let point1 = if matches!(tool, "weld" | "ballsocket" | "axis" | "motor") {
         hit.point
     } else {
         first.point
@@ -333,7 +466,7 @@ pub(crate) fn operate(world: &mut World, tool: &str, action: u8, hit: Target) ->
     } else {
         hit.normal
     };
-    let basis = if matches!(tool, "axis" | "slider") {
+    let basis = if matches!(tool, "axis" | "slider" | "motor") {
         Quat::from_rotation_arc(Vec3::X, axis.normalize())
     } else {
         Quat::IDENTITY
@@ -341,6 +474,24 @@ pub(crate) fn operate(world: &mut World, tool: &str, action: u8, hit: Target) ->
     let p = world.resource::<PlayState>();
     let number = |k| p.tools.number(tool, k);
     let d = SavedLink {
+        pulley: None,
+        drive: if matches!(tool, "motor" | "hydraulic" | "muscle" | "winch") {
+            let min = first.point.distance(hit.point).max(0.001);
+            Some(Drive {
+                key: p.tools.value(tool, "key"),
+                reverse: p.tools.value(tool, "reverse"),
+                toggle: number("toggle") == 1.,
+                enabled: number("starton") == 1.,
+                min: if tool == "winch" { 0.001 } else { min },
+                max: min + number("travel"),
+                current: min,
+                speed: number("speed"),
+                period: number("period").max(0.05),
+                force: number("max_force"),
+            })
+        } else {
+            None
+        },
         kind: tool.into(),
         a: None,
         b: None,
@@ -387,6 +538,100 @@ pub(crate) fn operate(world: &mut World, tool: &str, action: u8, hit: Target) ->
     world.resource_mut::<PlayState>().status = format!("Created {tool} constraint");
     Ok(true)
 }
+pub(crate) fn input(world: &mut World) {
+    let pressed = world.resource::<devices::Controls>().pressed.clone();
+    for mut link in world.query::<&mut Link>().iter_mut(world) {
+        if let Some(d) = link.data.drive.as_mut() {
+            if d.toggle && pressed.contains(&d.key) {
+                d.enabled = !d.enabled;
+            }
+        }
+    }
+}
+pub(crate) fn drive(world: &mut World) {
+    let dt = world.resource::<Time<Fixed>>().delta_secs();
+    let controls = world.resource::<devices::Controls>();
+    let down = controls.down.clone();
+    let rows: Vec<_> = world
+        .query::<(Entity, &Link)>()
+        .iter(world)
+        .filter(|(_, l)| l.data.drive.is_some())
+        .map(|(e, l)| (e, l.clone()))
+        .collect();
+    for (e, mut link) in rows {
+        let Some(mut d) = link.data.drive.clone() else {
+            continue;
+        };
+        let reverse = down.contains(&d.reverse);
+        if reverse && matches!(link.data.kind.as_str(), "hydraulic" | "muscle") {
+            d.enabled = false;
+        }
+        let active = (if d.toggle {
+            d.enabled
+        } else {
+            down.contains(&d.key)
+        }) && (!reverse || link.data.kind == "motor" || link.data.kind == "winch");
+        let sign = if reverse {
+            -1.
+        } else if active {
+            1.
+        } else {
+            0.
+        };
+        match link.data.kind.as_str() {
+            "hydraulic" => {
+                let target = if active { d.max } else { d.min };
+                d.current += (target - d.current).clamp(-d.speed * dt, d.speed * dt);
+            }
+            "winch" => d.current = (d.current + sign * d.speed * dt).clamp(d.min, d.max),
+            "muscle" if active => {
+                link.phase = (link.phase + dt / d.period).fract();
+                d.current = d.min
+                    + (d.max - d.min) * (1. - (link.phase * std::f32::consts::TAU).cos()) * 0.5;
+            }
+            _ => {}
+        }
+        if let Some(mut joint) = world.get_mut::<ImpulseJoint>(e) {
+            let mut data = joint.data;
+            if link.data.kind == "motor" {
+                data.as_mut()
+                    .set_motor_velocity(JointAxis::AngX, sign * d.speed, 1.);
+                data.as_mut().set_motor_max_force(
+                    JointAxis::AngX,
+                    if sign != 0. {
+                        d.force
+                    } else {
+                        link.data.friction
+                    },
+                );
+            } else if link.data.kind == "winch" {
+                data.as_mut().set_limits(JointAxis::LinX, [0., d.current]);
+            } else {
+                data.as_mut().set_motor_position(
+                    JointAxis::LinX,
+                    d.current,
+                    link.data.stiffness,
+                    link.data.damping,
+                );
+                data.as_mut().set_motor_max_force(JointAxis::LinX, d.force);
+            }
+            if joint.data != data {
+                joint.data = data;
+            }
+        }
+        if active || reverse {
+            for body in [link.a, link.b] {
+                if world.get_entity(body).is_ok() {
+                    world.entity_mut(body).insert(Sleeping::default());
+                }
+            }
+        }
+        if let Some(mut live) = world.get_mut::<Link>(e) {
+            live.phase = link.phase;
+            live.data.drive = Some(d);
+        }
+    }
+}
 pub(crate) fn update(world: &mut World) {
     let links: Vec<_> = world
         .query::<(Entity, &Link)>()
@@ -404,7 +649,23 @@ pub(crate) fn update(world: &mut World) {
         let start = a.transform_point(Vec3::from_array(l.data.anchor1));
         let end = b.transform_point(Vec3::from_array(l.data.anchor2));
         let delta = end - start;
-        if let Some(v) = l.visual {
+        let points = l
+            .data
+            .pulley
+            .as_ref()
+            .map(|p| {
+                vec![
+                    start,
+                    Vec3::from_array(p.guides[0]),
+                    Vec3::from_array(p.guides[1]),
+                    end,
+                ]
+            })
+            .unwrap_or_else(|| vec![start, end]);
+        for (v, segment) in l.visual.iter().zip(points.windows(2)) {
+            let start = segment[0];
+            let end = segment[1];
+            let delta = end - start;
             if delta.length_squared() > 1e-10 {
                 let t = Transform {
                     translation: b
@@ -415,7 +676,7 @@ pub(crate) fn update(world: &mut World) {
                         * Quat::from_rotation_arc(Vec3::Y, delta.normalize()),
                     scale: Vec3::new(l.data.width * 0.5, delta.length(), l.data.width * 0.5),
                 };
-                if let Some(mut transform) = world.get_mut::<Transform>(v) {
+                if let Some(mut transform) = world.get_mut::<Transform>(*v) {
                     *transform = t;
                 }
             }

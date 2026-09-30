@@ -145,6 +145,7 @@ fn update_handling(world: &mut World) {
         .find(|h| h.id == play.active_weapon)
         .cloned();
     let blocked = crate::source_frontend::active(world)
+        || tools::devices::viewing(world)
         || play.menu_open
         || play.tools.input_blocked
         || npcs::dead(world)
@@ -195,6 +196,7 @@ fn fire(world: &mut World) {
     }
     let p = world.resource::<PlayState>();
     if npcs::dead(world)
+        || tools::devices::viewing(world)
         || p.tools.input_blocked
         || world.resource::<vehicles::Occupancy>().vehicle.is_some()
     {
@@ -379,13 +381,23 @@ pub fn damage(world: &mut World, target: Entity, amount: f32, direction: Vec3) {
         }
     }
 }
-fn explode(world: &mut World, point: Vec3, radius: f32, amount: f32) {
+pub(crate) fn explode(world: &mut World, point: Vec3, radius: f32, amount: f32) {
+    explode_ignoring(world, point, radius, amount, None);
+}
+pub(crate) fn explode_ignoring(
+    world: &mut World,
+    point: Vec3,
+    radius: f32,
+    amount: f32,
+    ignore: Option<Entity>,
+) {
     impacts::burst(world, point, Vec3::Y);
     let targets: Vec<_> = world
         .query::<(Entity, &Transform, &SpawnedProp)>()
         .iter(world)
         .filter_map(|(e, t, _)| {
-            (t.translation.distance(point) <= radius).then_some((e, t.translation))
+            (Some(e) != ignore && t.translation.distance(point) <= radius)
+                .then_some((e, t.translation))
         })
         .collect();
     for (e, p) in targets {
@@ -398,7 +410,13 @@ fn explode(world: &mut World, point: Vec3, radius: f32, amount: f32) {
         let direction = delta / distance;
         let aim =
             Transform::from_translation(point + direction * 0.02).looking_to(direction, Vec3::Y);
-        if world_ray(world, aim, distance).is_none_or(|(hit, _)| hit == e) {
+        let visible = if ignore.is_some() {
+            tools::trace(world, aim, ignore)
+                .is_none_or(|hit| hit.entity == e || hit.point.distance(point) >= distance)
+        } else {
+            world_ray(world, aim, distance).is_none_or(|(hit, _)| hit == e)
+        };
+        if visible {
             damage(
                 world,
                 e,
