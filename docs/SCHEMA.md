@@ -1,5 +1,11 @@
 # Spreadsheet and generated-struct contract
 
+## Release checklist
+
+`source_release_notes.csv` authors ordered in-game cards: unique safe `id`, safe `revision`, `title`, `change`, `steps`, `expected`, `limits`, and `status` (`needs_check`, `partial`, `missing`). Required text is nonempty and bounded to 4096 bytes. The frontend loader rejects malformed entries and an empty checklist. `compiled_release_notes()` is generated from these rows; build.rs watches the sheet. Increment a card's revision whenever its testing expectations change so old personal checks do not imply the revised item was checked.
+
+`release_checklist_cases.csv` records Drew-owned manual acceptance scenarios. In-game checkmarks are private reminders in `local/release-checklist.json`, never edits to these acceptance rows or a substitute for evidence. The exported workbook includes both new sheets.
+
 ## Typed NPC lifecycle
 
 - `source_npcs.csv` has one explicit row per NPC reference, including disabled definitions. Enabled kinds are melee, ranged and passive. Faction, model, health, locomotion, attack range/damage/cooldown, sight range, hull dimensions and facing yaw are authored here. Numeric values are prototype parameters, not native-equivalence claims.

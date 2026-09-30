@@ -86,10 +86,13 @@ pub fn input(world: &mut World) {
     if !mouse.pressed(MouseButton::Left) {
         world.resource_mut::<WeaponState>().equip_blocked = false;
     }
+    if crate::source_frontend::active(world) || world.resource::<PlayState>().menu_open {
+        // A UI click held across closing the page must not become automatic fire.
+        world.resource_mut::<WeaponState>().equip_blocked = mouse.pressed(MouseButton::Left);
+        return;
+    }
     let p = world.resource::<PlayState>();
-    if crate::source_frontend::active(world)
-        || npcs::dead(world)
-        || p.menu_open
+    if npcs::dead(world)
         || p.tools.input_blocked
         || world.resource::<vehicles::Occupancy>().vehicle.is_some()
     {

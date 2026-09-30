@@ -491,7 +491,7 @@ fn footer(world: &mut World, root: Entity, f: &Frontend) {
         footer_button(
             world,
             bar,
-            if f.page == Page::Feedback {
+            if matches!(f.page, Page::Feedback | Page::News) {
                 "Back to previous window"
             } else {
                 "Back to Main Menu"
@@ -499,6 +499,8 @@ fn footer(world: &mut World, root: Entity, f: &Frontend) {
             "html/img/back_to_main_menu.png",
             if f.page == Page::Feedback {
                 Action::BackFeedback
+            } else if f.page == Page::News {
+                Action::BackNews
             } else {
                 Action::Page(Page::Home)
             },
@@ -988,8 +990,8 @@ fn form(world: &mut World, page: Entity, f: &Frontend, offset: f32) {
         page,
         Node {
             position_type: PositionType::Absolute,
-            left: Val::Percent(20.),
-            right: Val::Percent(20.),
+            left: Val::Percent(if f.window_size.x < 940. { 3. } else { 20. }),
+            right: Val::Percent(if f.window_size.x < 940. { 3. } else { 20. }),
             top: Val::Px(40.),
             bottom: Val::Px(24.),
             padding: UiRect::all(Val::Px(20.)),
@@ -1010,6 +1012,100 @@ fn form(world: &mut World, page: Entity, f: &Frontend, offset: f32) {
         RelativeCursorPosition::default(),
     ));
     match f.page {
+        Page::News => {
+            let notes = crate::compiled_release_notes();
+            let checked = notes
+                .iter()
+                .filter(|n| f.news_checked.contains(&news::key(n)))
+                .count();
+            text(
+                world,
+                panel,
+                "What's New / What to Test",
+                28.,
+                gray(50),
+                true,
+            );
+            text(
+                world,
+                panel,
+                format!(
+                    "{checked}/{} personally checked | F7 or Esc returns to your previous window",
+                    notes.len()
+                ),
+                14.,
+                gray(60),
+                true,
+            );
+            text(world, panel, "These are changes to inspect, not claims that everything works. Checkmarks are your private reminders, not passing test results. Scroll for steps, expected behavior and known limits. Report an issue to attach that item's context.", 14., gray(65), false);
+            if !f.news_error.is_empty() {
+                text(world, panel, &f.news_error, 14., rgb(160, 40, 40), false);
+            }
+            if !f.message.is_empty() {
+                text(world, panel, &f.message, 14., rgb(80, 80, 120), false);
+            }
+            standard(
+                world,
+                panel,
+                "Return to previous window (F7 / Esc)",
+                Action::BackNews,
+            );
+            for note in notes {
+                let card = node(
+                    world,
+                    panel,
+                    Node {
+                        flex_direction: FlexDirection::Column,
+                        row_gap: Val::Px(8.),
+                        padding: UiRect::all(Val::Px(12.)),
+                        flex_shrink: 0.,
+                        ..default()
+                    },
+                    gray(240),
+                );
+                let status = match note.status.as_str() {
+                    "partial" => "PARTIAL",
+                    "missing" => "NOT IMPLEMENTED",
+                    _ => "NEEDS YOUR CHECK",
+                };
+                text(
+                    world,
+                    card,
+                    format!("{} | {status}", note.title),
+                    18.,
+                    gray(40),
+                    true,
+                );
+                text(
+                    world,
+                    card,
+                    format!(
+                        "Revision: {}\n{}\n\nTry: {}\n\nExpected: {}\n\nKnown limits: {}",
+                        note.revision, note.change, note.steps, note.expected, note.limits
+                    ),
+                    14.,
+                    gray(60),
+                    false,
+                );
+                let checked = f.news_checked.contains(&news::key(&note));
+                standard(
+                    world,
+                    card,
+                    if checked {
+                        "[x] I checked this (click to undo)"
+                    } else {
+                        "[ ] Mark personally checked"
+                    },
+                    Action::CheckNews(note.id.clone()),
+                );
+                standard(
+                    world,
+                    card,
+                    "Report an issue with this item",
+                    Action::ReportNews(note.id),
+                );
+            }
+        }
         Page::Feedback => {
             text(world, panel, "Contextual Feedback", 28., gray(50), true);
             text(world, panel, feedback::summary(f), 13., gray(60), false);
@@ -1020,7 +1116,7 @@ fn form(world: &mut World, page: Entity, f: &Frontend, offset: f32) {
                 "Attach current context",
                 Action::RetargetFeedback,
             );
-            text(world,panel,"Private local reports for Jcode. Nothing uploads automatically. Tab changes field; Enter adds a line.",13.,gray(80),false);
+            text(world,panel,"Private local reports for Jcode. Nothing uploads automatically. Space inserts a space; Tab changes field; Enter adds a line; Backspace deletes the last character.",13.,gray(80),false);
             standard(
                 world,
                 panel,
@@ -1159,7 +1255,7 @@ fn form(world: &mut World, page: Entity, f: &Frontend, offset: f32) {
         }
         _ => {}
     }
-    if !f.message.is_empty() {
+    if !f.message.is_empty() && f.page != Page::News {
         text(world, panel, &f.message, 13., rgb(80, 80, 120), false);
     }
 }
@@ -1271,6 +1367,19 @@ pub(super) fn draw(world: &mut World, f: &Frontend) {
         true,
     );
     if f.page == Page::Home {
+        let news = standard(
+            world,
+            root,
+            "What's New / Test Checklist (F7)",
+            Action::Page(Page::News),
+        );
+        world.entity_mut(news).insert(Node {
+            position_type: PositionType::Absolute,
+            right: Val::Px(8.),
+            top: Val::Px(68.),
+            padding: UiRect::all(Val::Px(10.)),
+            ..default()
+        });
         let feedback = standard(
             world,
             root,

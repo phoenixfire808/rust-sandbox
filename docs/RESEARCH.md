@@ -1,5 +1,21 @@
 # Research record
 
+## 2026-09-30 feedback Space key and release checklist
+
+- Reviewed the private local feedback inbox without modifying or uploading reports. The reported missing spaces match a source-level omission: all three text handlers only accepted `Key::Character`, while installed Bevy 0.16.1 `bevy_input/src/keyboard.rs` defines the spacebar as the separate logical `Key::Space`. Reused that API directly with a mutually exclusive match arm, preserving byte limits, key repeat and Unicode-safe Backspace. No external dependency or input automation was introduced.
+- Reused the existing frontend page, scroll, button, pause, contextual-feedback and atomic JSON persistence patterns for a new F7 What's New / What to Test page. Content is authored in `source_release_notes.csv`, validated by the existing catalog frontend loader and emitted by the existing build generator. It is an independent development aid, not a claim about an original Garry's Mod menu.
+- Integration review found that automatic weapons could inherit a left mouse button held while closing a menu. The existing equip-block latch now also requires release after frontend/Q-menu use. Frontend input is explicitly ordered before Q-menu search as well as player input. Unfocused frontend typing is discarded. These are static source findings, not runtime reproductions.
+- The 13 initial cards summarize current implemented slices and known limitations. Personal checkmarks are keyed by stable ID plus revision and saved only in ignored `local/release-checklist.json`. They never promote project acceptance results. Existing feedback drafts retain their original context until explicitly retargeted. Fourteen Drew-owned acceptance scenarios are recorded in `release_checklist_cases.csv`.
+
+```mermaid
+flowchart LR
+    Sheets[source_release_notes.csv] --> Catalog[Validate and generate]
+    Catalog --> Page[F7 release checklist]
+    Page --> Local[Private personal checkmarks]
+    Page --> Feedback[F8 context report]
+    Feedback --> Review[Drew checks and Jcode reviews]
+```
+
 ## 2026-09-30 NPC lifecycle and player collision filtering
 
 - Read installed `lua/autorun/base_npcs.lua` and `gamemodes/sandbox/gamemode/spawnmenu/creationmenu/content/contenttypes/npcs.lua`. The latter exposes Disable AI, Ignore Players, Keep Corpses, Auto Player Squad and weapon selection as separate controls. Only the first two are implemented in this package. Odessa explicitly has no weapon, and shotgun registrations remain disabled rather than becoming rifle substitutes.

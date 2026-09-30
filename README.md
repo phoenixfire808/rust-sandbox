@@ -4,6 +4,10 @@ Independent **Bevy 0.16.1 + Rapier 0.30** sandbox foundation, with spreadsheet-a
 
 **This is not a complete Garry's Mod replacement, a Source port, or a Lua-compatible engine.** It is a working first implementation plus an explicit roadmap. No proprietary assets or Valve/Facepunch implementation code are bundled.
 
+## What's New and what to test
+
+Press **F7** or click **What's New / Test Checklist** in the startup menu, pause menu or gameplay HUD. Thirteen sheet-authored cards explain changes, exact checks, expected behavior and known limits. Personal checkmarks persist locally, and each card can open contextual feedback. F7/Escape returns to the previous screen. **F8** opens feedback, where Space is now explicitly handled alongside Enter, Tab and Backspace. The map and model search fields receive the same spacebar fix. These changes require Drew's interaction checks; checkmarks never mark project tests as passed.
+
 ## NPC lifecycle continuation
 
 Six NPC registrations now have typed ground-actor routes, researched original animation mappings, collision and visibility-gated prototype combat. All 85 registrations have explicit authored coverage, with 79 still disabled. Local player health/death/respawn, two NPC controls and version-4 typed scenes are integrated. Player sweeps now respect the No Collide tool's world-only collision mask. These changes are not gameplay-accepted. See [the remaining dependency plan](docs/REMAINING_PARITY_PLAN.md) and [21 acceptance cases](sheets/npc_cases.csv). Native navigation, equipment, sounds, ragdolls and the wider parity backlog remain open.
@@ -14,7 +18,7 @@ Vehicle spawn/drive/seat/camera headings now use researched original model frame
 
 ## Continue development
 
-- **[Download the complete review workbook](spreadsheets/rust-sandbox-catalog-20260930-npc-lifecycle.xlsx)**: includes the 169-root-gap backlog, 197 spawn references, 56 detailed capabilities, all 34 weapon, 15 vehicle and 85 NPC runtime coverage rows, menu research, and per-registration Drew-owned acceptance. Use GitHub's **Download raw file** button for Excel/LibreOffice.
+- **[Download the complete review workbook](spreadsheets/rust-sandbox-catalog-20260930-whats-new.xlsx)**: includes the 169-root-gap backlog, 197 spawn references, 56 detailed capabilities, all 34 weapon, 15 vehicle and 85 NPC runtime coverage rows, menu research, and per-registration Drew-owned acceptance. Use GitHub's **Download raw file** button for Excel/LibreOffice.
 - **[Spreadsheet contributor guide](spreadsheets/README.md)**: where to edit, validate, rebuild and regenerate the workbook.
 - **[Remaining feature inventory](sheets/parity_gaps.csv)**: 169 missing/partial/unverified entries covering every cataloged system and tool, with priorities and acceptance checks. Includes nonmatching menus and remaining physgun fidelity gaps.
 - **[Ordered implementation queue](sheets/work_queue.csv)**: dependency-ordered work packages assign every known gap exactly once. The first effects slice is implemented, not reference-equivalent.

@@ -17,6 +17,7 @@ fn main() {
         "source_toolgun.csv",
         "source_frontend.csv",
         "source_main_menu.csv",
+        "source_release_notes.csv",
         "source_tools.csv",
         "source_tool_options.csv",
         "source_physics_materials.csv",

@@ -48,6 +48,20 @@ pub struct FrontendConfig {
     pub narrow_width: f32,
     #[serde(skip)]
     pub entries: Vec<MenuEntry>,
+    #[serde(skip)]
+    pub news: Vec<ReleaseNote>,
+}
+#[derive(Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct ReleaseNote {
+    pub id: String,
+    pub revision: String,
+    pub title: String,
+    pub change: String,
+    pub steps: String,
+    pub expected: String,
+    pub limits: String,
+    pub status: String,
 }
 #[derive(Clone, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -116,8 +130,37 @@ pub fn load(path: &Path) -> Result<FrontendConfig> {
     if c.entries.is_empty() {
         return Err("empty main menu".into());
     }
+    c.news = csv::Reader::from_path(path.join("source_release_notes.csv"))?
+        .deserialize()
+        .collect::<std::result::Result<_, _>>()?;
+    let mut ids = BTreeSet::new();
+    for note in &c.news {
+        if !ids.insert(&note.id)
+            || [&note.id, &note.revision].iter().any(|s| {
+                s.is_empty()
+                    || !s
+                        .bytes()
+                        .all(|b| b.is_ascii_alphanumeric() || b == b'_' || b == b'-')
+            })
+            || [
+                &note.title,
+                &note.change,
+                &note.steps,
+                &note.expected,
+                &note.limits,
+            ]
+            .iter()
+            .any(|s| s.trim().is_empty() || s.len() > 4096)
+            || !matches!(note.status.as_str(), "needs_check" | "partial" | "missing")
+        {
+            return Err(format!("invalid release note {}", note.id).into());
+        }
+    }
+    if c.news.is_empty() {
+        return Err("release checklist cannot be empty".into());
+    }
     Ok(c)
 }
 pub fn generate(c: &FrontendConfig) -> String {
-    format!("pub fn compiled_frontend_config()->sandbox_catalog::frontend::FrontendConfig {{ serde_json::from_str({:?}).expect(\"build-validated frontend\") }}\npub fn compiled_main_menu()->Vec<sandbox_catalog::frontend::MenuEntry> {{ serde_json::from_str({:?}).expect(\"build-validated menu\") }}\n",serde_json::to_string(c).unwrap(),serde_json::to_string(&c.entries).unwrap())
+    format!("pub fn compiled_frontend_config()->sandbox_catalog::frontend::FrontendConfig {{ serde_json::from_str({:?}).expect(\"build-validated frontend\") }}\npub fn compiled_main_menu()->Vec<sandbox_catalog::frontend::MenuEntry> {{ serde_json::from_str({:?}).expect(\"build-validated menu\") }}\npub fn compiled_release_notes()->Vec<sandbox_catalog::frontend::ReleaseNote> {{ serde_json::from_str({:?}).expect(\"build-validated release notes\") }}\n",serde_json::to_string(c).unwrap(),serde_json::to_string(&c.entries).unwrap(),serde_json::to_string(&c.news).unwrap())
 }

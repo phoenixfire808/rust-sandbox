@@ -1,5 +1,6 @@
 //! Local startup/pause navigation and a private, persistent player feedback inbox.
 pub(crate) mod feedback;
+mod news;
 mod view;
 use crate::{
     project_root,
@@ -29,6 +30,7 @@ enum Page {
     Options,
     Saves,
     Feedback,
+    News,
     Confirm,
     Loading,
     Info,
@@ -66,10 +68,15 @@ pub struct Frontend {
     feedback_return: Page,
     feedback_return_menu: bool,
     resume_menu: Option<bool>,
+    news_return: Page,
+    news_return_menu: bool,
+    news_checked: std::collections::BTreeSet<String>,
+    news_error: String,
 }
 impl Frontend {
     pub fn new(startup: bool, map: String) -> Self {
         let saved_draft = feedback::load();
+        let (news_checked, news_error) = news::load();
         let prefs: (String, std::collections::BTreeSet<String>) =
             std::fs::read(project_root().join("local/menu-preferences.json"))
                 .ok()
@@ -106,6 +113,10 @@ impl Frontend {
             feedback_return: if startup { Page::Home } else { Page::Hidden },
             feedback_return_menu: false,
             resume_menu: None,
+            news_return: Page::Home,
+            news_return_menu: false,
+            news_checked,
+            news_error,
         }
     }
 }
@@ -133,6 +144,9 @@ enum Action {
     Popup(Option<Popup>),
     BackFeedback,
     RetargetFeedback,
+    BackNews,
+    CheckNews(String),
+    ReportNews(String),
 }
 pub struct FrontendPlugin;
 impl Plugin for FrontendPlugin {
@@ -150,6 +164,7 @@ impl Plugin for FrontendPlugin {
                     view::favorite_hover,
                 )
                     .chain()
+                    .before(crate::source_play::search_input)
                     .before(crate::source_player::input),
             )
             .add_systems(PostUpdate, ready)
@@ -187,13 +202,22 @@ pub(crate) fn request_feedback(world: &mut World, subject: String) {
         request.0 = Some(subject);
     }
 }
-fn typing(mut events: EventReader<KeyboardInput>, mut f: ResMut<Frontend>) {
+fn typing(
+    mut events: EventReader<KeyboardInput>,
+    mut f: ResMut<Frontend>,
+    windows: Query<&Window, With<PrimaryWindow>>,
+) {
+    if !windows.iter().any(|w| w.focused) {
+        events.clear();
+        return;
+    }
     if f.page == Page::Maps && f.search_focus {
         for e in events.read().filter(|e| e.state == ButtonState::Pressed) {
             match &e.logical_key {
                 Key::Character(s) if f.map_search.len() + s.len() <= 256 => {
                     f.map_search.push_str(s)
                 }
+                Key::Space if f.map_search.len() < 256 => f.map_search.push(' '),
                 Key::Backspace => {
                     f.map_search.pop();
                 }
@@ -213,6 +237,8 @@ fn typing(mut events: EventReader<KeyboardInput>, mut f: ResMut<Frontend>) {
         let i = f.field;
         match &e.logical_key {
             Key::Character(s) if f.fields[i].len() + s.len() <= limit => f.fields[i].push_str(s),
+            // Bevy reports the spacebar as a named key, not Key::Character.
+            Key::Space if f.fields[i].len() < limit => f.fields[i].push(' '),
             Key::Backspace => {
                 f.fields[i].pop();
             }
@@ -350,8 +376,10 @@ fn update(world: &mut World) {
             if keys.just_pressed(KeyCode::F10) {f.pending="quit".into();f.page=Page::Confirm;f.dirty=true;}
             else if request.is_some() {feedback::open(world,&mut f,request);}
             else if keys.just_pressed(KeyCode::F8) {if f.page==Page::Feedback {feedback::close(&mut f);} else {feedback::open(world,&mut f,None);}}
+            else if keys.just_pressed(KeyCode::F7) {if f.page==Page::News {news::close(&mut f);} else {news::open(world,&mut f);}}
             else if keys.just_pressed(KeyCode::Escape) {
                 if f.page==Page::Feedback {feedback::close(&mut f);}
+                else if f.page==Page::News {news::close(&mut f);}
                 else if f.popup.take().is_none() {
                     f.page=match f.page {Page::Hidden=>Page::Home,Page::Home if !f.startup=>Page::Hidden,_=>Page::Home};
                 }
@@ -365,6 +393,10 @@ fn update(world: &mut World) {
             if !matches!(&action, Action::Map(_)) { f.last_map_click=None; }
             let result:Result<()>=match action {
                 Action::Page(Page::Feedback)=>{feedback::open(world,&mut f,None);Ok(())},
+                Action::Page(Page::News)=>{news::open(world,&mut f);Ok(())},
+                Action::BackNews=>{news::close(&mut f);Ok(())},
+                Action::CheckNews(id)=>news::toggle(&mut f,&id),
+                Action::ReportNews(id)=>{news::report(world,&mut f,&id);Ok(())},
                 Action::BackFeedback=>{feedback::close(&mut f);Ok(())},
                 Action::RetargetFeedback=>{f.feedback_context=f.feedback_candidate.clone();draft(&f)},
                 Action::Page(p)=>{f.page=p;f.search_focus=p==Page::Maps;f.message.clear();Ok(())},
@@ -399,6 +431,8 @@ fn update(world: &mut World) {
         if !world.query_filtered::<Entity,With<Badge>>().iter(world).any(|_|true) && !f.startup {
             let e=button(world,None,"Feedback (F8)",Action::Page(Page::Feedback));
             world.entity_mut(e).insert((Badge,GlobalZIndex(90),Node {position_type:PositionType::Absolute,right:Val::Px(16.),top:Val::Px(12.),padding:UiRect::all(Val::Px(8.)),..default()}));
+            let n=button(world,None,"What's New / Test Checklist (F7)",Action::Page(Page::News));
+            world.entity_mut(n).insert((Badge,GlobalZIndex(90),Node {position_type:PositionType::Absolute,right:Val::Px(16.),top:Val::Px(60.),padding:UiRect::all(Val::Px(8.)),..default()}));
         }
         if f.dirty {draw(world,&f);f.dirty=false;}
     });

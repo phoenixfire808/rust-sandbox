@@ -565,7 +565,7 @@ fn save_preferences(world: &World) -> Result<()> {
     Ok(())
 }
 
-fn search_input(mut events: EventReader<KeyboardInput>, mut state: ResMut<PlayState>) {
+pub(crate) fn search_input(mut events: EventReader<KeyboardInput>, mut state: ResMut<PlayState>) {
     if !state.menu_open || !state.search_focus {
         events.clear();
         return;
@@ -575,6 +575,11 @@ fn search_input(mut events: EventReader<KeyboardInput>, mut state: ResMut<PlaySt
             continue;
         }
         match &e.logical_key {
+            Key::Space if state.search.len() < 256 => {
+                state.search.push(' ');
+                state.page = 0;
+                state.dirty = true;
+            }
             Key::Character(c) => {
                 if state.search.len() + c.len() <= 256 {
                     state.search.push_str(c);
