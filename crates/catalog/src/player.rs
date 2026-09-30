@@ -14,6 +14,8 @@ pub struct PlayerConfig {
     pub toolgun_idle: String,
     pub walk_speed: f32,
     pub run_speed: f32,
+    pub noclip_boost: f32,
+    pub noclip_precision: f32,
     pub jump_speed: f32,
     pub height: f32,
     pub crouch_height: f32,
@@ -62,6 +64,8 @@ pub fn load(path: &Path) -> Result<PlayerConfig> {
     for (v, lo, hi) in [
         (c.walk_speed, 0.1, 20.),
         (c.run_speed, 0.1, 30.),
+        (c.noclip_boost, 1., 10.),
+        (c.noclip_precision, 0.01, 1.),
         (c.jump_speed, 0.1, 20.),
         (c.height, 0.5, 3.),
         (c.crouch_height, 0.5, 3.),

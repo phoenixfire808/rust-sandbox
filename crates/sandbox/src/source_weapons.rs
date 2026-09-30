@@ -1,5 +1,6 @@
 //! Authored primary weapon behavior. Native secondary actions and damage parity remain explicit gaps.
 use super::*;
+use bevy::window::CursorGrabMode;
 
 #[derive(Clone, serde::Serialize, serde::Deserialize)]
 pub struct Ammo {
@@ -13,9 +14,21 @@ pub struct WeaponState {
     pub fired_at: Option<f32>,
     pub reload: Option<(String, f32, f32)>,
     pub equip_blocked: bool,
+    pub aim_fraction: f32,
+    pub recoil: Vec2,
+    pub kick: f32,
+    pub aim_blocked: bool,
     serial: u64,
     projectiles: Vec<Projectile>,
     traces: Vec<(Vec3, Vec3, f32)>,
+}
+impl WeaponState {
+    pub fn reset_handling(&mut self) {
+        self.aim_fraction = 0.;
+        self.recoil = Vec2::ZERO;
+        self.kick = 0.;
+        self.aim_blocked = true;
+    }
 }
 struct Projectile {
     point: Vec3,
@@ -82,6 +95,7 @@ pub fn equip(world: &mut World, id: &str) {
         state.fired_at = None;
         state.next_fire = now + tuning.equip_delay;
         state.equip_blocked = true; // Mouse-up after clicking the menu must precede gameplay fire.
+        state.reset_handling();
     }
     let mut p = world.resource_mut::<PlayState>();
     p.active_weapon = id.into();
@@ -100,6 +114,74 @@ pub fn equip(world: &mut World, id: &str) {
     );
 }
 pub fn input(world: &mut World) {
+    update_handling(world);
+    fire(world);
+    // Single owner of world FOV, including restoring the user's base value in UI.
+    let play = world.resource::<PlayState>();
+    let weight = world.resource::<WeaponState>().aim_fraction;
+    let target = play
+        .spawn_catalog
+        .weapon_handling
+        .iter()
+        .find(|h| h.id == play.active_weapon)
+        .map(|h| h.aim_fov.min(play.fov))
+        .unwrap_or(play.fov);
+    let fov = (play.fov + (target - play.fov) * weight).to_radians();
+    for mut projection in world
+        .query_filtered::<&mut Projection, With<SourceCamera>>()
+        .iter_mut(world)
+    {
+        if let Projection::Perspective(p) = projection.as_mut() {
+            p.fov = fov;
+        }
+    }
+}
+fn update_handling(world: &mut World) {
+    let play = world.resource::<PlayState>();
+    let tuning = play
+        .spawn_catalog
+        .weapon_handling
+        .iter()
+        .find(|h| h.id == play.active_weapon)
+        .cloned();
+    let blocked = crate::source_frontend::active(world)
+        || play.menu_open
+        || play.tools.input_blocked
+        || npcs::dead(world)
+        || world.resource::<vehicles::Occupancy>().vehicle.is_some();
+    let focused = world
+        .query_filtered::<&Window, With<PrimaryWindow>>()
+        .iter(world)
+        .any(|w| w.focused && w.cursor_options.grab_mode != CursorGrabMode::None);
+    let mouse = world.resource::<ButtonInput<MouseButton>>();
+    let left = mouse.pressed(MouseButton::Left);
+    let right = mouse.pressed(MouseButton::Right);
+    let dt = world.resource::<Time>().delta_secs();
+    let mut state = world.resource_mut::<WeaponState>();
+    if blocked || !focused || tuning.is_none() {
+        state.reset_handling();
+        if blocked || !focused {
+            state.equip_blocked = left;
+        }
+        return;
+    }
+    let h = tuning.unwrap();
+    let decay = (-h.recoil_recovery * dt).exp();
+    state.recoil *= decay;
+    state.kick *= decay;
+    if state.reload.is_some() {
+        state.aim_fraction = 0.;
+        state.aim_blocked = true;
+        return;
+    }
+    if !right {
+        state.aim_blocked = false;
+    }
+    let target = if right && !state.aim_blocked { 1. } else { 0. };
+    let step = dt / h.aim_seconds;
+    state.aim_fraction += (target - state.aim_fraction).clamp(-step, step);
+}
+fn fire(world: &mut World) {
     let now = world.resource::<Time>().elapsed_secs();
     let tuning = world.resource::<PlayState>().spawn_catalog.runtime.clone();
     let mouse = world.resource::<ButtonInput<MouseButton>>().clone();
@@ -164,6 +246,13 @@ pub fn input(world: &mut World) {
     if w.clip > 0 && ammo.loaded < w.clip && ammo.reserve > 0 && (reload || ammo.loaded == 0) {
         world.resource_mut::<WeaponState>().reload =
             Some((w.id.clone(), now, now + w.reload_seconds));
+        // Reload cancels aim, but must not erase the previous shot's punch on
+        // single-round guns whose automatic reload starts the very next frame.
+        {
+            let mut state = world.resource_mut::<WeaponState>();
+            state.aim_fraction = 0.;
+            state.aim_blocked = true;
+        }
         world.resource_mut::<PlayState>().status = "Reloading...".into();
         return;
     }
@@ -182,7 +271,17 @@ pub fn input(world: &mut World) {
     {
         return;
     }
-    let Some(eye) = camera(world) else { return };
+    // Firing precedes visual skinning. Use current input and hull, not last frame's cached eye.
+    let Some(eye) = crate::source_player::aim_eye(world).or_else(|| camera(world)) else {
+        return;
+    };
+    let handling = world
+        .resource::<PlayState>()
+        .spawn_catalog
+        .weapon_handling
+        .iter()
+        .find(|h| h.id == w.id)
+        .cloned();
     {
         let mut s = world.resource_mut::<WeaponState>();
         if w.clip > 0 {
@@ -193,6 +292,13 @@ pub fn input(world: &mut World) {
         s.next_fire = now + w.interval;
         s.fired_at = Some(now);
         s.serial = s.serial.wrapping_add(1);
+        if let Some(h) = handling {
+            let yaw = spread_offset(s.serial, 0).x * h.recoil_yaw.to_radians();
+            let limit = h.recoil_limit.to_radians();
+            s.recoil.x = (s.recoil.x + h.recoil_pitch.to_radians()).min(limit);
+            s.recoil.y = (s.recoil.y + yaw).clamp(-limit, limit);
+            s.kick = (s.kick + h.recoil_back).min(h.recoil_back * 2.);
+        }
     }
     if w.kind == "projectile" || w.kind == "grenade" {
         let mut s = world.resource_mut::<WeaponState>();
@@ -237,7 +343,7 @@ pub fn input(world: &mut World) {
     }
     let ammo = &world.resource::<WeaponState>().ammo[&w.id];
     let status = format!(
-        "{} | {} / {} | R: reload",
+        "{} | {} / {} | R: reload | RMB: aim (guns)",
         w.id.trim_start_matches("weapon_"),
         ammo.loaded,
         ammo.reserve
@@ -362,6 +468,8 @@ pub fn draw(mut gizmos: Gizmos, state: Res<WeaponState>) {
 pub fn clear_transients(world: &mut World) {
     impacts::clear(world);
     let mut s = world.resource_mut::<WeaponState>();
+    s.reset_handling();
+    s.equip_blocked = true;
     s.projectiles.clear();
     s.traces.clear();
     s.reload = None;

@@ -1,0 +1,21 @@
+id,area,steps,expected,owner,result
+flight_boost,movement,Press V and hold W then each Shift separately then release Shift,Flight doubles the configured base speed while Shift is held and returns on release,Drew,not_run
+flight_precision,movement,Fly with each Alt then Alt plus Shift and release all movement keys,Alt uses one quarter base speed and takes precedence over boost with immediate stop after release,Drew,not_run
+flight_vertical,movement,Look steeply up and down and press Space or either Ctrl then combine with WASD,Vertical controls remain world-up and down while forward follows pitch and diagonals stay normalized,Drew,not_run
+flight_typing,movement,Open F8 F7 Q and pause while flying and type spaces Shift and Alt then switch focus,No flight modifiers or movement execute in blocked UI and no held input leaks through,Drew,not_run
+pistol,weapon_weapon_pistol,Equip release buttons hold RMB fire single shots release aim and reload,Custom zoom and shared hands offset blend with light punch and recovery only on accepted shots,Drew,not_run
+magnum,weapon_weapon_357,Hold RMB fire then release aim and compare repeated shots and reload,Stronger authored punch than pistol with bounded return and no permanent mouse-angle drift,Drew,not_run
+smg,weapon_weapon_smg1,Hold RMB and sustain LMB then stop and reload,Each accepted automatic shot adds bounded recoil and model kick which recover after release,Drew,not_run
+ar2,weapon_weapon_ar2,Hold RMB and sustain LMB then switch weapons and return,Custom aim and authored recoil work while native energy-ball secondary remains pending,Drew,not_run
+shotgun,weapon_weapon_shotgun,Hold RMB fire a pellet shot then wait and reload,One recoil impulse per shot rather than seven impulses with unchanged pellet spread,Drew,not_run
+crossbow,weapon_weapon_crossbow,Hold RMB aim at a fixed target fire a bolt and release then reload,Custom hold aim narrows FOV toward authored 20 degrees and bolt uses current eye direction without claiming native toggle scope,Drew,not_run
+rpg,weapon_weapon_rpg,Hold RMB launch then release and reload,Custom aim and bounded launch punch which decays through next-frame auto-reload rather than disappearing instantly while native laser guidance remains pending,Drew,not_run
+flechette,weapon_weapon_flechettegun,Hold RMB and sustain fire then stop,Unlimited-ammo route still applies one bounded recoil impulse per accepted projectile,Drew,not_run
+non_guns,input,Use physgun RMB freeze toolgun right-click melee and grenade after aiming with a gun,No gun zoom or residual recoil changes existing special-route actions,Drew,not_run
+ui_latch,input,Hold RMB while opening and closing Q F7 F8 pause and focus loss,Zoom clears and requires release and a new hold after blocked UI instead of leaking input,Drew,not_run
+reload_latch,input,Start reload while holding RMB then keep it held until reload ends,Aim exits during reload and requires release before aiming again with no empty-ammo recoil,Drew,not_run
+camera_return,camera,Toggle F4 then hold and release RMB while moving and shooting,Aiming temporarily presents first person then restores requested third-person view after blend-out,Drew,not_run
+projection,camera,Change base FOV and aim at several window sizes and DPI settings,Zoom never increases base FOV and base FOV is restored without jitter on release and UI,Drew,not_run
+sight_alignment,visual,Compare sights hands muzzle and crosshair for each of the eight enabled guns at several aim pitches,Record per-model offset corrections in source_weapon_handling rather than claiming unmeasured exact alignment,Drew,not_run
+lifecycle,state,Aim fire switch weapons die respawn enter and exit a vehicle then save and restore a scene,No residual zoom or recoil survives reset boundaries and health ammo identity remain intact,Drew,not_run
+feedback_context,feedback,Open F8 immediately after aiming or boost flight and save a note,Private context includes handling row aim weight punch model kick and flight modifier tuning,Drew,not_run

@@ -1,5 +1,32 @@
 # Feedback usability and visual-note review
 
+## Complete inbox review and handling integration, 2026-09-30 03:25 UTC
+
+Reviewed all 18 local reports, including the four legacy multi-field reports and three new flight/recoil/aiming reports. [feedback_review.csv](../sheets/feedback_review.csv) maps all 18 to implementation boundaries and next actions without publishing private report text or filenames. None is gameplay-accepted. Earlier sections below are historical snapshots, not current completion claims.
+
+### Ordered integration plan
+
+1. **Flight input (P0):** fix the noclip branch ignoring sprint. Author boost and precision multipliers in `source_player.csv`, recognize both Shift and Alt keys, retain Space/Ctrl as world-up/down rather than rotating vertical input by camera pitch, and normalize the combined direction. Retain immediate stop rather than introducing unrequested inertial drifting. Guard typing, focus loss, death and vehicle occupancy. This is prototype handling, not measured GMod flight equivalence.
+2. **Weapon data contract (P0):** add `source_weapon_handling.csv` with exactly one handling row for each of the eight enabled hitscan/projectile guns. Validate IDs, coverage, finite ranges, FOV, sensitivity, transition times, offsets, punch caps and recovery before generating game data. Tools, melee, thrown grenades and disabled registrations must not silently inherit gun ADS.
+3. **Right-click aiming (P0):** custom hold-RMB aiming adjusts world FOV, sensitivity and shared weapon/hands offsets. Temporarily present first person when aiming from F4, restoring the requested third-person mode on release. Keep original fire/reload clips. Aim exits on reload, menus, focus loss, death, vehicles, switching and scene restoration. Require release after blocked UI input. Exact iron-sight offsets are initial authored tuning requiring Drew's visual calibration. Native SMG grenades, AR2 balls and shotgun secondary actions remain separate missing work, not silently marked implemented.
+4. **Recoil (P0):** apply per-weapon camera punch and model kick only after an actual accepted shot, once per shot rather than per pellet. Bound accumulation and decay using frame-time exponential recovery. Use the same punched eye rotation for camera and subsequent firing rays, without permanently changing user look angles. Keep world-body pose/IK limitations explicit. Reset presentation transients at switch/menu/death/vehicle/restore boundaries. Reload cancels aim but lets the last shot's punch decay naturally, including one-round weapons.
+5. **Integration safety:** inspect current-camera freshness and projection ownership so old-frame aiming or the base-FOV writer cannot undo the new behavior. Include aim/punch/flight tuning in F8 capture. Preserve all saves and private notes. Do not stop active games or launch duplicate copies during delivery.
+6. **Delivery:** update authoritative review/follow-up/root-gap rows, F7 instructions and Drew-owned manual cases. Compile the real executable once after the integrated edits, fix any compiler errors, run production catalog validation/export, review diffs and publish only reviewed paths. No agent gameplay tests, screenshots, benchmarks or input automation under project rules.
+
+```mermaid
+flowchart TD
+    S[Authoritative player and weapon handling sheets] --> V[Catalog validation and generated runtime data]
+    V --> F[Flight modifiers and normalized world-up movement]
+    V --> W[Guarded aim and accepted-shot recoil state]
+    W --> C[Shared eye rotation camera FOV and model offsets]
+    C --> R[Release checklist and contextual feedback]
+    R --> D[Drew-owned manual acceptance]
+```
+
+### Remaining dependency queue
+
+Keep the older 169-root-gap inventory and dependency queue intact. Next work is (a) native per-weapon secondary/hold-type contracts and exact model sight calibration, (b) mounted audio decoding/sound-script events and lifecycle, (c) material-pair prop contact sounds and bounded optional shake, (d) original physics-solid/joint metadata and articulated ragdoll entity lifecycle, then dependent posing tools and NPC death integration. In parallel with those dependencies, the already-partial water, browser, No Collide, crouch and vehicle repairs still require Drew's checks. All 38 tool rows remain 13 partial, 22 missing and 3 reference-only. No general request to complete everything is counted as resolved by planning alone.
+
 ## Regression follow-up, 2026-09-30 02:50 UTC
 
 Seven newer reports were reviewed locally. [feedback_followup.csv](../sheets/feedback_followup.csv) tracks every topic in ten engineering rows, separating five repaired subsets from broader unfinished work. F7 now has 20 cards, including a repair summary, E + mouse instructions and explicit remaining scope. Original private reports are preserved unchanged.

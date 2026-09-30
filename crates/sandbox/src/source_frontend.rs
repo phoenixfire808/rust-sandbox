@@ -79,6 +79,9 @@ pub struct Frontend {
     news_error: String,
 }
 impl Frontend {
+    pub fn is_open(&self) -> bool {
+        self.page != Page::Hidden || self.blocked_frame
+    }
     pub fn new(startup: bool, map: String) -> Self {
         let saved_draft = feedback::load();
         let feedback_text = feedback::body(&saved_draft);
@@ -185,7 +188,7 @@ impl Plugin for FrontendPlugin {
 pub fn active(world: &World) -> bool {
     world
         .get_resource::<Frontend>()
-        .is_some_and(|f| f.page != Page::Hidden || f.blocked_frame)
+        .is_some_and(Frontend::is_open)
 }
 pub fn run() {
     App::new()

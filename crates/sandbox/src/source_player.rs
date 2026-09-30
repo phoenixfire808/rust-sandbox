@@ -39,6 +39,7 @@ pub struct PlayerState {
     pub jump: bool,
     pub vertical: f32,
     pub running: bool,
+    pub precision_flight: bool,
     pub prop_rotation_delta: Vec2,
     pub crouched: bool,
     pub duck_fraction: f32,
@@ -105,6 +106,7 @@ pub fn spawn(commands: &mut Commands, eye: Vec3, forward: Vec3) {
         jump: false,
         vertical: 0.,
         running: false,
+        precision_flight: false,
         prop_rotation_delta: Vec2::ZERO,
         crouched: false,
         duck_fraction: 0.,
@@ -120,6 +122,7 @@ pub fn input(
     keys: Res<ButtonInput<KeyCode>>,
     mut motion: EventReader<MouseMotion>,
     play: Res<PlayState>,
+    weapon: Res<source_play::weapons::WeaponState>,
     state: Option<ResMut<PlayerState>>,
     window: Query<&Window, With<PrimaryWindow>>,
     frontend: Option<Res<crate::source_frontend::Frontend>>,
@@ -137,8 +140,13 @@ pub fn input(
     s.prop_rotation_delta = Vec2::ZERO;
     s.direction = Vec3::ZERO;
     s.running = false;
+    s.precision_flight = false;
     s.wants_crouch = false;
-    if !w.focused || play.menu_open || life.is_some_and(|l| l.health <= 0.) {
+    if !w.focused
+        || play.menu_open
+        || frontend.as_ref().is_some_and(|f| f.is_open())
+        || life.is_some_and(|l| l.health <= 0.)
+    {
         s.jump = false;
         return;
     }
@@ -146,8 +154,17 @@ pub fn input(
         if play.physgun && play.held.is_some() && keys.pressed(KeyCode::KeyE) {
             s.prop_rotation_delta = delta * play.sensitivity;
         } else {
-            s.yaw -= delta.x * play.sensitivity;
-            s.pitch = (s.pitch - delta.y * play.sensitivity).clamp(-1.55, 1.55);
+            let aim_sensitivity = play
+                .spawn_catalog
+                .weapon_handling
+                .iter()
+                .find(|h| h.id == play.active_weapon)
+                .map(|h| h.aim_sensitivity)
+                .unwrap_or(1.);
+            let sensitivity =
+                play.sensitivity * (1. + (aim_sensitivity - 1.) * weapon.aim_fraction);
+            s.yaw -= delta.x * sensitivity;
+            s.pitch = (s.pitch - delta.y * sensitivity).clamp(-1.55, 1.55);
         }
     }
     if keys.just_pressed(KeyCode::F4) {
@@ -170,7 +187,9 @@ pub fn input(
     s.direction = Vec3::new(
         axis(KeyCode::KeyD, KeyCode::KeyA),
         if s.noclip {
-            axis(KeyCode::Space, KeyCode::ControlLeft)
+            keys.pressed(KeyCode::Space) as i32 as f32
+                - (keys.pressed(KeyCode::ControlLeft) || keys.pressed(KeyCode::ControlRight)) as i32
+                    as f32
         } else {
             0.
         },
@@ -178,7 +197,10 @@ pub fn input(
     );
     s.wants_crouch =
         !s.noclip && (keys.pressed(KeyCode::ControlLeft) || keys.pressed(KeyCode::ControlRight));
-    s.running = keys.pressed(KeyCode::ShiftLeft) && !s.wants_crouch;
+    s.running =
+        (keys.pressed(KeyCode::ShiftLeft) || keys.pressed(KeyCode::ShiftRight)) && !s.wants_crouch;
+    s.precision_flight =
+        s.noclip && (keys.pressed(KeyCode::AltLeft) || keys.pressed(KeyCode::AltRight));
     s.jump |= keys.just_pressed(KeyCode::Space);
 }
 fn sync_cursor(world: &mut World) {
@@ -258,6 +280,8 @@ fn crouch(world: &mut World) {
 }
 pub(crate) fn walk(
     time: Res<Time<Fixed>>,
+    frontend: Option<Res<crate::source_frontend::Frontend>>,
+    window: Query<&Window, With<PrimaryWindow>>,
     life: Option<Res<source_play::npcs::PlayerLife>>,
     play: Res<PlayState>,
     state: Option<ResMut<PlayerState>>,
@@ -274,15 +298,36 @@ pub(crate) fn walk(
         controller.translation = None;
         return;
     }
+    if s.noclip
+        && (play.menu_open
+            || frontend.as_ref().is_some_and(|f| f.is_open())
+            || !window.iter().any(|w| w.focused))
+    {
+        controller.translation = None;
+        s.local_velocity = Vec3::ZERO;
+        s.moving = false;
+        s.jump = false;
+        return;
+    }
     let rotation = Quat::from_euler(
         EulerRot::YXZ,
         s.yaw,
         if s.noclip { s.pitch } else { 0. },
         0.,
     );
-    let direction = (rotation * s.direction).normalize_or_zero();
+    // Forward follows pitch, but Space/Ctrl remains world vertical, as in FullNoClipMove.
+    let direction = (rotation * Vec3::new(s.direction.x, 0., s.direction.z)
+        + Vec3::Y * s.direction.y)
+        .normalize_or_zero();
     let speed = if s.noclip {
         play.speed
+            * if s.precision_flight {
+                s.config.noclip_precision
+            } else if s.running {
+                s.config.noclip_boost
+            } else {
+                1.
+            }
     } else if s.crouched {
         s.config.walk_speed * s.config.crouch_speed
     } else if s.running {
@@ -295,7 +340,7 @@ pub(crate) fn walk(
         controller.translation = None;
         t.translation += direction * speed * dt;
         s.vertical = 0.;
-        s.local_velocity = s.direction.normalize_or_zero() * speed;
+        s.local_velocity = rotation.inverse() * direction * speed;
         s.horizontal_velocity = Vec3::ZERO;
         s.grounded = false;
     } else {
@@ -732,6 +777,35 @@ fn create_weapons(
     }
     result
 }
+/// Current gameplay eye, also used before visual skinning when a shot is accepted.
+pub(crate) fn aim_eye(world: &World) -> Option<Transform> {
+    let s = world.get_resource::<PlayerState>()?;
+    if s.vehicle.is_some() {
+        return Some(s.eye);
+    }
+    let center = world.get::<Transform>(s.entity)?.translation;
+    let c = &s.config;
+    let height = if s.crouched {
+        c.crouch_height
+    } else {
+        c.height
+    };
+    let eye_height = c.eye_height + (c.crouch_eye - c.eye_height) * s.duck_fraction;
+    let recoil = world
+        .get_resource::<source_play::weapons::WeaponState>()
+        .map(|w| w.recoil)
+        .unwrap_or(Vec2::ZERO);
+    Some(
+        Transform::from_translation(center + Vec3::Y * (eye_height - height * 0.5)).with_rotation(
+            Quat::from_euler(
+                EulerRot::YXZ,
+                s.yaw + recoil.y,
+                (s.pitch + recoil.x).clamp(-1.55, 1.55),
+                0.,
+            ),
+        ),
+    )
+}
 pub(crate) fn visuals(world: &mut World) {
     if !world.contains_resource::<PlayerState>() {
         return;
@@ -774,6 +848,9 @@ pub(crate) fn visuals(world: &mut World) {
                     }
                 }
                 Err(e) => {
+                    world
+                        .resource_mut::<source_play::weapons::WeaponState>()
+                        .reset_handling();
                     let mut play = world.resource_mut::<PlayState>();
                     play.physgun = scene.physgun;
                     play.active_weapon = scene.weapon_id.clone();
@@ -806,9 +883,17 @@ pub(crate) fn visuals(world: &mut World) {
         } else {
             c.eye_height + (c.crouch_eye - c.eye_height) * s.duck_fraction
         };
-        let eye = Transform::from_translation(feet + Vec3::Y * eye_height)
+        let seat_eye = Transform::from_translation(feet + Vec3::Y * eye_height)
             .with_rotation(Quat::from_euler(EulerRot::YXZ, s.yaw, s.pitch, 0.));
-        let third = s.third_person;
+        let eye = if occupied {
+            seat_eye
+        } else {
+            aim_eye(world).unwrap_or(seat_eye)
+        };
+        let weapon = world.resource::<source_play::weapons::WeaponState>();
+        let aim_fraction = weapon.aim_fraction;
+        let kick = weapon.kick;
+        let third = s.third_person && aim_fraction == 0.;
         let local_velocity = s.local_velocity;
         let airborne = !s.grounded || s.vertical > 0.1;
         let noclip = s.noclip;
@@ -859,6 +944,19 @@ pub(crate) fn visuals(world: &mut World) {
             *t = camera;
         }
         *world.get_mut::<Transform>(scene.view_camera).unwrap() = eye;
+        let offset = world
+            .resource::<PlayState>()
+            .spawn_catalog
+            .weapon_handling
+            .iter()
+            .find(|h| h.id == scene.weapon_id)
+            .map(|h| Vec3::new(h.aim_x, h.aim_y, h.aim_z) * aim_fraction)
+            .unwrap_or(Vec3::ZERO)
+            + Vec3::Z * kick;
+        let view_local = Transform::from_translation(offset);
+        *world.get_mut::<Transform>(scene.view.root).unwrap() = view_local;
+        *world.get_mut::<Transform>(scene.hands.root).unwrap() = view_local;
+        let view_matrix = eye.compute_matrix() * view_local.compute_matrix();
         world
             .get_mut::<Camera>(scene.view_camera)
             .unwrap()
@@ -1014,7 +1112,7 @@ pub(crate) fn visuals(world: &mut World) {
         };
         let view_globals = scene.view.skeleton.globals(&pose);
         skin(world, &scene.view, &view_globals);
-        update_effect_attachments(world, &scene.view, &view_globals, eye.compute_matrix());
+        update_effect_attachments(world, &scene.view, &view_globals, view_matrix);
         if let Some((_, bone, local)) = scene
             .view
             .skeleton
@@ -1022,7 +1120,7 @@ pub(crate) fn visuals(world: &mut World) {
             .iter()
             .find(|(n, _, _)| n == "muzzle")
         {
-            world.resource_mut::<PlayerState>().muzzle = (eye.compute_matrix()
+            world.resource_mut::<PlayerState>().muzzle = (view_matrix
                 * source_animation::bevy_matrix(view_globals[*bone] * *local, 0.01905))
             .transform_point3(Vec3::ZERO);
         }

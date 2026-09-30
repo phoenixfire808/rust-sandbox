@@ -49,6 +49,7 @@ pub struct SpawnCatalog {
     pub tabs: Vec<Tab>,
     pub capabilities: Vec<Capability>,
     pub weapons: Vec<Weapon>,
+    pub weapon_handling: Vec<WeaponHandling>,
     pub vehicles: Vec<Vehicle>,
     pub runtime: Runtime,
     pub wheels: Vec<Wheel>,
@@ -143,6 +144,21 @@ pub struct Runtime {
     pub steer_speed: f32,
     pub vehicle_linear_damping: f32,
     pub vehicle_angular_damping: f32,
+}
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct WeaponHandling {
+    pub id: String,
+    pub aim_fov: f32,
+    pub aim_seconds: f32,
+    pub aim_sensitivity: f32,
+    pub aim_x: f32,
+    pub aim_y: f32,
+    pub aim_z: f32,
+    pub recoil_pitch: f32,
+    pub recoil_yaw: f32,
+    pub recoil_back: f32,
+    pub recoil_recovery: f32,
+    pub recoil_limit: f32,
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Weapon {
@@ -311,6 +327,7 @@ pub fn load(dir: &Path) -> Result<SpawnCatalog> {
         tabs: rows(dir, "source_creation_tabs.csv")?,
         capabilities: rows(dir, "spawn_capabilities.csv")?,
         weapons: rows(dir, "source_weapons.csv")?,
+        weapon_handling: rows(dir, "source_weapon_handling.csv")?,
         vehicles: rows(dir, "source_vehicles.csv")?,
     };
     #[derive(Deserialize)]
@@ -409,6 +426,41 @@ pub fn load(dir: &Path) -> Result<SpawnCatalog> {
     unique(c.tabs.iter().map(|e| e.id.as_str()))?;
     unique(c.capabilities.iter().map(|e| e.id.as_str()))?;
     unique(c.weapons.iter().map(|e| e.id.as_str()))?;
+    unique(c.weapon_handling.iter().map(|e| e.id.as_str()))?;
+    for h in &c.weapon_handling {
+        if !c
+            .weapons
+            .iter()
+            .any(|w| w.id == h.id && matches!(w.kind.as_str(), "hitscan" | "projectile"))
+            || ![
+                (h.aim_fov, 10., 100.),
+                (h.aim_seconds, 0.01, 2.),
+                (h.aim_sensitivity, 0.05, 1.),
+                (h.aim_x, -0.5, 0.5),
+                (h.aim_y, -0.5, 0.5),
+                (h.aim_z, -0.5, 0.5),
+                (h.recoil_pitch, 0.01, 20.),
+                (h.recoil_yaw, 0., 10.),
+                (h.recoil_back, 0., 0.1),
+                (h.recoil_recovery, 0.1, 100.),
+                (h.recoil_limit, 0.01, 30.),
+            ]
+            .iter()
+            .all(|(v, lo, hi)| v.is_finite() && (*lo..=*hi).contains(v))
+            || h.recoil_limit < h.recoil_pitch.max(h.recoil_yaw)
+        {
+            return Err(format!("invalid gun handling row {}", h.id).into());
+        }
+    }
+    for w in c
+        .weapons
+        .iter()
+        .filter(|w| matches!(w.kind.as_str(), "hitscan" | "projectile"))
+    {
+        if !c.weapon_handling.iter().any(|h| h.id == w.id) {
+            return Err(format!("enabled gun requires explicit handling: {}", w.id).into());
+        }
+    }
     unique(c.vehicles.iter().map(|e| e.id.as_str()))?;
     for e in c
         .entries

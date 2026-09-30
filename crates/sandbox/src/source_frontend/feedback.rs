@@ -107,12 +107,14 @@ fn capture(world: &mut World, f: &Frontend, explicit: Option<String>) -> serde_j
         "selected_tool":p.tool,"tool_settings":p.tools.values,
         "tool_stage":p.tools.stage.as_ref().map(|(tool,target,step)| serde_json::json!({"tool":tool,"step":step,"target_entity":target.entity.to_bits(),"point":target.point.to_array(),"normal":target.normal.to_array()})),
         "held_entity":p.held.map(|e|e.to_bits()),"game_status":p.status,
-        "fov":p.fov,"sensitivity":p.sensitivity,"noclip_speed":p.speed
+        "fov":p.fov,"sensitivity":p.sensitivity,"noclip_speed":p.speed,
+        "weapon_handling":p.spawn_catalog.weapon_handling.iter().find(|h|h.id==p.active_weapon),
+        "handling_state":world.get_resource::<crate::source_play::weapons::WeaponState>().map(|s|serde_json::json!({"aim_fraction":s.aim_fraction,"aim_blocked":s.aim_blocked,"recoil_radians":s.recoil.to_array(),"model_kick":s.kick}))
     }));
     let player = world.get_resource::<PlayerState>().map(|p| serde_json::json!({
         "eye_position":p.eye.translation.to_array(),"yaw":p.yaw,"pitch":p.pitch,
         "local_velocity":p.local_velocity.to_array(),"grounded":p.grounded,"noclip":p.noclip,"third_person":p.third_person,
-        "movement":{"command":p.direction.to_array(),"sprinting":p.running,"crouched":p.crouched,"duck_fraction":p.duck_fraction,"walk_speed":p.config.walk_speed,"crouch_fraction":p.config.crouch_speed,"horizontal_velocity":p.horizontal_velocity.to_array(),"vertical_velocity":p.vertical,
+        "movement":{"command":p.direction.to_array(),"sprinting":p.running,"precision_flight":p.precision_flight,"noclip_boost":p.config.noclip_boost,"noclip_precision":p.config.noclip_precision,"crouched":p.crouched,"duck_fraction":p.duck_fraction,"walk_speed":p.config.walk_speed,"crouch_fraction":p.config.crouch_speed,"horizontal_velocity":p.horizontal_velocity.to_array(),"vertical_velocity":p.vertical,
             "ground_friction":p.config.ground_friction,"ground_acceleration":p.config.ground_acceleration,"stop_speed":p.config.stop_speed,"air_acceleration":p.config.air_acceleration,"air_speed_cap":p.config.air_speed_cap}
     }));
     let window = world.query_filtered::<&Window, With<PrimaryWindow>>().iter(world).next()

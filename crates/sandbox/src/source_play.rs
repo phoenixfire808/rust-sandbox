@@ -835,20 +835,10 @@ pub fn update_play(world: &mut World) {
     for action in actions {
         perform(world, action);
     }
-    let (fov, gravity) = {
+    let gravity = {
         let s = world.resource::<PlayState>();
-        (s.fov, s.config.gravity)
+        s.config.gravity
     };
-    for mut p in world
-        .query_filtered::<&mut Projection, With<SourceCamera>>()
-        .iter_mut(world)
-    {
-        if matches!(&*p, Projection::Perspective(v) if v.fov != fov.to_radians()) {
-            if let Projection::Perspective(p) = p.as_mut() {
-                p.fov = fov.to_radians();
-            }
-        }
-    }
     for mut c in world.query::<&mut RapierConfiguration>().iter_mut(world) {
         if c.gravity != Vec3::Y * gravity {
             c.gravity = Vec3::Y * gravity;
@@ -870,7 +860,7 @@ pub fn update_play(world: &mut World) {
         } else if s.physgun {
             "LMB: hold | E + mouse: rotate | RMB: freeze | R: unfreeze | Wheel: distance | Q: build"
         } else {
-            "LMB: use | R: reload | E: enter vehicle | Q: build | 1/2: physgun/toolgun"
+            "LMB: use | RMB: aim (guns) | R: reload | V: fly | Shift: boost | Alt: precision | Q: build"
         };
         let health = world
             .get_resource::<npcs::PlayerLife>()

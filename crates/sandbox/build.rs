@@ -25,6 +25,7 @@ fn main() {
         "source_creation_tabs.csv",
         "spawn_capabilities.csv",
         "source_weapons.csv",
+        "source_weapon_handling.csv",
         "source_vehicles.csv",
         "source_vehicle_wheels.csv",
         "source_gameplay.csv",

@@ -1,0 +1,9 @@
+id,aim_fov,aim_seconds,aim_sensitivity,aim_x,aim_y,aim_z,recoil_pitch,recoil_yaw,recoil_back,recoil_recovery,recoil_limit
+weapon_weapon_pistol,55,0.18,0.7,-0.065,0.025,0.025,1.2,0.3,0.012,12,8
+weapon_weapon_357,50,0.22,0.65,-0.055,0.025,0.02,8,2,0.035,10,12
+weapon_weapon_smg1,55,0.2,0.7,-0.07,0.035,0.025,0.65,0.25,0.009,10,8
+weapon_weapon_ar2,50,0.22,0.65,-0.07,0.03,0.025,0.9,0.3,0.012,10,10
+weapon_weapon_shotgun,55,0.25,0.7,-0.07,0.035,0.025,4,0.7,0.03,9,12
+weapon_weapon_crossbow,20,0.25,0.3,-0.065,0.025,0.025,2,0.4,0.02,10,8
+weapon_weapon_rpg,45,0.28,0.6,-0.075,0.03,0.02,3,0.5,0.025,8,10
+weapon_weapon_flechettegun,55,0.2,0.7,-0.07,0.035,0.025,0.5,0.2,0.008,12,8
