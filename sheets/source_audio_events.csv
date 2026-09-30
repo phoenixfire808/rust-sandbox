@@ -1,0 +1,23 @@
+id,paths,volume,range,cooldown,evidence
+weapon_weapon_pistol.fire,sound/weapons/pistol/pistol_fire2.wav,0.55,80,0,Weapon_Pistol.Single original script
+weapon_weapon_357.fire,sound/weapons/357/357_fire2.wav|sound/weapons/357/357_fire3.wav,0.93,100,0,Weapon_357.Single original script
+weapon_weapon_smg1.fire,sound/weapons/smg1/smg1_fire1.wav,0.55,80,0,Weapon_SMG1.Single original script
+weapon_weapon_ar2.fire,sound/weapons/ar2/fire1.wav,0.8,100,0,Weapon_AR2.Single original script
+weapon_weapon_shotgun.fire,sound/weapons/shotgun/shotgun_fire7.wav,0.86,100,0,Weapon_Shotgun.Single original script
+weapon_weapon_crossbow.fire,sound/weapons/crossbow/fire1.wav,0.61,40,0,Weapon_Crossbow.Single original script
+weapon_weapon_rpg.fire,sound/weapons/rpg/rocketfire1.wav,0.8,100,0,Mounted original RPG asset with independent gain
+weapon_weapon_crowbar.fire,sound/weapons/iceaxe/iceaxe_swing1.wav,0.55,10,0,Weapon_Crowbar.Single original script
+weapon_weapon_stunstick.fire,sound/weapons/stunstick/stunstick_swing1.wav|sound/weapons/stunstick/stunstick_swing2.wav,0.5,10,0,Mounted original stunstick swing assets
+weapon_weapon_pistol.reload,sound/weapons/pistol/pistol_reload1.wav,0.5,20,0.1,Mounted original reload asset at prototype reload start
+weapon_weapon_smg1.reload,sound/weapons/smg1/smg1_reload.wav,0.5,20,0.1,Mounted original reload asset at prototype reload start
+weapon_weapon_ar2.reload,sound/weapons/ar2/ar2_reload.wav,0.5,20,0.1,Mounted original reload asset at prototype reload start
+weapon_weapon_shotgun.reload,sound/weapons/shotgun/shotgun_reload1.wav,0.5,20,0.1,Single reload cue not native shell events
+weapon_weapon_crossbow.reload,sound/weapons/crossbow/reload1.wav,0.5,20,0.1,Mounted original reload asset at prototype reload start
+weapon.empty,sound/weapons/pistol/pistol_empty.wav,0.45,10,0.25,Shared fallback cue not per-weapon empty parity
+tool.accept,sound/weapons/airboat/airboat_gun_lastshot1.wav,0.35,30,0.03,Mounted original asset with independent accepted-tool event mapping
+explosion,sound/weapons/explode3.wav|sound/weapons/explode4.wav|sound/weapons/explode5.wav,0.85,120,0.05,Mounted original blast variants with prototype falloff
+impact.default,sound/physics/metal/metal_box_impact_hard1.wav,0.5,35,0,Explicit generic fallback not automatic model surface inference
+impact.metal,sound/physics/metal/metal_box_impact_hard1.wav|sound/physics/metal/metal_box_impact_hard2.wav,0.6,35,0,Mounted original metal variants selected by PhysProp override
+impact.metal_bouncy,sound/physics/metal/metal_box_impact_hard1.wav,0.6,35,0,Independent bouncy-metal override mapping
+impact.wood,sound/physics/wood/wood_crate_impact_hard4.wav|sound/physics/wood/wood_crate_impact_hard5.wav,0.6,30,0,Wood_Crate.ImpactHard original script subset
+impact.glass,sound/physics/glass/glass_impact_hard1.wav|sound/physics/glass/glass_impact_hard2.wav,0.5,25,0,Mounted original glass variants selected by PhysProp override

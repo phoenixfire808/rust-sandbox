@@ -1,3 +1,4 @@
+pub mod audio;
 pub mod behavior;
 pub mod content;
 pub mod effects;

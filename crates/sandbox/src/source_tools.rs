@@ -416,6 +416,7 @@ pub(crate) fn input(world: &mut World) {
     let tool = world.resource::<PlayState>().tool.clone();
     match operate(world, &tool, action, hit) {
         Ok(true) => {
+            audio::emit(world, "tool.accept", None, 1.);
             let time = world.resource::<Time>().elapsed_secs();
             world.resource_mut::<PlayState>().tools.shot = Some(Shot {
                 time,

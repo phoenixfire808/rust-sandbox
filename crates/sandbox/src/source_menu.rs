@@ -963,8 +963,11 @@ pub(super) fn rebuild(world: &mut World) {
                 ("Field of view", "fov", s.fov, 5.),
                 ("Noclip speed", "speed", s.speed, 1.),
                 ("Sensitivity", "sensitivity", s.sensitivity, 0.0005),
+                ("Audio volume", "audio_volume", world.resource::<audio::Audio>().volume, 0.05),
             ];
             let visible = s.weapon_visible;
+            let shake = world.resource::<audio::Audio>().shake_enabled;
+            action(world, controls, format!("Impact shake: {}", if shake { "ON" } else { "OFF" }), UiAction::Setting("audio_shake", 0.), shake);
             for (label, key, value, delta) in values {
                 text(world, controls, format!("{label}: {value:.4}"), c.font_size);
                 let r = row(world, controls, c.row_height);
@@ -981,7 +984,7 @@ pub(super) fn rebuild(world: &mut World) {
             text(
                 world,
                 controls,
-                "Settings are local. Other stock option pages are not implemented.",
+                "Audio and impact shake are local. Other stock option pages are not implemented.",
                 c.font_size,
             );
         }

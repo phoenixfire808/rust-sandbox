@@ -255,12 +255,16 @@ fn fire(world: &mut World) {
             state.aim_fraction = 0.;
             state.aim_blocked = true;
         }
+        audio::emit(world, &format!("{}.reload", w.id), None, 1.);
         world.resource_mut::<PlayState>().status = "Reloading...".into();
         return;
     }
-    if state.equip_blocked || now < state.next_fire || (w.clip > 0 && ammo.loaded == 0) {
+    if state.equip_blocked || now < state.next_fire { return; }
+    if w.clip > 0 && ammo.loaded == 0 {
+        if mouse.just_pressed(MouseButton::Left) { audio::emit(world, "weapon.empty", None, 1.); }
         return;
     }
+    let state = world.resource::<WeaponState>();
     if !(if w.automatic {
         mouse.pressed(MouseButton::Left)
     } else {
@@ -302,6 +306,7 @@ fn fire(world: &mut World) {
             s.kick = (s.kick + h.recoil_back).min(h.recoil_back * 2.);
         }
     }
+    audio::emit(world, &format!("{}.fire", w.id), None, 1.);
     if w.kind == "projectile" || w.kind == "grenade" {
         let mut s = world.resource_mut::<WeaponState>();
         if s.projectiles.len() < tuning.projectile_limit {
@@ -391,6 +396,7 @@ pub(crate) fn explode_ignoring(
     amount: f32,
     ignore: Option<Entity>,
 ) {
+    audio::emit(world, "explosion", Some(point), 1.);
     impacts::burst(world, point, Vec3::Y);
     let targets: Vec<_> = world
         .query::<(Entity, &Transform, &SpawnedProp)>()

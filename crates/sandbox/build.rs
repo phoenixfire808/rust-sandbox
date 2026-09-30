@@ -11,6 +11,8 @@ fn main() {
         "source_play.csv",
         "source_player.csv",
         "source_effects.csv",
+        "source_audio.csv",
+        "source_audio_events.csv",
         "source_layout.csv",
         "source_animation_states.csv",
         "source_performance.csv",
@@ -63,6 +65,9 @@ fn main() {
     ));
     generated.push_str(&sandbox_catalog::performance::generate(
         &sandbox_catalog::performance::load(&sheets).expect("invalid performance spreadsheet"),
+    ));
+    generated.push_str(&sandbox_catalog::audio::generate(
+        &sandbox_catalog::audio::load(&sheets).expect("invalid audio sheets"),
     ));
     generated.push_str(&sandbox_catalog::effects::generate(
         &sandbox_catalog::effects::load(&sheets).expect("invalid effects spreadsheet"),

@@ -941,6 +941,8 @@ pub(crate) fn visuals(world: &mut World) {
             }
             camera.translation += back * distance;
         }
+        let shake = source_play::audio::shake(world);
+        camera.rotation *= shake;
         world.resource_mut::<PlayerState>().eye = eye;
         if let Some(mut t) = world
             .query_filtered::<&mut Transform, With<SourceCamera>>()

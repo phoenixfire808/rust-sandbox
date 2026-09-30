@@ -1,0 +1,2 @@
+master,max_voices,max_asset_bytes,max_cache_bytes,max_samples,voice_seconds,impact_force,impact_speed,impact_cooldown,shake_gain,shake_limit,shake_decay
+0.65,24,4194304,67108864,2646000,30,250,0.7,0.3,0.001,0.012,9

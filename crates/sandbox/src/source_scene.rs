@@ -244,6 +244,7 @@ pub(super) fn spawn_scene(world: &mut World, scene: SavedScene, offset: Vec3) ->
 }
 pub(super) fn restore(world: &mut World, save: SavedScene) -> Result<()> {
     validate_scene(world, &save)?;
+    audio::clear(world);
     tools::render_tools::clear(world);
     world.resource_mut::<tools::devices::Remote>().0 = None;
     world.resource_mut::<tools::posers::Selection>().0 = None;

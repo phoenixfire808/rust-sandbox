@@ -17,6 +17,8 @@ use bevy::{
 use bevy_rapier3d::prelude::*;
 use sandbox_catalog::{Result, play::PlayConfig};
 use std::collections::BTreeMap;
+#[path = "source_audio.rs"]
+pub(crate) mod audio;
 #[path = "source_impacts.rs"]
 pub(crate) mod impacts;
 #[path = "source_menu.rs"]
@@ -218,6 +220,10 @@ impl Plugin for SourcePlayPlugin {
         .init_resource::<tools::devices::Remote>()
         .init_resource::<tools::pulley::Stage>()
         .init_resource::<tools::posers::Selection>()
+        .init_resource::<audio::Audio>()
+        .add_systems(FixedUpdate, audio::record_motion.before(PhysicsSet::SyncBackend).after(vehicles::drive).after(tools::devices::physics))
+        .add_systems(FixedUpdate, audio::contacts.after(PhysicsSet::Writeback))
+        .add_systems(Update, audio::update.after(tools::devices::view).after(tools::input).after(tools::devices::effects).after(weapons::simulate))
         .init_resource::<impacts::Impacts>()
         .init_resource::<vehicles::Occupancy>()
         .init_resource::<npcs::NpcSettings>()
@@ -472,6 +478,8 @@ pub fn spawn_model(
             CollisionGroups::new(Group::GROUP_2, Group::ALL),
         ))
         .id();
+    let threshold = world.resource::<audio::Audio>().catalog.config.impact_force;
+    world.entity_mut(id).insert((audio::Motion::default(), ActiveEvents::CONTACT_FORCE_EVENTS, ContactForceEventThreshold(threshold)));
     for (mesh, material) in model.parts {
         world.spawn((
             Mesh3d(mesh),
@@ -1045,6 +1053,11 @@ fn perform(world: &mut World, action: UiAction) {
             tools::constraints::clear(world);
         }
         UiAction::Setting(key, value) => {
+            if key == "audio_volume" || key == "audio_shake" {
+                audio::settings(world, value, key == "audio_shake");
+                world.resource_mut::<PlayState>().dirty = true;
+                return;
+            }
             let mut s = world.resource_mut::<PlayState>();
             match key {
                 "fov" => s.fov = (s.fov + value).clamp(40., 120.),

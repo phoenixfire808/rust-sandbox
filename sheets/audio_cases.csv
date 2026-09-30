@@ -1,0 +1,15 @@
+id,scenario,expected,remaining,acceptance_owner,result
+audio_ready,Start normally and wait for original sound preloads then fire each supported gun,Mounted WAV sounds load without extraction and rejected files log once,Actual device and asset decoding acceptance,Drew,not_run
+gun_shots,Fire pistol .357 SMG AR2 shotgun crossbow RPG crowbar and stunstick including held automatic fire,One mapped sound per accepted shot or swing and no sound for rejected attacks,Native pitch channel replacement and full animation events,Drew,not_run
+reload,Reload pistol SMG AR2 shotgun and crossbow then switch or open a menu,Authored reload-start cue with menu and weapon-switch cancellation,Native frame events and per-shell reload,Drew,not_run
+empty,Exhaust clip and reserve then click repeatedly and hold LMB,One shared empty cue per click subject to cooldown,Weapon-specific cue and native repeat contract,Drew,not_run
+tool,Use valid invalid and staged tool actions,Accepted action cues only with no cue on errors,Native Toolgun.Single mapping and exact action semantics,Drew,not_run
+blast,Explode grenades rockets and dynamite near and far from camera,Mounted variants with bounded distance falloff and stereo positioning,Native occlusion DSP and soundlevel calibration,Drew,not_run
+impact_material,Drop props after selecting metal wood glass and an unmapped physical material,Mapped original impact variant or explicitly generic fallback,Original model and struck-surface metadata not inferred,Drew,not_run
+impact_rest,Drop stack and let props rest then slide and collide them again,Speed force and cooldown gates suppress resting-contact chatter,Numerical tuning sleep edge cases rotating-only impacts,Drew,not_run
+impact_distance,Drop a heavy prop nearby then far away with shake on and off,Bounded decaying distance-limited visual shake without changing aim rays,Native impact response and head-motion comfort,Drew,not_run
+volume,Use Q Player audio controls to mute lower raise and restart,Local volume and shake preferences persist without changing other settings,Native audio Options page and device selection,Drew,not_run
+focus,Play sound then open Q F7 F8 pause or switch away from the game,Transient sounds stop and do not replay old queued events on return,OS device loss and focus transition acceptance,Drew,not_run
+lifecycle,Trigger sounds then undo load remove sources and start a new map,Scene restoration clears voices queues cooldowns and shake,No persistent looping emitters implemented,Drew,not_run
+limits,Create many impacts and automatic shots together,Bounded voice request cache byte decoded-sample and lifetime limits,Priority stealing and native channel semantics,Drew,not_run
+no_device,Start with no audio output device then restore device,Game remains usable and bounded pending voices expire,Bevy device-recovery behavior and clear UI diagnostics,Drew,not_run
