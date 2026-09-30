@@ -481,6 +481,7 @@ struct Scene {
     view_camera: Entity,
     physgun: bool,
     weapon_id: String,
+    draw_started: f32,
     playback: crate::source_pose::PosePlayback,
     animation_states: Vec<sandbox_catalog::presentation::AnimationState>,
     layout: sandbox_catalog::presentation::LayoutConfig,
@@ -545,6 +546,7 @@ fn create_scene(world: &mut World) -> Result<Scene> {
         view_camera,
         physgun,
         weapon_id,
+        draw_started: world.resource::<Time>().elapsed_secs(),
         playback: crate::source_pose::PosePlayback::default(),
         animation_states,
         layout: crate::compiled_layout_config(),
@@ -582,6 +584,7 @@ fn create_weapons(
                 ("runtime_idle", &definition.idle),
                 ("runtime_fire", &definition.fire),
                 ("runtime_reload", &definition.reload),
+                ("runtime_draw", &definition.draw),
             ] {
                 let mut loaded = false;
                 for name in candidates.split('|').filter(|n| !n.is_empty()) {
@@ -593,7 +596,10 @@ fn create_weapons(
                     }
                 }
                 if !loaded && !candidates.is_empty() {
-                    eprintln!("WEAPON_CLIP_MISSING {weapon_id} {key}; bind/idle fallback");
+                    return Err(format!(
+                        "Required weapon animation missing: {weapon_id} {key} ({candidates})"
+                    )
+                    .into());
                 }
             }
         } else {
@@ -676,6 +682,12 @@ pub(crate) fn visuals(world: &mut World) {
                     scene.held = held;
                     scene.physgun = physgun;
                     scene.weapon_id = weapon_id.clone();
+                    scene.draw_started = world.resource::<Time>().elapsed_secs();
+                    if let Some(clip) = scene.view.clips.get("runtime_draw") {
+                        let until = scene.draw_started + clip.duration();
+                        let mut state = world.resource_mut::<source_play::weapons::WeaponState>();
+                        state.next_fire = state.next_fire.max(until);
+                    }
                 }
                 Err(e) => {
                     let mut play = world.resource_mut::<PlayState>();
@@ -868,12 +880,13 @@ pub(crate) fn visuals(world: &mut World) {
                 .reload
                 .as_ref()
                 .filter(|(id, _, end)| id == &scene.weapon_id && time < *end)
-                .and_then(|(_, start, _)| {
-                    scene
-                        .view
-                        .clips
-                        .get("runtime_reload")
-                        .map(|clip| clip.sample_mode(time - *start, false))
+                .and_then(|(_, start, end)| {
+                    scene.view.clips.get("runtime_reload").map(|clip| {
+                        clip.sample_mode(
+                            (time - *start) / (*end - *start).max(0.001) * clip.duration(),
+                            false,
+                        )
+                    })
                 });
             let fire = state.fired_at.and_then(|start| {
                 scene
@@ -883,7 +896,13 @@ pub(crate) fn visuals(world: &mut World) {
                     .filter(|clip| time - start < clip.duration())
                     .map(|clip| clip.sample_mode(time - start, false))
             });
-            reload.or(fire).unwrap_or_else(|| {
+            let draw = scene
+                .view
+                .clips
+                .get("runtime_draw")
+                .filter(|clip| time - scene.draw_started < clip.duration())
+                .map(|clip| clip.sample_mode(time - scene.draw_started, false));
+            reload.or(fire).or(draw).unwrap_or_else(|| {
                 scene
                     .view
                     .clips

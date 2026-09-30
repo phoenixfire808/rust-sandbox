@@ -1103,15 +1103,20 @@ fn container(world: &mut World, parent: Entity, node: Node) -> Entity {
     world.spawn((node, ChildOf(parent))).id()
 }
 fn thumbnail(world: &mut World, path: &str) -> Option<Handle<Image>> {
+    mounted_icon(
+        world,
+        &format!("materials/spawnicons/{}.png", path.trim_end_matches(".mdl")),
+    )
+}
+fn mounted_icon(world: &mut World, path: &str) -> Option<Handle<Image>> {
     if let Some(icon) = world.resource::<PlayState>().icons.get(path) {
         return icon.clone();
     }
-    let name = format!("materials/spawnicons/{}.png", path.trim_end_matches(".mdl"));
     let result = {
         let source = world.resource::<MountedSource>();
         source
             .mounts
-            .read(&source.bsp, &name)
+            .read(&source.bsp, path)
             .ok()
             .and_then(|b| image::load_from_memory(&b).ok())
             .map(|i| rgba_image(i.to_rgba8()))

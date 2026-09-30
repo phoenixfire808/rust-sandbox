@@ -168,10 +168,11 @@ fn catalog_browser(world: &mut World, body: Entity, tree_width: f32) {
     let categories: std::collections::BTreeSet<_> =
         entries.iter().map(|e| e.category.clone()).collect();
     for cat in categories {
+        let count = entries.iter().filter(|e| e.category == cat).count();
         action(
             world,
             tree,
-            &cat,
+            format!("{cat} ({count})"),
             UiAction::Category(cat.clone()),
             cat == category,
         );
@@ -197,7 +198,7 @@ fn catalog_browser(world: &mut World, body: Entity, tree_width: f32) {
         c.font_size,
     );
     let needle = search.to_lowercase();
-    let results: Vec<_> = entries
+    let mut results: Vec<_> = entries
         .into_iter()
         .filter(|e| {
             (category.is_empty() || e.category == category)
@@ -209,6 +210,7 @@ fn catalog_browser(world: &mut World, body: Entity, tree_width: f32) {
                 .contains(&needle)
         })
         .collect();
+    results.sort_by_key(|e| (e.category.to_lowercase(), e.label.to_lowercase()));
     let pages = results.len().div_ceil(page_size).max(1);
     let page = page.min(pages - 1);
     world.resource_mut::<PlayState>().page = page;
@@ -269,7 +271,26 @@ fn catalog_browser(world: &mut World, body: Entity, tree_width: f32) {
             );
         }
     }
+    let mut group = String::new();
+    let mut grid = viewport;
     for e in results.iter().skip(page * page_size).take(page_size) {
+        if group != e.category || grid == viewport {
+            group = e.category.clone();
+            text(world, viewport, &group, c.font_size + 2.);
+            grid = container(
+                world,
+                viewport,
+                Node {
+                    width: Val::Percent(100.),
+                    flex_wrap: FlexWrap::Wrap,
+                    column_gap: Val::Px(c.icon_gap),
+                    row_gap: Val::Px(c.icon_gap),
+                    padding: UiRect::all(Val::Px(c.panel_padding)),
+                    flex_shrink: 0.,
+                    ..default()
+                },
+            );
+        }
         let weapon = catalog.weapons.iter().find(|w| w.id == e.id);
         let vehicle = catalog.vehicles.iter().find(|v| v.id == e.id);
         let npc = catalog
@@ -285,26 +306,83 @@ fn catalog_browser(world: &mut World, body: Entity, tree_width: f32) {
         } else {
             "Pending"
         };
-        let buttons = row(world, viewport, c.row_height);
+        let card = container(
+            world,
+            grid,
+            Node {
+                width: Val::Px(c.icon_size * 2.),
+                flex_direction: FlexDirection::Column,
+                padding: UiRect::all(Val::Px(c.panel_padding)),
+                flex_shrink: 0.,
+                ..default()
+            },
+        );
+        world.entity_mut(card).insert((
+            BackgroundColor(Color::srgb(0.97, 0.97, 0.97)),
+            BorderRadius::all(Val::Px(4.)),
+        ));
+        let activate = if usable {
+            UiAction::UseEntry(e.id.clone())
+        } else {
+            UiAction::InspectEntry(e.id.clone())
+        };
+        let icon = mounted_icon(world, &format!("materials/{}", e.icon)).or_else(|| {
+            (!e.model.is_empty())
+                .then(|| thumbnail(world, &e.model))
+                .flatten()
+        });
+        let icon_button = action(
+            world,
+            card,
+            if icon.is_some() {
+                ""
+            } else {
+                "Icon unavailable"
+            },
+            activate.clone(),
+            e.id == selected,
+        );
+        crate::source_frontend::feedback::tag(
+            world,
+            icon_button,
+            format!("{} ({})", e.label, e.id),
+            30,
+        );
+        world.entity_mut(icon_button).insert(Node {
+            width: Val::Percent(100.),
+            height: Val::Px(c.icon_size),
+            justify_content: JustifyContent::Center,
+            align_items: AlignItems::Center,
+            flex_shrink: 0.,
+            ..default()
+        });
+        if let Some(image) = icon {
+            world.spawn((
+                ImageNode::new(image),
+                Node {
+                    width: Val::Px(c.icon_size),
+                    height: Val::Px(c.icon_size),
+                    ..default()
+                },
+                bevy::ui::FocusPolicy::Pass,
+                ChildOf(icon_button),
+            ));
+        }
         action(
             world,
-            buttons,
+            card,
             format!(
                 "{}{} | {}",
                 e.label,
                 if e.admin_only { " [Admin]" } else { "" },
                 label
             ),
-            if usable {
-                UiAction::UseEntry(e.id.clone())
-            } else {
-                UiAction::InspectEntry(e.id.clone())
-            },
+            activate,
             e.id == selected,
         );
         action(
             world,
-            buttons,
+            card,
             "Details / F8",
             UiAction::InspectEntry(e.id.clone()),
             false,

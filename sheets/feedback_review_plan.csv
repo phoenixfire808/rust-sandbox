@@ -1,0 +1,10 @@
+id,priority,area,implementation,remaining,acceptance,result
+feedback_single,P0,Feedback,One multiline body replaces four fields and preserves legacy draft content,User acceptance of save and migration,Open F8 and enter one note then save and reopen,not_run
+feedback_windows,P0,Windows text input,Embedded Rich Edit 4.1 child enables TSF with no game speech engine,Windows dictation focus and compositor acceptance,Click the field and use existing Win+H then edit and save,not_run
+feedback_safety,P0,Input isolation,Native child owns editing and forwards only editor exit hotkeys,Focus and held-input regression acceptance,Dictate and switch apps then return without firing jumping or losing text,not_run
+weapon_clips,P1,Weapon presentation,Original metadata selects idle fire reload and draw for eleven enabled combat routes,Full activity sequencing secondary attacks sounds camera sway and shotgun shell reload,Equip each enabled weapon and inspect draw primary fire and reload,not_run
+weapon_failures,P1,Weapon loading,Required authored clip failure rejects new visual route instead of silent bind pose,Real mounted clip decoding acceptance,Inspect visible failure and retained previous weapon when required assets are unavailable,not_run
+browser_icons,P1,Creation browser,Mounted original icon references with model icon fallback and labeled missing images,Full native layout addon icons and visual acceptance,Browse weapon NPC vehicle categories and compare icons and activation,not_run
+browser_context,P1,Contextual feedback,Icon controls include registration identity in hover feedback,Hover context acceptance,Press F8 over a card icon and confirm its identity,not_run
+water_review,P1,Water,Existing normal and transmission revision retained,Planar reflections animated frames underwater optics and visual comparison,Inspect water at multiple angles and report location through F8,not_run
+nocollide_review,P1,Collision,Existing player collision-mask correction retained,User confirmation of world-only versus pair behavior,Right-click NoCollide on a prop and walk through then restore it,not_run

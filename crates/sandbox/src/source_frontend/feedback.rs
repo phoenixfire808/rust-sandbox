@@ -4,6 +4,9 @@ use bevy::ui::RelativeCursorPosition;
 use serde::{Deserialize, Serialize};
 
 #[derive(Component)]
+pub(super) struct EditorSlot;
+
+#[derive(Component)]
 pub(crate) struct ContextTarget {
     label: String,
     priority: u16,
@@ -12,9 +15,23 @@ pub(crate) struct ContextTarget {
 pub(super) struct Request(pub Option<String>);
 #[derive(Default, Serialize, Deserialize)]
 pub(super) struct Draft {
+    #[serde(default)]
     pub fields: [String; 4],
+    #[serde(default)]
+    pub body: Option<String>,
     pub category: usize,
     pub context: Option<serde_json::Value>,
+}
+pub(super) fn body(draft: &Draft) -> String {
+    draft.body.clone().unwrap_or_else(|| {
+        ["Title", "Observed", "Expected", "Notes"]
+            .iter()
+            .zip(&draft.fields)
+            .filter(|(_, text)| !text.is_empty())
+            .map(|(label, text)| format!("{label}: {text}"))
+            .collect::<Vec<_>>()
+            .join("\n\n")
+    })
 }
 pub(crate) fn tag(world: &mut World, entity: Entity, label: impl Into<String>, priority: u16) {
     world.entity_mut(entity).insert((
@@ -51,6 +68,7 @@ pub(super) fn persist(f: &Frontend) -> Result<()> {
     let temp = dir.join(format!("feedback-context-draft-{}.tmp", std::process::id()));
     let draft = Draft {
         fields: f.fields.clone(),
+        body: Some(f.feedback_text.clone()),
         category: f.category,
         context: f.feedback_context.clone(),
     };
@@ -114,7 +132,7 @@ pub(super) fn open(world: &mut World, f: &mut Frontend, subject: Option<String>)
         .get_resource::<PlayState>()
         .is_some_and(|p| p.menu_open);
     f.feedback_candidate = Some(context.clone());
-    if f.feedback_context.is_none() || f.fields.iter().all(|s| s.trim().is_empty()) {
+    if f.feedback_context.is_none() || f.feedback_text.trim().is_empty() {
         f.feedback_context = Some(context);
         f.message.clear();
     } else {
@@ -122,7 +140,7 @@ pub(super) fn open(world: &mut World, f: &mut Frontend, subject: Option<String>)
     }
     f.page = Page::Feedback;
     f.popup = None;
-    f.field = if f.fields[0].is_empty() { 0 } else { 1 };
+    f.feedback_focus = true;
     f.search_focus = false;
     f.dirty = true;
     f.blocked_frame = true;

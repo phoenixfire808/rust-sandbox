@@ -984,6 +984,92 @@ fn maps(world: &mut World, page: Entity, f: &Frontend, offset: f32) {
         ..default()
     });
 }
+fn feedback_form(world: &mut World, page: Entity, f: &Frontend) {
+    let panel = node(
+        world,
+        page,
+        Node {
+            position_type: PositionType::Absolute,
+            left: Val::Percent(3.),
+            right: Val::Percent(3.),
+            top: Val::Px(32.),
+            bottom: Val::Px(12.),
+            padding: UiRect::all(Val::Px(12.)),
+            flex_direction: FlexDirection::Column,
+            row_gap: Val::Px(8.),
+            overflow: Overflow::clip(),
+            ..default()
+        },
+        Color::WHITE,
+    );
+    text(
+        world,
+        panel,
+        "Feedback: type or dictate one note",
+        24.,
+        gray(45),
+        true,
+    );
+    text(world, panel, "Click the box, then use your Windows speech hotkey (Win+H). No in-game microphone or speech service. Windows controls its own listening indicator and speech privacy settings.", 13., gray(65), false);
+    let context: String = feedback::summary(f).chars().take(240).collect();
+    text(world, panel, context, 12., gray(75), false);
+    if !f.message.is_empty() {
+        text(world, panel, &f.message, 13., rgb(130, 65, 40), false);
+    }
+    let editor = standard(
+        world,
+        panel,
+        if f.feedback_native {
+            ""
+        } else if f.feedback_text.is_empty() {
+            "Click here and describe anything you want improved. No separate title or tabs."
+        } else {
+            &f.feedback_text
+        },
+        Action::FocusFeedback,
+    );
+    world.entity_mut(editor).insert((
+        feedback::EditorSlot,
+        Node {
+            width: Val::Percent(100.),
+            flex_grow: 1.,
+            flex_basis: Val::Px(0.),
+            min_height: Val::Px(80.),
+            overflow: Overflow::clip(),
+            padding: UiRect::all(Val::Px(8.)),
+            ..default()
+        },
+    ));
+    let controls = node(
+        world,
+        panel,
+        Node {
+            column_gap: Val::Px(8.),
+            row_gap: Val::Px(4.),
+            flex_wrap: FlexWrap::Wrap,
+            flex_shrink: 0.,
+            ..default()
+        },
+        Color::NONE,
+    );
+    standard(world, controls, "Save note locally", Action::Submit);
+    standard(world, controls, "Return (F8 / Esc)", Action::BackFeedback);
+    standard(
+        world,
+        controls,
+        "Attach current context",
+        Action::RetargetFeedback,
+    );
+    standard(
+        world,
+        controls,
+        format!(
+            "Category: {}",
+            ["Bug", "Feature request", "Visual mismatch", "Performance"][f.category]
+        ),
+        Action::Category,
+    );
+}
 fn form(world: &mut World, page: Entity, f: &Frontend, offset: f32) {
     let panel = node(
         world,
@@ -1105,64 +1191,6 @@ fn form(world: &mut World, page: Entity, f: &Frontend, offset: f32) {
                     Action::ReportNews(note.id),
                 );
             }
-        }
-        Page::Feedback => {
-            text(world, panel, "Contextual Feedback", 28., gray(50), true);
-            text(world, panel, feedback::summary(f), 13., gray(60), false);
-            text(world, panel, "F8 over any control captures it before the editor opens. Save here, then ask Jcode to review local feedback. No automatic upload.", 12., gray(80), false);
-            standard(
-                world,
-                panel,
-                "Attach current context",
-                Action::RetargetFeedback,
-            );
-            text(world,panel,"Private local reports for Jcode. Nothing uploads automatically. Space inserts a space; Tab changes field; Enter adds a line; Backspace deletes the last character.",13.,gray(80),false);
-            standard(
-                world,
-                panel,
-                format!(
-                    "Category: {}",
-                    ["Bug", "Feature request", "Visual mismatch", "Performance"][f.category]
-                ),
-                Action::Category,
-            );
-            for (i, title) in [
-                "Title",
-                "What happened / what is missing",
-                "Expected behavior",
-                "Reproduction steps / notes",
-            ]
-            .iter()
-            .enumerate()
-            {
-                let e = standard(
-                    world,
-                    panel,
-                    format!(
-                        "{}{}\n{}",
-                        if f.field == i { "> " } else { "" },
-                        title,
-                        if f.fields[i].is_empty() {
-                            "Click to type"
-                        } else {
-                            &f.fields[i]
-                        }
-                    ),
-                    Action::Field(i),
-                );
-                if f.field == i {
-                    world
-                        .entity_mut(e)
-                        .insert(BackgroundColor(rgb(220, 239, 255)));
-                }
-            }
-            standard(world, panel, "Save feedback locally", Action::Submit);
-            standard(
-                world,
-                panel,
-                "Return to previous window (F8 / Esc)",
-                Action::BackFeedback,
-            );
         }
         Page::Options => {
             text(world, panel, "Options", 28., gray(50), true);
@@ -1342,6 +1370,7 @@ pub(super) fn draw(world: &mut World, f: &Frontend) {
     match f.page {
         Page::Home => home(world, page, f),
         Page::Maps => maps(world, page, f, offset),
+        Page::Feedback => feedback_form(world, page, f),
         _ => form(world, page, f, offset),
     }
     footer(world, root, f);

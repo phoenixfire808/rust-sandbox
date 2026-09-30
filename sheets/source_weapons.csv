@@ -1,35 +1,35 @@
-id,kind,view_model,world_model,idle,fire,reload,clip,reserve,interval,reload_seconds,damage,pellets,spread,range,speed,blast,gravity,automatic,scope,remaining
-weapon_weapon_physgun,physgun,models/weapons/c_superphyscannon.mdl,models/weapons/w_physics.mdl,@idle,,,0,0,0.1,1,0,1,0,100,0,0,0,true,Existing physgun route,Full parity remains open
-weapon_gmod_tool,toolgun,models/weapons/c_toolgun.mdl,models/weapons/w_toolgun.mdl,@idle01,@fire,,0,0,0.1,1,0,1,0,100,0,0,0,false,Existing toolgun route,All remaining tool gaps
-weapon_weapon_pistol,hitscan,models/weapons/c_pistol.mdl,models/weapons/w_pistol.mdl,idle|@idle,fire|@fire,reload|@reload,18,150,0.15,1.4,8,1,0.01,150,0,0,0,false,Prototype primary fire magazine reload and prop damage,Source timing audio recoil secondary and NPC damage
-weapon_weapon_357,hitscan,models/weapons/c_357.mdl,models/weapons/w_357.mdl,idle|@idle,fire|@fire,reload|@reload,6,36,0.75,2.5,40,1,0.003,200,0,0,0,false,Prototype primary fire magazine reload and prop damage,Source timing audio recoil and NPC damage
-weapon_weapon_smg1,hitscan,models/weapons/c_smg1.mdl,models/weapons/w_smg1.mdl,idle|@idle,fire1|fire|@fire1,reload|@reload,45,225,0.075,1.5,4,1,0.025,150,0,0,0,true,Prototype automatic primary and magazine reload,Secondary grenade sound recoil and exact spread
-weapon_weapon_ar2,hitscan,models/weapons/c_irifle.mdl,models/weapons/w_irifle.mdl,idle|@idle,fire1|fire|@fire1,reload|@reload,30,120,0.1,2,8,1,0.015,180,0,0,0,true,Prototype automatic primary and magazine reload,Secondary energy ball sounds recoil and exact spread
-weapon_weapon_shotgun,hitscan,models/weapons/c_shotgun.mdl,models/weapons/w_shotgun.mdl,idle|@idle,fire|@fire,reload|@reload,6,48,0.95,2.4,8,7,0.08,70,0,0,0,false,Prototype pellet primary and full magazine reload,Shell-by-shell reload double shot sounds and exact spread
-weapon_weapon_crossbow,projectile,models/weapons/c_crossbow.mdl,models/weapons/w_crossbow.mdl,idle|@idle,fire|@fire,reload|@reload,1,20,0.8,1.5,100,1,0,180,66.675,0,1,false,Prototype swept bolt projectile and reload,Zoom bolt model pinning sounds and exact trajectory
-weapon_weapon_rpg,projectile,models/weapons/c_rpg.mdl,models/weapons/w_rocket_launcher.mdl,idle|@idle,fire|@fire,reload|@reload,1,5,1,2,100,1,0,250,28.575,4,0,false,Prototype swept explosive projectile and reload,Laser guidance rocket model effects audio and stock damage
-weapon_weapon_frag,grenade,models/weapons/c_grenade.mdl,models/weapons/w_grenade.mdl,idle01|idle|@idle01,throw|@throw,,1,10,1,0.8,100,1,0,80,15,4,11.43,false,Prototype timed thrown explosive and reserve refill,Native bounce fuse animations secondary lob sounds and inventory semantics
-weapon_weapon_crowbar,melee,models/weapons/c_crowbar.mdl,models/weapons/w_crowbar.mdl,idle|@idle,hitcenter1|swing1|@hitcenter1,,0,0,0.4,1,25,1,0,1.5,0,0,0,true,Prototype timed melee trace and prop damage,Hull sweep impact sounds activity matching and NPC damage
-weapon_weapon_stunstick,melee,models/weapons/c_stunstick.mdl,models/weapons/w_stunbaton.mdl,idle|@idle,hitcenter1|swing1|@hitcenter1,,0,0,0.5,1,15,1,0,1.5,0,0,0,true,Prototype timed melee trace and prop damage,Electric effects hull sweep sounds and NPC damage
-weapon_weapon_flechettegun,projectile,models/weapons/c_smg1.mdl,models/weapons/w_smg1.mdl,idle|@idle,fire1|fire|@fire1,,0,0,0.1,1,12,1,0,150,38.1,0,0,true,Installed cadence and speed with prototype swept projectile,Native embed detonation particle and audio behavior
-weapon_weapon_physcannon,disabled,,,,,,0,0,1,1,0,1,0,1,0,0,0,false,Not implemented,Distinct punt hold launch and pickup restrictions
-weapon_weapon_bugbait,disabled,,,,,,0,0,1,1,0,1,0,1,0,0,0,false,Not implemented,Antlion targeting projectile and AI relationships
-weapon_weapon_slam,disabled,,,,,,0,0,1,1,0,1,0,1,0,0,0,false,Not implemented,Tripmine placement remote charges sensors and detonation
-weapon_weapon_357_hl1,disabled,,,,,,0,0,1,1,0,1,0,1,0,0,0,false,Not implemented,Mounted HL1 assets and native behavior
-weapon_weapon_glock_hl1,disabled,,,,,,0,0,1,1,0,1,0,1,0,0,0,false,Not implemented,Mounted HL1 assets and native behavior
-weapon_weapon_egon,disabled,,,,,,0,0,1,1,0,1,0,1,0,0,0,false,Not implemented,Beam damage ammo consumption effects and mounted assets
-weapon_weapon_handgrenade,disabled,,,,,,0,0,1,1,0,1,0,1,0,0,0,false,Not implemented,HL1 grenade assets fuse and bounce
-weapon_weapon_hornetgun,disabled,,,,,,0,0,1,1,0,1,0,1,0,0,0,false,Not implemented,Homing insects regeneration and secondary fire
-weapon_weapon_mp5_hl1,disabled,,,,,,0,0,1,1,0,1,0,1,0,0,0,false,Not implemented,HL1 primary secondary and assets
-weapon_weapon_crossbow_hl1,disabled,,,,,,0,0,1,1,0,1,0,1,0,0,0,false,Not implemented,HL1 crossbow assets and distinct behavior
-weapon_weapon_crowbar_hl1,disabled,,,,,,0,0,1,1,0,1,0,1,0,0,0,false,Not implemented,HL1 melee assets and distinct behavior
-weapon_weapon_rpg_hl1,disabled,,,,,,0,0,1,1,0,1,0,1,0,0,0,false,Not implemented,HL1 RPG assets and guidance
-weapon_weapon_satchel,disabled,,,,,,0,0,1,1,0,1,0,1,0,0,0,false,Not implemented,Placed charge ownership arming and remote detonation
-weapon_weapon_snark,disabled,,,,,,0,0,1,1,0,1,0,1,0,0,0,false,Not implemented,Living projectile AI damage and lifespan
-weapon_weapon_shotgun_hl1,disabled,,,,,,0,0,1,1,0,1,0,1,0,0,0,false,Not implemented,HL1 shotgun assets secondary and reload
-weapon_weapon_gauss,disabled,,,,,,0,0,1,1,0,1,0,1,0,0,0,false,Not implemented,Charge penetration recoil and energy effects
-weapon_weapon_tripmine,disabled,,,,,,0,0,1,1,0,1,0,1,0,0,0,false,Not implemented,Laser mine attachment arming and detonation
-weapon_gmod_camera,disabled,,,,,,0,0,1,1,0,1,0,1,0,0,0,false,Not implemented,Camera zoom roll and photo output
-weapon_weapon_fists,disabled,,,,,,0,0,1,1,0,1,0,1,0,0,0,false,Not implemented,Punch combo animations and damage
-weapon_manhack_welder,disabled,,,,,,0,0,1,1,0,1,0,1,0,0,0,false,Not implemented,Manhack entity AI launch and ownership
-weapon_weapon_medkit,disabled,,,,,,0,0,1,1,0,1,0,1,0,0,0,false,Not implemented,Player NPC health heal resources and regeneration
+id,kind,view_model,world_model,idle,fire,reload,clip,reserve,interval,reload_seconds,damage,pellets,spread,range,speed,blast,gravity,automatic,scope,remaining,draw
+weapon_weapon_physgun,physgun,models/weapons/c_superphyscannon.mdl,models/weapons/w_physics.mdl,@idle,,,0,0,0.1,1,0,1,0,100,0,0,0,true,Existing physgun route,Full parity remains open,
+weapon_gmod_tool,toolgun,models/weapons/c_toolgun.mdl,models/weapons/w_toolgun.mdl,@idle01,@fire,,0,0,0.1,1,0,1,0,100,0,0,0,false,Existing toolgun route,All remaining tool gaps,
+weapon_weapon_pistol,hitscan,models/weapons/c_pistol.mdl,models/weapons/w_pistol.mdl,@idle01,@fire,@reload,18,150,0.15,1.4,8,1,0.01,150,0,0,0,false,Prototype primary fire magazine reload and prop damage,Source timing audio recoil secondary and NPC damage,@draw
+weapon_weapon_357,hitscan,models/weapons/c_357.mdl,models/weapons/w_357.mdl,@idle01,@fire,@reload,6,36,0.75,2.5,40,1,0.003,200,0,0,0,false,Prototype primary fire magazine reload and prop damage,Source timing audio recoil and NPC damage,@draw
+weapon_weapon_smg1,hitscan,models/weapons/c_smg1.mdl,models/weapons/w_smg1.mdl,@idle01,@fire01,@reload,45,225,0.075,1.5,4,1,0.025,150,0,0,0,true,Prototype automatic primary and magazine reload,Secondary grenade sound recoil and exact spread,@draw
+weapon_weapon_ar2,hitscan,models/weapons/c_irifle.mdl,models/weapons/w_irifle.mdl,@IR_idle,@IR_fire,@IR_reload,30,120,0.1,2,8,1,0.015,180,0,0,0,true,Prototype automatic primary and magazine reload,Secondary energy ball sounds recoil and exact spread,@IR_draw
+weapon_weapon_shotgun,hitscan,models/weapons/c_shotgun.mdl,models/weapons/w_shotgun.mdl,@idle01,@fire01,@reload1,6,48,0.95,2.4,8,7,0.08,70,0,0,0,false,Prototype pellet primary and full magazine reload,Shell-by-shell reload double shot sounds and exact spread,@draw
+weapon_weapon_crossbow,projectile,models/weapons/c_crossbow.mdl,models/weapons/w_crossbow.mdl,@idle,@fire,@reload,1,20,0.8,1.5,100,1,0,180,66.675,0,1,false,Prototype swept bolt projectile and reload,Zoom bolt model pinning sounds and exact trajectory,@draw
+weapon_weapon_rpg,projectile,models/weapons/c_rpg.mdl,models/weapons/w_rocket_launcher.mdl,@idle1,@fire,@reload,1,5,1,2,100,1,0,250,28.575,4,0,false,Prototype swept explosive projectile and reload,Laser guidance rocket model effects audio and stock damage,@draw
+weapon_weapon_frag,grenade,models/weapons/c_grenade.mdl,models/weapons/w_grenade.mdl,@idle01,@throw,,1,10,1,0.8,100,1,0,80,15,4,11.43,false,Prototype timed thrown explosive and reserve refill,Native bounce fuse animations secondary lob sounds and inventory semantics,@draw
+weapon_weapon_crowbar,melee,models/weapons/c_crowbar.mdl,models/weapons/w_crowbar.mdl,@idle01,@hitcenter1,,0,0,0.4,1,25,1,0,1.5,0,0,0,true,Prototype timed melee trace and prop damage,Hull sweep impact sounds activity matching and NPC damage,@draw
+weapon_weapon_stunstick,melee,models/weapons/c_stunstick.mdl,models/weapons/w_stunbaton.mdl,@idle01,@hitcenter1,,0,0,0.5,1,15,1,0,1.5,0,0,0,true,Prototype timed melee trace and prop damage,Electric effects hull sweep sounds and NPC damage,@draw
+weapon_weapon_flechettegun,projectile,models/weapons/c_smg1.mdl,models/weapons/w_smg1.mdl,@idle01,@fire01,,0,0,0.1,1,12,1,0,150,38.1,0,0,true,Installed cadence and speed with prototype swept projectile,Native embed detonation particle and audio behavior,@draw
+weapon_weapon_physcannon,disabled,,,,,,0,0,1,1,0,1,0,1,0,0,0,false,Not implemented,Distinct punt hold launch and pickup restrictions,
+weapon_weapon_bugbait,disabled,,,,,,0,0,1,1,0,1,0,1,0,0,0,false,Not implemented,Antlion targeting projectile and AI relationships,
+weapon_weapon_slam,disabled,,,,,,0,0,1,1,0,1,0,1,0,0,0,false,Not implemented,Tripmine placement remote charges sensors and detonation,
+weapon_weapon_357_hl1,disabled,,,,,,0,0,1,1,0,1,0,1,0,0,0,false,Not implemented,Mounted HL1 assets and native behavior,
+weapon_weapon_glock_hl1,disabled,,,,,,0,0,1,1,0,1,0,1,0,0,0,false,Not implemented,Mounted HL1 assets and native behavior,
+weapon_weapon_egon,disabled,,,,,,0,0,1,1,0,1,0,1,0,0,0,false,Not implemented,Beam damage ammo consumption effects and mounted assets,
+weapon_weapon_handgrenade,disabled,,,,,,0,0,1,1,0,1,0,1,0,0,0,false,Not implemented,HL1 grenade assets fuse and bounce,
+weapon_weapon_hornetgun,disabled,,,,,,0,0,1,1,0,1,0,1,0,0,0,false,Not implemented,Homing insects regeneration and secondary fire,
+weapon_weapon_mp5_hl1,disabled,,,,,,0,0,1,1,0,1,0,1,0,0,0,false,Not implemented,HL1 primary secondary and assets,
+weapon_weapon_crossbow_hl1,disabled,,,,,,0,0,1,1,0,1,0,1,0,0,0,false,Not implemented,HL1 crossbow assets and distinct behavior,
+weapon_weapon_crowbar_hl1,disabled,,,,,,0,0,1,1,0,1,0,1,0,0,0,false,Not implemented,HL1 melee assets and distinct behavior,
+weapon_weapon_rpg_hl1,disabled,,,,,,0,0,1,1,0,1,0,1,0,0,0,false,Not implemented,HL1 RPG assets and guidance,
+weapon_weapon_satchel,disabled,,,,,,0,0,1,1,0,1,0,1,0,0,0,false,Not implemented,Placed charge ownership arming and remote detonation,
+weapon_weapon_snark,disabled,,,,,,0,0,1,1,0,1,0,1,0,0,0,false,Not implemented,Living projectile AI damage and lifespan,
+weapon_weapon_shotgun_hl1,disabled,,,,,,0,0,1,1,0,1,0,1,0,0,0,false,Not implemented,HL1 shotgun assets secondary and reload,
+weapon_weapon_gauss,disabled,,,,,,0,0,1,1,0,1,0,1,0,0,0,false,Not implemented,Charge penetration recoil and energy effects,
+weapon_weapon_tripmine,disabled,,,,,,0,0,1,1,0,1,0,1,0,0,0,false,Not implemented,Laser mine attachment arming and detonation,
+weapon_gmod_camera,disabled,,,,,,0,0,1,1,0,1,0,1,0,0,0,false,Not implemented,Camera zoom roll and photo output,
+weapon_weapon_fists,disabled,,,,,,0,0,1,1,0,1,0,1,0,0,0,false,Not implemented,Punch combo animations and damage,
+weapon_manhack_welder,disabled,,,,,,0,0,1,1,0,1,0,1,0,0,0,false,Not implemented,Manhack entity AI launch and ownership,
+weapon_weapon_medkit,disabled,,,,,,0,0,1,1,0,1,0,1,0,0,0,false,Not implemented,Player NPC health heal resources and regeneration,

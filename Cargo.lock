@@ -3725,6 +3725,7 @@ dependencies = [
  "bevy_rapier3d",
  "csv",
  "image",
+ "raw-window-handle",
  "sandbox-catalog",
  "serde",
  "serde_json",
@@ -3733,6 +3734,7 @@ dependencies = [
  "vmt-parser",
  "vpk",
  "vtf",
+ "windows-sys 0.59.0",
 ]
 
 [[package]]

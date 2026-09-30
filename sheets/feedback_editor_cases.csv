@@ -1,0 +1,21 @@
+id,area,steps,expected,owner,result
+single_note,Feedback,Open F8 and enter a multiline note without a separate title,One field saves a version 3 report with derived title and captured context,Drew,not_run
+legacy_draft,Feedback,Open an existing unsent four-field draft,All four texts remain with labels and the original context survives,Drew,not_run
+space_editing,Text editing,Type repeated spaces then move the caret and edit inside a sentence,Spaces and normal cursor editing work without game actions,Drew,not_run
+selection_clipboard,Text editing,Select text and use copy paste cut undo and redo,Native editing preserves expected text and selection,Drew,not_run
+unicode,Text editing,Enter accented characters and non-Latin text using Windows input,Committed Unicode survives save close and reopen,Drew,not_run
+dictation,Windows speech,Click the text box then invoke your existing Win+H shortcut and dictate,Windows inserts words into this field without an external game editor,Drew,not_run
+dictation_repeat,Windows speech,Stop dictation then move the caret and dictate again,Text inserts at the intended selection without duplicated keyboard text,Drew,not_run
+dictation_focus,Windows speech,Use the Windows listening UI then resume editing,The game does not repeatedly steal focus from Windows speech controls,Drew,not_run
+app_switch,Focus,Switch apps while editing and return,No typing enters gameplay and the draft remains intact,Drew,not_run
+exit_hotkeys,Focus,Press F8 and Escape from inside the native field then reopen,The field hides and the prior screen returns with the complete draft,Drew,not_run
+quit_cancel,Focus,Press F10 from inside the field and cancel the confirmation,No text is lost and no invisible child intercepts the next screen,Drew,not_run
+resize_dpi,Layout,Resize the window and move between monitors with different scaling,The field follows its panel without covering save and return controls,Drew,not_run
+context,Feedback,Open F8 over a browser icon then reopen from another tool,Original unsent context remains until explicitly retargeted,Drew,not_run
+save_failure,Persistence,Use a disposable profile with an unwritable feedback directory and save,Visible error retains the unsent note in memory without false success,Drew,not_run
+fallback,Windows input,Review behavior on a system where the native control cannot initialize,Basic single-field typing remains with an explicit dictation limitation,Drew,not_run
+weapon_routes,Weapons,Equip all eleven enabled combat routes and use primary attack and reload,Original mapped clips decode or a clear load error retains the prior visual route,Drew,not_run
+weapon_draw,Weapons,Change weapons and attempt immediate primary fire,Draw animation plays before new primary firing is permitted,Drew,not_run
+weapon_reload,Weapons,Reload each enabled firearm,Clip timing follows the authored reload interval without silent bind pose fallback,Drew,not_run
+browser,Creation menu,Browse categories and click both images and captions,Mounted images show where available and both controls select the same entry,Drew,not_run
+browser_pending,Creation menu,Inspect disabled entries and unavailable icon assets,Missing content stays explicitly pending rather than falsely usable,Drew,not_run

@@ -127,6 +127,7 @@ pub struct Runtime {
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Weapon {
+    pub draw: String,
     pub id: String,
     pub kind: String,
     pub view_model: String,
@@ -396,6 +397,17 @@ pub fn load(dir: &Path) -> Result<SpawnCatalog> {
             || w.scope.is_empty()
         {
             return Err(format!("invalid weapon runtime row {}", w.id).into());
+        }
+        if matches!(
+            w.kind.as_str(),
+            "hitscan" | "projectile" | "grenade" | "melee"
+        ) && [&w.idle, &w.fire, &w.draw]
+            .iter()
+            .any(|clip| clip.trim().is_empty())
+        {
+            return Err(
+                format!("enabled combat weapon needs idle/fire/draw clips: {}", w.id).into(),
+            );
         }
         if w.kind != "disabled" {
             for path in [&w.view_model, &w.world_model] {

@@ -1,5 +1,7 @@
 //! Local startup/pause navigation and a private, persistent player feedback inbox.
 pub(crate) mod feedback;
+#[cfg(windows)]
+mod native_edit;
 mod news;
 mod view;
 use crate::{
@@ -49,7 +51,9 @@ pub struct Frontend {
     page: Page,
     dirty: bool,
     fields: [String; 4],
-    field: usize,
+    feedback_text: String,
+    feedback_focus: bool,
+    feedback_native: bool,
     category: usize,
     message: String,
     pending: String,
@@ -76,6 +80,7 @@ pub struct Frontend {
 impl Frontend {
     pub fn new(startup: bool, map: String) -> Self {
         let saved_draft = feedback::load();
+        let feedback_text = feedback::body(&saved_draft);
         let (news_checked, news_error) = news::load();
         let prefs: (String, std::collections::BTreeSet<String>) =
             std::fs::read(project_root().join("local/menu-preferences.json"))
@@ -94,7 +99,9 @@ impl Frontend {
             page: if startup { Page::Home } else { Page::Hidden },
             dirty: true,
             fields: saved_draft.fields,
-            field: 0,
+            feedback_text,
+            feedback_focus: false,
+            feedback_native: false,
             category: saved_draft.category,
             message: String::new(),
             pending: String::new(),
@@ -128,7 +135,7 @@ struct Badge;
 enum Action {
     Page(Page),
     Map(String),
-    Field(usize),
+    FocusFeedback,
     Category,
     Submit,
     Start,
@@ -151,6 +158,8 @@ enum Action {
 pub struct FrontendPlugin;
 impl Plugin for FrontendPlugin {
     fn build(&self, app: &mut App) {
+        #[cfg(windows)]
+        native_edit::install(app);
         app.init_resource::<Actions>()
             .init_resource::<feedback::Request>()
             .add_systems(Startup, view::load_assets)
@@ -228,24 +237,22 @@ fn typing(
         }
         return;
     }
-    if f.page != Page::Feedback {
+    if f.page != Page::Feedback || f.feedback_native {
         events.clear();
         return;
     }
     let limit = crate::compiled_frontend_config().feedback_limit;
     for e in events.read().filter(|e| e.state == ButtonState::Pressed) {
-        let i = f.field;
         match &e.logical_key {
-            Key::Character(s) if f.fields[i].len() + s.len() <= limit => f.fields[i].push_str(s),
+            Key::Character(s) if f.feedback_text.len() + s.len() <= limit => {
+                f.feedback_text.push_str(s)
+            }
             // Bevy reports the spacebar as a named key, not Key::Character.
-            Key::Space if f.fields[i].len() < limit => f.fields[i].push(' '),
+            Key::Space if f.feedback_text.len() < limit => f.feedback_text.push(' '),
             Key::Backspace => {
-                f.fields[i].pop();
+                f.feedback_text.pop();
             }
-            Key::Enter if f.fields[i].len() < limit => f.fields[i].push('\n'),
-            Key::Tab => {
-                f.field = (i + 1) % 4;
-            }
+            Key::Enter if f.feedback_text.len() < limit => f.feedback_text.push('\n'),
             _ => continue,
         }
         f.dirty = true;
@@ -257,8 +264,8 @@ fn typing(
     }
 }
 fn submit(world: &mut World, f: &mut Frontend) -> Result<()> {
-    if f.fields[0].trim().is_empty() || f.fields[1..].iter().all(|s| s.trim().is_empty()) {
-        return Err("Add a title and details before saving feedback".into());
+    if f.feedback_text.trim().is_empty() {
+        return Err("Type or dictate a note before saving feedback".into());
     }
     let time = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)?
@@ -269,7 +276,15 @@ fn submit(world: &mut World, f: &mut Frontend) -> Result<()> {
     let tool = world.get_resource::<PlayState>().map(|p| p.tool.clone());
     let status = world.get_resource::<PlayState>().map(|p| p.status.clone());
     let props = world.query::<&SpawnedProp>().iter(world).count();
-    let note = serde_json::json!({"version":2,"created_unix_nanos":time.to_string(),"category":(["Bug","Feature request","Visual mismatch","Performance"][f.category]),"title":f.fields[0],"observed":f.fields[1],"expected":f.fields[2],"steps_and_notes":f.fields[3],"map":f.map,"eye_position":position,"selected_tool":tool,"prop_count":props,"game_status":status,"context_at_open":f.feedback_context,"review_status":"new"});
+    let title: String = f
+        .feedback_text
+        .lines()
+        .find(|line| !line.trim().is_empty())
+        .unwrap_or("Feedback")
+        .chars()
+        .take(100)
+        .collect();
+    let note = serde_json::json!({"version":3,"created_unix_nanos":time.to_string(),"category":(["Bug","Feature request","Visual mismatch","Performance"][f.category]),"title":title,"body":f.feedback_text,"observed":f.feedback_text,"expected":"","steps_and_notes":"","map":f.map,"eye_position":position,"selected_tool":tool,"prop_count":props,"game_status":status,"context_at_open":f.feedback_context,"review_status":"new"});
     let dir = project_root().join("local/feedback");
     std::fs::create_dir_all(&dir)?;
     let path = dir.join(format!("feedback-{time}.json"));
@@ -282,6 +297,7 @@ fn submit(world: &mut World, f: &mut Frontend) -> Result<()> {
     file.sync_all()?;
     f.message = format!("Saved locally for Jcode review: {}", path.display());
     f.fields = Default::default();
+    f.feedback_text.clear();
     draft(f)?;
     Ok(())
 }
@@ -406,7 +422,7 @@ fn update(world: &mut World) {
                 Action::Search=>{f.search_focus=true;Ok(())},
                 Action::Popup(p)=>{f.popup=if f.popup==p {None} else {p};f.search_focus=false;Ok(())},
                 Action::Info(text)=>{f.info=text;f.page=Page::Info;f.search_focus=false;Ok(())},
-                Action::Field(i)=>{f.field=i;Ok(())}, Action::Category=>{f.category=(f.category+1)%4;draft(&f)},
+                Action::FocusFeedback=>{f.feedback_focus=true;Ok(())}, Action::Category=>{f.category=(f.category+1)%4;draft(&f)},
                 Action::Submit=>submit(world,&mut f),
                 Action::Start=>start_map(&mut f),
                 Action::Leave(s)=>{f.pending=s;f.page=Page::Confirm;Ok(())},
