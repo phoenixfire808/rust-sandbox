@@ -804,8 +804,16 @@ pub fn update_play(world: &mut World) {
                         v.angvel = Vec3::ZERO;
                     }
                     if keys.pressed(KeyCode::KeyE) {
-                        let dt = world.resource::<Time>().delta_secs();
-                        world.get_mut::<Transform>(e).unwrap().rotate_y(dt);
+                        let delta = world
+                            .get_resource::<crate::source_player::PlayerState>()
+                            .map(|p| p.prop_rotation_delta)
+                            .unwrap_or(Vec2::ZERO);
+                        let rotation = Quat::from_axis_angle(*cam.right(), -delta.y)
+                            * Quat::from_rotation_y(-delta.x);
+                        let mut transform = world.get_mut::<Transform>(e).unwrap();
+                        let pivot = transform.translation + transform.rotation * anchor;
+                        transform.rotation = (rotation * transform.rotation).normalize();
+                        transform.translation = pivot - transform.rotation * anchor;
                     }
                 } else {
                     world.resource_mut::<PlayState>().held = None;
@@ -859,6 +867,8 @@ pub fn update_play(world: &mut World) {
         let vehicle = world.resource::<vehicles::Occupancy>();
         let mode = if vehicle.vehicle.is_some() {
             "WASD: drive | Space: brake | E: exit | F4: view"
+        } else if s.physgun {
+            "LMB: hold | E + mouse: rotate | RMB: freeze | R: unfreeze | Wheel: distance | Q: build"
         } else {
             "LMB: use | R: reload | E: enter vehicle | Q: build | 1/2: physgun/toolgun"
         };

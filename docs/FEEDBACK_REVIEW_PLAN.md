@@ -1,5 +1,34 @@
 # Feedback usability and visual-note review
 
+## Regression follow-up, 2026-09-30 02:50 UTC
+
+Seven newer reports were reviewed locally. [feedback_followup.csv](../sheets/feedback_followup.csv) tracks every topic in ten engineering rows, separating five repaired subsets from broader unfinished work. F7 now has 20 cards, including a repair summary, E + mouse instructions and explicit remaining scope. Original private reports are preserved unchanged.
+
+### Implemented repair slice
+
+- Wheel axes: the prior code inverted the wrong basis. The actual shared converter is Source `(x,y,z)` to Bevy `(-y,z,-x)`. Axles now use its inverse `(-z,-x,y)` before skeletal rotation.
+- Crouch speed: at 60 Hz the prior standing stop floor removed `1.905 * 8 / 60 = 0.254 m/s`, while crouch acceleration restored only `10 * 1.143 / 60 = 0.1905 m/s`. That repeatedly erased progress below the floor. While actively crouch-moving the floor is capped at wish speed; releasing input still uses full stop braking. Authored crouch speed remains 30 percent of walking speed. This is an independent controller correction, not a native friction equivalence claim.
+- Prop rotation: hold LMB, hold E and move the mouse to rotate about the grab point while camera look is suppressed. No input means no timed rotation. Shift snapping, roll modifiers and a collision-constrained angular solver remain open.
+- World weapons: use the animated player's globals for matching weapon bone names and propagate unmatched children, then skin the held model. Reuse the same bone-merge principle already used by viewmodel hands. Attachment fallback remains for models with no shared bones. Per-weapon hold types and aim-pitch/IK layers remain incomplete.
+- Spread: replace the single-pellet rim pattern with centered two-uniform-sum sampling, rejecting points outside the unit disc. The local deterministic stream is not native command-seeded RNG. Authored cone values remain unchanged; recoil and accuracy timers remain open.
+
+### Remaining work, not implemented by this repair
+
+```mermaid
+flowchart TD
+    A[Per-action tool and weapon reference cases] --> B[Native secondary modes and hold types]
+    C[Mounted sound scripts and supported decoding] --> D[Audio event mixer and spatial lifecycle]
+    D --> E[Weapon tool footstep prop vehicle NPC audio]
+    E --> F[Thresholded heavy-impact feedback and optional bounded shake]
+    G[Model physics solids and joint metadata] --> H[Articulated bodies constraints and bone skinning]
+    H --> I[Bone pickup cleanup undo save and NPC death integration]
+```
+
+Tool audit covers all 38 authored rows: 12 stock partial routes plus custom Freeze, 22 missing tools, and 3 reference-only entries. Existing `source_tools.csv`, option sheets and `tool_cases.csv` remain authoritative, and their advertised behavior is not accepted merely by reading dispatch code. Finish constraints/force limits and entity lifecycle prerequisites before dependent actuator/construction tools, then posing tools after articulated physics/flex support. Every left/right/reload/settings/save path needs Drew-owned acceptance.
+
+Audio requires an enabled backend, supported decoding, mounted sound-script resolution, event timing, attenuation, loop stop/replacement, voice limits and controls. General prop-impact audio and camera shake are not provided by the existing vehicle spark effect. Do not fake every impact with a global earthquake. Native scope/secondary behavior must be specified per weapon; universal ADS is a separate custom feature, not automatically stock fidelity. Ragdolls require actual articulated body/constraint metadata, per-bone pickup and lifecycle/persistence, not a single rigid prop with a character mesh. These requests remain explicitly missing in the follow-up sheet.
+
+
 ## Latest motion and impact feedback, 2026-09-30
 
 Four additional local reports were reviewed after the single-note release. The priority sheet now has 15 rows. The new [19 manual cases](../sheets/motion_impact_cases.csv) and four F7 cards cover crouch, bullet impacts, vehicle wheel/crash presentation and live HUD readouts. Every acceptance result remains `not_run`, owned by Drew. Private report text and filenames are not published.

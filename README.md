@@ -6,9 +6,11 @@ Independent **Bevy 0.16.1 + Rapier 0.30** sandbox foundation, with spreadsheet-a
 
 ## What's New and what to test
 
-Press **F7** or click **What's New / Test Checklist** in the startup menu, pause menu or gameplay HUD. Seventeen sheet-authored cards explain changes, exact checks, expected behavior and known limits. Personal checkmarks persist locally, and each card can open contextual feedback. F7/Escape returns to the previous screen. **F8** opens one feedback note, with an embedded Windows editable field for your existing **Win+H** shortcut, caret editing, selection, clipboard and undo. No external editor or in-game speech engine is introduced. Windows owns its listening UI and speech privacy settings. End-to-end dictation and focus still need your acceptance. The [review plan](docs/FEEDBACK_REVIEW_PLAN.md) also covers original weapon clip corrections and categorized icon cards. These changes require Drew's interaction checks; checkmarks never mark project tests as passed.
+Press **F7** or click **What's New / Test Checklist** in the startup menu, pause menu or gameplay HUD. Twenty sheet-authored cards explain changes, exact checks, expected behavior and known limits. Personal checkmarks persist locally, and each card can open contextual feedback. F7/Escape returns to the previous screen. **F8** opens one feedback note, with an embedded Windows editable field for your existing **Win+H** shortcut, caret editing, selection, clipboard and undo. No external editor or in-game speech engine is introduced. Windows owns its listening UI and speech privacy settings. End-to-end dictation and focus still need your acceptance. The [review plan](docs/FEEDBACK_REVIEW_PLAN.md) also covers original weapon clip corrections and categorized icon cards. These changes require Drew's interaction checks; checkmarks never mark project tests as passed.
 
 Latest feedback integration adds **Ctrl crouch/jump-crouch**, original crouch poses, generic bullet impact marks, Jeep/Jalopy/APC wheel roll and steering, contact-triggered crash bursts, and live **FPS / health / ammo** readouts. Four new F7 cards explain what to check. These are partial implementations awaiting Drew's acceptance, not one-to-one Source behavior. [19 manual cases](sheets/motion_impact_cases.csv) document the boundaries.
+
+The latest follow-up repairs the wheel coordinate basis and crouch speed lock, adds **E + mouse rotation while holding LMB**, bone-merges third-person weapons with player movement, and replaces ring-biased bullet spread. [The ten-row follow-up sheet](sheets/feedback_followup.csv) also tracks the still-missing full tool coverage, sounds, aiming modes, general prop-impact feedback and ragdolls. These repairs require your gameplay checks.
 
 ## NPC lifecycle continuation
 
@@ -20,7 +22,7 @@ Vehicle spawn/drive/seat/camera headings now use researched original model frame
 
 ## Continue development
 
-- **[Download the complete review workbook](spreadsheets/rust-sandbox-catalog-20260930-impact-crouch.xlsx)**: includes the 169-root-gap backlog, 197 spawn references, 56 detailed capabilities, all 34 weapon, 15 vehicle and 85 NPC runtime coverage rows, menu research, and per-registration Drew-owned acceptance. Use GitHub's **Download raw file** button for Excel/LibreOffice.
+- **[Download the complete review workbook](spreadsheets/rust-sandbox-catalog-20260930-feedback-repairs.xlsx)**: includes the 169-root-gap backlog, 197 spawn references, 56 detailed capabilities, all 34 weapon, 15 vehicle and 85 NPC runtime coverage rows, menu research, and per-registration Drew-owned acceptance. Use GitHub's **Download raw file** button for Excel/LibreOffice.
 - **[Spreadsheet contributor guide](spreadsheets/README.md)**: where to edit, validate, rebuild and regenerate the workbook.
 - **[Remaining feature inventory](sheets/parity_gaps.csv)**: 169 missing/partial/unverified entries covering every cataloged system and tool, with priorities and acceptance checks. Includes nonmatching menus and remaining physgun fidelity gaps.
 - **[Ordered implementation queue](sheets/work_queue.csv)**: dependency-ordered work packages assign every known gap exactly once. The first effects slice is implemented, not reference-equivalent.

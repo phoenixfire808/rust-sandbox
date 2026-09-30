@@ -1,5 +1,14 @@
 # Validation record
 
+## Feedback regression repairs, 2026-09-30 03:01 UTC
+
+- Reviewed seven newer private reports. Preserved originals without publishing their bodies or filenames. Ten authored follow-up rows capture repaired subsets, dependencies and remaining work, all with Drew-owned `not_run` acceptance.
+- Actual executable compilation succeeded in **1m00s** using private `CARGO_TARGET_DIR=D:\jcode-build\rust-sandbox-20260929`: `cargo rustc --offline --locked -p rust-sandbox --bin source-map -- -o D:\jcode-build\rust-sandbox-20260929\source-map-feedback-repairs.exe -C link-arg=/DEBUG:NONE -C link-arg=/INCREMENTAL:NO`. Reviewed local/feedback-repairs-build.log. Remaining diagnostics were the two explicit-output warnings and existing binrw 0.14.2 future compatibility notice.
+- Production catalog validation succeeded: 197 spawn references, 8 creation tabs, 56 capabilities, player/sandbox configuration, 2 map references and 101 base behavior specifications. Workbook export succeeded with **107,470 data rows** to spreadsheets/rust-sandbox-catalog-20260930-feedback-repairs.xlsx. Reviewed local/feedback-repairs-catalog.log. Export is not independent spreadsheet-app acceptance.
+- Reviewed the wheel basis against the shared converter, crouch friction arithmetic, held-anchor rotation and input guards, named bone merging with attachment fallback, and bounded centered spread sampling. These inspections and successful compilation do not prove visible gameplay correctness or native equivalence.
+- F7 now contains 20 cards, including repair checks and unfinished scope. All-tools coverage, native secondary/aim behavior, audio, general heavy-prop impact feedback and articulated ragdolls remain incomplete. No acceptance status was promoted to verified.
+- No tests, test compilation, Clippy, benchmarks, screenshots or input automation were run. The new executable was not launched in this pass, and no active game was terminated. Gameplay acceptance remains with Drew. `git diff --check` passed before this documentation update.
+
 ## Motion and impact feedback integration, 2026-09-30 02:22 UTC
 
 - Reviewed four additional private reports and original crouch/wheel/material metadata. Public source findings are in RESEARCH.md. Reports and original asset payloads remain private/read-only.

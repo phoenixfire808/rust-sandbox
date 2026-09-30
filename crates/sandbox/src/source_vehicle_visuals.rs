@@ -113,8 +113,9 @@ pub fn animate(world: &mut World) {
         let frame = Quat::from_rotation_y(c.forward_yaw);
         let speed = velocity.dot(transform.rotation * (frame * Vec3::NEG_Z));
         let axle = -(frame * Vec3::X);
-        // Bevy model axes x/y/z correspond to Source x/z/-y.
-        let source_axle = Vec3::new(axle.x, -axle.z, axle.y).normalize();
+        // source_position maps Source (x,y,z) to Bevy (-y,z,-x).
+        // Invert that exact basis, not the unrelated (x,z,-y) convention.
+        let source_axle = Vec3::new(-axle.z, -axle.x, axle.y).normalize();
         let steering = if occupied == Some(e) { steer } else { 0. };
         let Some(mut visual) = world.get_mut::<WheelVisuals>(e) else {
             continue;

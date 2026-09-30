@@ -112,7 +112,7 @@ fn capture(world: &mut World, f: &Frontend, explicit: Option<String>) -> serde_j
     let player = world.get_resource::<PlayerState>().map(|p| serde_json::json!({
         "eye_position":p.eye.translation.to_array(),"yaw":p.yaw,"pitch":p.pitch,
         "local_velocity":p.local_velocity.to_array(),"grounded":p.grounded,"noclip":p.noclip,"third_person":p.third_person,
-        "movement":{"command":p.direction.to_array(),"sprinting":p.running,"horizontal_velocity":p.horizontal_velocity.to_array(),"vertical_velocity":p.vertical,
+        "movement":{"command":p.direction.to_array(),"sprinting":p.running,"crouched":p.crouched,"duck_fraction":p.duck_fraction,"walk_speed":p.config.walk_speed,"crouch_fraction":p.config.crouch_speed,"horizontal_velocity":p.horizontal_velocity.to_array(),"vertical_velocity":p.vertical,
             "ground_friction":p.config.ground_friction,"ground_acceleration":p.config.ground_acceleration,"stop_speed":p.config.stop_speed,"air_acceleration":p.config.air_acceleration,"air_speed_cap":p.config.air_speed_cap}
     }));
     let window = world.query_filtered::<&Window, With<PrimaryWindow>>().iter(world).next()

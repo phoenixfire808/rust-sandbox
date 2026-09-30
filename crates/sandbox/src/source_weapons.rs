@@ -29,6 +29,26 @@ struct Projectile {
 #[derive(Component, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub struct Health(pub f32);
 
+// Independent deterministic stream; not Source command-seed/RNG equivalence.
+fn spread_offset(serial: u64, pellet: u32) -> Vec2 {
+    let mut state =
+        serial.wrapping_mul(0x9e3779b97f4a7c15) ^ (u64::from(pellet) << 32) ^ 0xa0761d6478bd642f;
+    let mut uniform = || {
+        state ^= state >> 12;
+        state ^= state << 25;
+        state ^= state >> 27;
+        let bits = state.wrapping_mul(0x2545f4914f6cdd1d) >> 40;
+        bits as f32 / 16777216. - 0.5
+    };
+    for _ in 0..32 {
+        let offset = Vec2::new(uniform() + uniform(), uniform() + uniform());
+        if offset.length_squared() <= 1. {
+            return offset;
+        }
+    }
+    Vec2::ZERO
+}
+
 pub fn equip(world: &mut World, id: &str) {
     let Some(w) = world
         .resource::<PlayState>()
@@ -195,14 +215,9 @@ pub fn input(world: &mut World) {
     } else {
         let serial = world.resource::<WeaponState>().serial;
         for pellet in 0..w.pellets {
-            // Reproducible disc distribution, not a claim of Source RNG/spread parity.
-            let angle =
-                (serial as f32 * 1.618 + pellet as f32 * 2.39996).rem_euclid(std::f32::consts::TAU);
-            let radius = w.spread * ((pellet + 1) as f32 / w.pellets as f32).sqrt();
-            let direction = (*eye.forward()
-                + *eye.right() * angle.cos() * radius
-                + *eye.up() * angle.sin() * radius)
-                .normalize();
+            let spread = spread_offset(serial, pellet) * w.spread;
+            let direction =
+                (*eye.forward() + *eye.right() * spread.x + *eye.up() * spread.y).normalize();
             let aim = Transform::from_translation(eye.translation).looking_to(direction, Vec3::Y);
             let hit = world_hit(world, aim, w.range);
             let end = hit

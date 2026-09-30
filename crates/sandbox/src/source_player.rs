@@ -39,6 +39,7 @@ pub struct PlayerState {
     pub jump: bool,
     pub vertical: f32,
     pub running: bool,
+    pub prop_rotation_delta: Vec2,
     pub crouched: bool,
     pub duck_fraction: f32,
     wants_crouch: bool,
@@ -104,6 +105,7 @@ pub fn spawn(commands: &mut Commands, eye: Vec3, forward: Vec3) {
         jump: false,
         vertical: 0.,
         running: false,
+        prop_rotation_delta: Vec2::ZERO,
         crouched: false,
         duck_fraction: 0.,
         wants_crouch: false,
@@ -132,6 +134,7 @@ pub fn input(
     if keys.just_pressed(KeyCode::F10) && frontend.is_none() {
         exit.write(AppExit::Success);
     }
+    s.prop_rotation_delta = Vec2::ZERO;
     s.direction = Vec3::ZERO;
     s.running = false;
     s.wants_crouch = false;
@@ -140,8 +143,12 @@ pub fn input(
         return;
     }
     if w.cursor_options.grab_mode != CursorGrabMode::None {
-        s.yaw -= delta.x * play.sensitivity;
-        s.pitch = (s.pitch - delta.y * play.sensitivity).clamp(-1.55, 1.55);
+        if play.physgun && play.held.is_some() && keys.pressed(KeyCode::KeyE) {
+            s.prop_rotation_delta = delta * play.sensitivity;
+        } else {
+            s.yaw -= delta.x * play.sensitivity;
+            s.pitch = (s.pitch - delta.y * play.sensitivity).clamp(-1.55, 1.55);
+        }
     }
     if keys.just_pressed(KeyCode::F4) {
         s.third_person = !s.third_person;
@@ -307,8 +314,15 @@ pub(crate) fn walk(
         if s.grounded {
             let current = velocity.length();
             if current > f32::EPSILON {
-                let remaining =
-                    (current - current.max(c.stop_speed) * c.ground_friction * dt).max(0.);
+                // At crouch wish speed, the standing stop floor could remove
+                // more velocity each tick than acceleration can restore.
+                // Retain full release braking, but bound the floor while moving.
+                let stop = if s.crouched && direction.length_squared() > 0. {
+                    c.stop_speed.min(speed)
+                } else {
+                    c.stop_speed
+                };
+                let remaining = (current - current.max(stop) * c.ground_friction * dt).max(0.);
                 velocity *= remaining / current;
             }
         }
@@ -905,43 +919,43 @@ pub(crate) fn visuals(world: &mut World) {
         if third {
             skin(world, &scene.body, &globals);
         }
-        if let Some((_, hand, local)) = scene
+        let mut held_globals = scene
+            .held
+            .skeleton
+            .globals(&scene.held.skeleton.bind_pose());
+        let mut merged = false;
+        for (i, bone) in scene.held.skeleton.bones.iter().enumerate() {
+            if let Some(j) = scene
+                .body
+                .skeleton
+                .bones
+                .iter()
+                .position(|b| b.name == bone.name)
+            {
+                held_globals[i] = globals[j];
+                merged = true;
+            } else if bone.parent >= 0 {
+                held_globals[i] = held_globals[bone.parent as usize] * bone.bind.compute_matrix();
+            }
+        }
+        let held_matrix = if merged {
+            body_transform.compute_matrix()
+        } else if let Some((_, hand, local)) = scene
             .body
             .skeleton
             .attachments
             .iter()
             .find(|(name, _, _)| name == "anim_attachment_RH")
         {
-            // Attach to the authored weapon attachment, including its local orientation.
-            let matrix = body_transform.compute_matrix()
-                * source_animation::bevy_matrix(globals[*hand] * *local, 0.01905);
-            *world.get_mut::<Transform>(scene.held.root).unwrap() = Transform::from_matrix(matrix);
-            if let Some((_, bone, local)) = scene
-                .held
-                .skeleton
-                .attachments
-                .iter()
-                .find(|(n, _, _)| n == "muzzle")
-            {
-                let held_globals = scene
-                    .held
-                    .skeleton
-                    .globals(&scene.held.skeleton.bind_pose());
-                world.resource_mut::<PlayerState>().muzzle = (matrix
-                    * source_animation::bevy_matrix(held_globals[*bone] * *local, 0.01905))
-                .transform_point3(Vec3::ZERO);
-            }
-        }
+            body_transform.compute_matrix()
+                * source_animation::bevy_matrix(globals[*hand] * *local, 0.01905)
+        } else {
+            body_transform.compute_matrix()
+        };
+        *world.get_mut::<Transform>(scene.held.root).unwrap() = Transform::from_matrix(held_matrix);
         if third {
-            let held_globals = scene
-                .held
-                .skeleton
-                .globals(&scene.held.skeleton.bind_pose());
-            let transform = world
-                .get::<Transform>(scene.held.root)
-                .unwrap()
-                .compute_matrix();
-            update_effect_attachments(world, &scene.held, &held_globals, transform);
+            skin(world, &scene.held, &held_globals);
+            update_effect_attachments(world, &scene.held, &held_globals, held_matrix);
             return;
         }
         let play = world.resource::<PlayState>();

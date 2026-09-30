@@ -1,5 +1,15 @@
 # Research record
 
+## 2026-09-30 feedback regression follow-up
+
+- User feedback rejected wheel axes and crouch speed in the previous release. Code inspection found a definite coordinate mismatch: `source_position` uses `(-y,z,-x)` but the new wheel code had assumed `(x,z,-y)`. Corrected the inverse basis. No original model assets were changed.
+- Inspected the shared movement implementation and existing SDK `Friction`/`Accelerate` reference. At the authored 60 Hz and crouch speed, standing stop-floor friction exceeded one tick of acceleration. The repair bounds that floor only during active crouch movement, preserving release braking. This is deliberately documented as a prototype correction, not a sourced native formula change or measured gameplay result.
+- [Facepunch EF enumeration](https://wiki.facepunch.com/gmod/Enums/EF) explicitly describes EF_BONEMERGE as matching parent/child bones by name. Reused that semantic and the existing hands-merging implementation for held world weapons instead of placing the whole model origin at the hand attachment. Full hold/aim layers and IK remain separate.
+- [Valve CShotManipulator reference](https://github.com/ValveSoftware/source-sdk-2013/blob/master/src/game/shared/shot_manipulator.h) documents centered spread using combined uniform draws and unit-disc rejection with bias controls. Replaced the independent prototype's fixed-radius ring with centered bounded sampling. The new local xorshift-based stream does not reproduce Source command seeds, RNG, bias convars or weapon-specific accuracy/recoil state.
+- Located the official [physgun guide](https://wiki.facepunch.com/gmod/Using_your_Physgun) and [prop_ragdoll overview](https://developer.valvesoftware.com/wiki/Prop_ragdoll) for continued reference work. Ragdolls are constrained collections of physics bodies, not one rigid prop. This pass did not parse PHY solids or implement articulated physics, all sound events, or universal aiming. Their detailed dependencies remain in feedback_followup.csv.
+- Audited the complete current `source_tools.csv`: 13 partial rows including custom Freeze, 22 missing and 3 reference-only. This is an implementation inventory, not successful action-by-action acceptance. No tests, screenshots, audio playback or input automation were run.
+
+
 ## 2026-09-30 crouch, impact and wheel review
 
 - Reviewed [Source SDK movement](https://github.com/ValveSoftware/source-sdk-2013/blob/master/src/game/shared/gamemovement.cpp), especially `CanUnduck`, `FinishDuck`, `FinishUnDuck` and duck timing. Grounded origin adjustment preserves feet, airborne adjustment raises feet, and unduck must trace the standing hull. This independent Rapier capsule implementation retains those broad rules but not Source box-hull or complete command/duck-jump semantics. The authored 36-unit duck height and 28-unit eye offset are prototype reference dimensions, not measured GMod acceptance. Conversion is 0.01905 m per Source unit.
