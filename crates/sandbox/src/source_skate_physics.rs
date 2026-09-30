@@ -110,7 +110,9 @@ pub(crate) fn step(world: &mut World) {
             Vec3::ZERO
         };
         let mut torque = Vec3::ZERO;
-        let rest = b.wheel_radius * 2. + b.suspension;
+        // Each probe starts at the wheel axle, not the deck center. At rest,
+        // the ray spans one wheel radius plus the authored suspension stroke.
+        let rest = b.wheel_radius + b.suspension;
         let mut contacts = Vec::new();
         if up.y > 0.1 && now >= state.pop_ignore {
             for x in [-b.track * 0.5, b.track * 0.5] {
@@ -119,7 +121,8 @@ pub(crate) fn step(world: &mut World) {
                     if active && manual.abs() > 0.1 && (z < 0.) == (manual > 0.) {
                         continue;
                     }
-                    let offset = t.rotation * Vec3::new(x, 0., z);
+                    let axle_offset = Vec3::new(x, -b.wheel_radius, z);
+                    let offset = t.rotation * axle_offset;
                     if let Some((_, distance, normal)) =
                         contact(world, t.translation + offset, -up, rest, e)
                     {

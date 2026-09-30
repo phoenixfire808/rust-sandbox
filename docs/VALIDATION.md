@@ -1,5 +1,14 @@
 # Validation record
 
+## Skateboard alignment and blocked vehicle exit follow-up, 2026-09-30 11:32 UTC
+
+- Implemented axle-origin suspension rays with wheel-radius-matched reach, authored 14 mm suspension travel and 4 mm board spawn clearance. The skateboard rider root now inherits deck pitch/roll while keeping regular/goofy yaw. If a vehicle exit capsule is obstructed, the system tries the original clear mount point; when both positions are blocked it holds the completed exit state and retries rather than restarting entry. These source changes are approximations, not measured Skate 3 physics or foot-locking.
+- Production catalog validation passed on D: with **197 spawn references, eight creation tabs, 56 capabilities, two map references, four prop definitions, five scene instances, 60 Hz and 101 behavior specifications**.
+- Production workbook export wrote **108,017 data rows** to `spreadsheets/rust-sandbox-catalog-20260930-skate3-alignment.xlsx`. The existing workbook verifier passed all **89 sheets**, all source/inventory row counts and the no-formula check. It reports **40 skateboard coverage rows** and **40 skateboard manual cases**, all Drew-owned and `not_run`. CSV remains authoritative.
+- The actual playable `source-map` executable compiled successfully in **6m 59s** with Cargo home, target, temp, checkout and output on D:. Artifact: `D:\\jcode-build\\rust-sandbox-20260929\\source-map-skate3-alignment.exe`, **75,402,752 bytes**. Only Cargo's multi-output naming/out-dir warnings and the existing `binrw` future-compatibility notice remained.
+- Reference review used Skate 3 screenshots and publicly available control information. Still images do not prove timing or physics. **No tests, screenshots, input automation, game launch or gameplay acceptance were run.** Drew owns the 40 manual skateboard cases and actual board/dismount feel. Full Skate 3 parity remains unclaimed; foot IK, articulated rider balance, calibrated wheel/tire behavior, trick timing and animation are still open.
+- `git diff --check` passed. All project edits and build outputs for this follow-up are in the D: checkout/target; the C: project checkout was not edited.
+
 ## Selectable skateboarding integration, 2026-09-30 09:09 UTC
 
 - Added four independently authored profiles, original procedural boards/rail/bank, keyboard and read-only Windows XInput adapters, fixed-step contact/trick forces and existing vehicle/scene/undo integration. Reviewed all shared-file diffs. No worker sessions were started for this batch.

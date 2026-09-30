@@ -31,7 +31,11 @@ skate_29,saves,Save four different preset boards with rail and bank then restore
 skate_30,undo_duplicate,Duplicate a board and obstacles then undo and remove,Existing tool lifecycles retain expected geometry and profile identity,Drew,not_run
 skate_31,bail,Remove occupied board or restore a different scene,Player is released without stale board controls or references,Drew,not_run
 skate_32,wheels,Observe rolling and carving board in F4,Wheel and truck pivots stay attached while rotating,Drew,not_run
-skate_33,rider,Compare first and third person while popping flipping and exiting,Rider remains upright with documented generic pose and normal camera returns on exit,Drew,not_run
+skate_33,rider,Compare first and third person while popping flipping and exiting,Rider root follows board pitch and roll with a generic non-firearm hold during tricks and the normal camera returns on exit,Drew,not_run
 skate_34,hud,Open F7 and compare its guide with mounted HUD at usual resolution,Four cards and preset stance speed controls are readable without claiming full parity,Drew,not_run
 skate_35,regression,After skating drive stock Jeep and Airboat and use weapons and tools,Existing systems retain their separate control and physics routes,Drew,not_run
 skate_36,calibration,Compare the same push slope pop and landing across all four profiles,Record subjective differences and failures without treating labels as real-world validation,Drew,not_run
+skate_37,wheel_alignment,Spawn each skateboard on flat ground and inspect the wheel-to-floor and deck-to-rider gaps,Visible wheels settle onto the floor without hovering or sinking and the deck remains consistently under the rider,Drew,not_run
+skate_38,rider_board_coupling,Mount in regular and goofy stance then pop flip catch and land while watching the rider root from F4,The rider follows board pitch and roll without losing stance; per-foot locking is still a known limitation,Drew,not_run
+skate_39,blocked_dismount,Press E to exit where the destination capsule is blocked then clear the destination,Exit remains pending or releases at the original clear mount point; player does not snap or remount onto the board,Drew,not_run
+skate_40,dismount,Exit an upright moving and stationary board into clear ground,Player is released once and board continues independently without stale occupancy or controls,Drew,not_run

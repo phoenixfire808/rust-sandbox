@@ -363,8 +363,10 @@ pub fn update(world: &mut World) {
         s.previous_yaw = yaw;
         s.body_rotation = transform.rotation * Quat::from_rotation_y(c.seat_yaw);
         if c.kind == "skateboard" {
-            // Rider stays upright during board flips. Native foot IK remains a separate gap.
-            s.body_rotation = Quat::from_rotation_y(yaw + if skate_goofy { -c.seat_yaw } else { c.seat_yaw });
+            // Keep the rider root attached to the deck during pop, flip and landing.
+            // Articulated foot locking remains a separate animation-system gap.
+            s.body_rotation = transform.rotation
+                * Quat::from_rotation_y(if skate_goofy { -c.seat_yaw } else { c.seat_yaw });
         }
         let seated_center = seat + Vec3::Y * (player_height * 0.5);
         if let Some(exit) = s.exit_to {
@@ -407,9 +409,27 @@ pub fn update(world: &mut World) {
         if clear_hull(world, center) {
             release(world, Some(center));
         } else {
-            let mut s = world.resource_mut::<Occupancy>();
-            s.exit_to = None;
-            s.elapsed = c.entry_seconds;
+            if exiting {
+                let fallback = world.resource::<Occupancy>().entry_from;
+                if clear_hull(world, fallback) {
+                    release(world, Some(fallback));
+                    world.resource_mut::<PlayState>().status =
+                        "Exit became blocked. Dismounted at the clear mount point.".into();
+                } else {
+                    let mut s = world.resource_mut::<Occupancy>();
+                    // Keep retrying without restarting entry. If both safe positions
+                    // become blocked, do not put the rider back onto the vehicle.
+                    s.elapsed = c.exit_seconds;
+                    s.weight = 0.;
+                    s.throttle = 0.;
+                    s.steering = 0.;
+                    s.steering_target = 0.;
+                    s.brake = true;
+                    drop(s);
+                    world.resource_mut::<PlayState>().status =
+                        "Dismount blocked. Clear space around the exit to finish leaving.".into();
+                }
+            }
         }
         return;
     }

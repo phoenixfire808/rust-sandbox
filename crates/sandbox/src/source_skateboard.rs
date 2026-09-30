@@ -96,7 +96,7 @@ pub fn definition(world: &World, id: &str) -> Option<sandbox_catalog::spawn::Veh
         exit_distance: b.exit_distance,
         entry_seconds: b.enter_seconds,
         exit_seconds: b.exit_seconds,
-        pose: "@cidle_pistol".into(),
+        pose: "@cidle_melee".into(),
         scope: p.scope.clone(),
         remaining: p.remaining.clone(),
     })
@@ -259,13 +259,20 @@ pub fn spawn(world: &mut World, choice: &str) {
     let height = match choice {
         "rail" => b.rail_height * 0.5,
         "bank" => b.bank_length * 0.5 * b.bank_angle.sin() + b.thickness,
-        _ => b.wheel_radius * 2. + b.suspension,
+        _ => b.wheel_radius * 2.,
     };
     remember(world);
     match spawn_model(
         world,
         &path,
-        hit.point + Vec3::Y * (height + 0.02),
+        hit.point
+            + Vec3::Y
+                * (height
+                    + if matches!(choice, "rail" | "bank") {
+                        0.02
+                    } else {
+                        0.004
+                    }),
         rotation,
         matches!(choice, "rail" | "bank"),
     ) {
