@@ -1,4 +1,10 @@
 id,paths,volume,range,cooldown,evidence
+physgun.on,sound/weapons/physcannon/physcannon_pickup.wav,0.22,20,0.05,Independent activation cue using original PhysCannon.Pickup; stock Physgun.On waveform absent from mounted catalog
+physgun.off,sound/weapons/physgun_off.wav,0.22,20,0.05,Weapon_Physgun.Off original Source script; independent GMod state integration
+physgun.scan,sound/weapons/physcannon/physcannon_charge.wav,0.22,20,0,Independent scan loop using original PhysCannon.Charge; native physgun_loop2 absent
+physgun.hold,sound/weapons/physcannon/hold_loop.wav,0.4,20,0,Independent hold loop using original PhysCannon.HoldSound; native physgun_loop1 absent
+physgun.freeze,sound/weapons/physcannon/physcannon_claws_close.wav,0.2,20,0.05,Independent freeze cue using original close-claw asset; native freeze mapping unresolved
+physgun.unfreeze,sound/weapons/physcannon/physcannon_claws_open.wav,0.2,20,0.05,Independent unfreeze cue using original open-claw asset; native unfreeze mapping unresolved
 weapon_weapon_pistol.fire,sound/weapons/pistol/pistol_fire2.wav,0.55,80,0,Weapon_Pistol.Single original script
 weapon_weapon_357.fire,sound/weapons/357/357_fire2.wav|sound/weapons/357/357_fire3.wav,0.93,100,0,Weapon_357.Single original script
 weapon_weapon_smg1.fire,sound/weapons/smg1/smg1_fire1.wav,0.55,80,0,Weapon_SMG1.Single original script

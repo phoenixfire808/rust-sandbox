@@ -18,6 +18,12 @@ pub struct EffectsConfig {
     pub beam_scroll: f32,
     pub pulse_hz: f32,
     pub pulse_depth: f32,
+    pub reload_double_seconds: f32,
+    pub snap_degrees: f32,
+    pub claw_rate: f32,
+    pub distance_speed: f32,
+    pub prongs_shut: String,
+    pub prongs_open: String,
 }
 impl EffectsConfig {
     pub fn validate(&self) -> Result<()> {
@@ -43,10 +49,17 @@ impl EffectsConfig {
             (self.beam_scroll, -20., 20.),
             (self.pulse_hz, 0., 20.),
             (self.pulse_depth, 0., 0.9),
+            (self.reload_double_seconds, 0.1, 1.),
+            (self.snap_degrees, 1., 90.),
+            (self.claw_rate, 0.1, 30.),
+            (self.distance_speed, 0.1, 30.),
         ] {
             if !value.is_finite() || !(low..=high).contains(&value) {
                 return Err("invalid effect parameter".into());
             }
+        }
+        if self.prongs_shut.is_empty() || self.prongs_open.is_empty() || self.prongs_shut.len() > 128 || self.prongs_open.len() > 128 {
+            return Err("invalid physgun prong clip names".into());
         }
         Ok(())
     }

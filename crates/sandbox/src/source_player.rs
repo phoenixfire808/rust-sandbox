@@ -199,6 +199,7 @@ pub fn input(
         },
         axis(KeyCode::KeyS, KeyCode::KeyW),
     );
+    if play.physgun && play.held.is_some() && keys.pressed(KeyCode::KeyE) { s.direction.z = 0.; }
     s.wants_crouch =
         !s.noclip && (keys.pressed(KeyCode::ControlLeft) || keys.pressed(KeyCode::ControlRight));
     s.running =
@@ -686,6 +687,16 @@ fn create_scene(world: &mut World) -> Result<Scene> {
         layout: crate::compiled_layout_config(),
     })
 }
+fn physgun_prongs(world: &World, actor: &Actor, pose: &mut [Transform]) {
+    let state = world.resource::<source_play::physgun::State>();
+    let (Some(shut), Some(open)) = (actor.clips.get(&state.config.prongs_shut), actor.clips.get(&state.config.prongs_open)) else { return; };
+    for ((p,a),b) in pose.iter_mut().zip(shut.sample(0.)).zip(open.sample(0.)) {
+        if a.translation.distance_squared(b.translation) > 1e-8 || a.rotation.dot(b.rotation).abs() < 0.999999 {
+            p.translation = a.translation.lerp(b.translation, state.claws);
+            p.rotation = a.rotation.slerp(b.rotation, state.claws);
+        }
+    }
+}
 fn create_weapons(
     world: &mut World,
     camera: Entity,
@@ -760,7 +771,7 @@ fn create_weapons(
         }
         let hands = actor(world, &c.hands, 1, Some(camera))?;
         created.push(hands.root);
-        let held = actor(
+        let mut held = actor(
             world,
             if !physgun && !toolgun {
                 &definition.world_model
@@ -773,6 +784,16 @@ fn create_weapons(
             None,
         )?;
         created.push(held.root);
+        if physgun {
+            let fx = crate::compiled_effects_config();
+            for name in [&fx.prongs_shut, &fx.prongs_open] {
+                for (actor, model) in [(&mut view, path.as_str()), (&mut held, c.world_physgun.as_str())] {
+                    if let Err(e) = add_clip(world, actor, model, name) {
+                        eprintln!("PHYSGUN_PRONGS_MISSING {model} {name}: {e}");
+                    }
+                }
+            }
+        }
         Ok((view, hands, held))
     })();
     if result.is_err() {
@@ -1025,10 +1046,9 @@ pub(crate) fn visuals(world: &mut World) {
         if third {
             skin(world, &scene.body, &globals);
         }
-        let mut held_globals = scene
-            .held
-            .skeleton
-            .globals(&scene.held.skeleton.bind_pose());
+        let mut held_pose = scene.held.skeleton.bind_pose();
+        if physgun { physgun_prongs(world, &scene.held, &mut held_pose); }
+        let mut held_globals = scene.held.skeleton.globals(&held_pose);
         let mut merged = false;
         for (i, bone) in scene.held.skeleton.bones.iter().enumerate() {
             if let Some(j) = scene
@@ -1041,7 +1061,7 @@ pub(crate) fn visuals(world: &mut World) {
                 held_globals[i] = globals[j];
                 merged = true;
             } else if bone.parent >= 0 {
-                held_globals[i] = held_globals[bone.parent as usize] * bone.bind.compute_matrix();
+                held_globals[i] = held_globals[bone.parent as usize] * held_pose[i].compute_matrix();
             }
         }
         let held_matrix = if merged {
@@ -1072,7 +1092,7 @@ pub(crate) fn visuals(world: &mut World) {
         };
         let generic =
             scene.weapon_id != "weapon_weapon_physgun" && scene.weapon_id != "weapon_gmod_tool";
-        let pose = if generic {
+        let mut pose = if generic {
             let state = world.resource::<source_play::weapons::WeaponState>();
             let reload = state
                 .reload
@@ -1118,6 +1138,7 @@ pub(crate) fn visuals(world: &mut World) {
         } else {
             scene.view.clips[idle].sample(time)
         };
+        if physgun { physgun_prongs(world, &scene.view, &mut pose); }
         let view_globals = scene.view.skeleton.globals(&pose);
         skin(world, &scene.view, &view_globals);
         update_effect_attachments(world, &scene.view, &view_globals, view_matrix);

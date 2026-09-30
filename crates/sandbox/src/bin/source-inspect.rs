@@ -127,12 +127,28 @@ fn main() -> Result<()> {
         for i in 0..int(180) {
             let o = int(184) + i * 100;
             println!(
-                "RAWANIM {} frames={} block={} sections={}",
+                "RAWANIM {} frames={} block={} sections={} flags={:#x}",
                 text(o + int(o + 4)),
                 int(o + 16),
                 int(o + 52),
-                int(o + 84)
+                int(o + 84),
+                int(o + 12)
             );
+            if metadata && int(o + 52) == 0 && int(o + 84) == 0 && int(o + 56) != 0 {
+                let mut cursor = o.checked_add(int(o + 56));
+                for _ in 0..256 {
+                    let Some(at) = cursor else { break };
+                    let Some(record) = bytes.get(at..at.saturating_add(4)) else {
+                        break;
+                    };
+                    println!("RAWBONE bone={} flags={:#x}", record[0], record[1]);
+                    let next = u16::from_le_bytes([record[2], record[3]]) as usize;
+                    if next == 0 {
+                        break;
+                    }
+                    cursor = at.checked_add(next);
+                }
+            }
         }
         if metadata || path.contains("_anm") {
             continue;

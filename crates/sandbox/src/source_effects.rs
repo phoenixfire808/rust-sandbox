@@ -33,6 +33,7 @@ struct Effects {
     endpoint: Entity,
     beam: Entity,
     beam_mesh: Handle<Mesh>,
+    materials: [Handle<StandardMaterial>; 2],
 }
 #[derive(Resource)]
 struct Failed;
@@ -89,7 +90,7 @@ fn create(world: &mut World, glow: Image, beam: Image) -> Effects {
         .spawn((
             Beam,
             Mesh3d(beam_mesh.clone()),
-            MeshMaterial3d(beam_mat),
+            MeshMaterial3d(beam_mat.clone()),
             Transform::default(),
             Visibility::Hidden,
             NoFrustumCulling,
@@ -102,6 +103,7 @@ fn create(world: &mut World, glow: Image, beam: Image) -> Effects {
         endpoint,
         beam,
         beam_mesh,
+        materials: [glow_mat, beam_mat],
     }
 }
 fn load(world: &mut World) -> Result<Effects> {
@@ -193,6 +195,14 @@ fn update(world: &mut World) {
         }
     }
     world.resource_scope(|world, fx: Mut<Effects>| {
+        let color = if world.resource::<PlayState>().physgun {
+            world.resource::<crate::source_play::physgun::State>().color
+        } else { [fx.config.red, fx.config.green, fx.config.blue] };
+        for handle in &fx.materials {
+            if let Some(m) = world.resource_mut::<Assets<StandardMaterial>>().get_mut(handle) {
+                m.base_color = Color::srgb(color[0],color[1],color[2]);
+            }
+        }
         for &entity in fx.glows.iter().chain([&fx.endpoint, &fx.beam]) {
             *world.get_mut::<Visibility>(entity).unwrap() = Visibility::Hidden;
         }

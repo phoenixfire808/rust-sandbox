@@ -85,6 +85,7 @@ pub fn equip(world: &mut World, id: &str) {
     }
     let now = world.resource::<Time>().elapsed_secs();
     let tuning = world.resource::<PlayState>().spawn_catalog.runtime.clone();
+    physgun::reset(world);
     {
         let mut state = world.resource_mut::<WeaponState>();
         state.ammo.entry(id.into()).or_insert(Ammo {

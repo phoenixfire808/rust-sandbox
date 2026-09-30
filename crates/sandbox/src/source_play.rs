@@ -19,6 +19,8 @@ use sandbox_catalog::{Result, play::PlayConfig};
 use std::collections::BTreeMap;
 #[path = "source_audio.rs"]
 pub(crate) mod audio;
+#[path = "source_physgun.rs"]
+pub(crate) mod physgun;
 #[path = "source_impacts.rs"]
 pub(crate) mod impacts;
 #[path = "source_menu.rs"]
@@ -221,6 +223,7 @@ impl Plugin for SourcePlayPlugin {
         .init_resource::<tools::pulley::Stage>()
         .init_resource::<tools::posers::Selection>()
         .init_resource::<audio::Audio>()
+        .init_resource::<physgun::State>()
         .add_systems(FixedUpdate, audio::record_motion.before(PhysicsSet::SyncBackend).after(vehicles::drive).after(tools::devices::physics))
         .add_systems(FixedUpdate, audio::contacts.after(PhysicsSet::Writeback))
         .add_systems(Update, audio::update.after(tools::devices::view).after(tools::input).after(tools::devices::effects).after(weapons::simulate))
@@ -273,6 +276,7 @@ impl Plugin for SourcePlayPlugin {
             (
                 search_input,
                 update_play,
+                physgun::update,
                 vehicles::update,
                 tools::devices::input,
                 tools::constraints::input,
@@ -671,6 +675,7 @@ pub(crate) fn search_input(mut events: EventReader<KeyboardInput>, mut state: Re
 
 pub fn update_play(world: &mut World) {
     if crate::source_frontend::active(world) {
+        physgun::reset(world);
         let menus: Vec<_> = world
             .query_filtered::<Entity, With<MenuRoot>>()
             .iter(world)
@@ -760,6 +765,7 @@ pub fn update_play(world: &mut World) {
     if !npcs::dead(world)
         && !world.resource::<PlayState>().menu_open
         && focused
+        && !tools::devices::viewing(world)
         && world.resource::<vehicles::Occupancy>().vehicle.is_none()
     {
         if keys.just_pressed(KeyCode::Enter) {
@@ -787,9 +793,11 @@ pub fn update_play(world: &mut World) {
         if keys.just_pressed(KeyCode::F6) {
             actions.push(UiAction::Load);
         }
+        if !mouse.pressed(MouseButton::Left) { world.resource_mut::<physgun::State>().blocked_until_release = false; }
+        let grabbing = mouse.pressed(MouseButton::Left) && !mouse.pressed(MouseButton::Right)
+            && !world.resource::<physgun::State>().blocked_until_release;
         let needs_target = world.resource::<PlayState>().physgun
-            && (mouse.just_pressed(MouseButton::Left)
-                || mouse.just_pressed(MouseButton::Right)
+            && (grabbing
                 || keys.just_pressed(KeyCode::KeyR));
         let focus = world
             .resource::<PlayState>()
@@ -801,7 +809,7 @@ pub fn update_play(world: &mut World) {
                     .map(|p| p.0)
             })
             .filter(|e| world.get::<npcs::NpcBody>(*e).is_none());
-        if world.resource::<PlayState>().physgun && mouse.just_pressed(MouseButton::Left) {
+        if world.resource::<PlayState>().physgun && grabbing && world.resource::<PlayState>().held.is_none() {
             if let Some(e) = focus {
                 remember(world);
                 let distance = aimed_prop(world).map(|p| p.1).unwrap_or(5.).clamp(0.1, 50.);
@@ -812,28 +820,34 @@ pub fn update_play(world: &mut World) {
                 s.held_anchor = transform.rotation.inverse() * (hit - transform.translation);
                 s.held = Some(e);
                 s.distance = distance;
-                world.entity_mut(e).insert(RigidBody::Dynamic);
+                world.entity_mut(e).insert((RigidBody::Dynamic, Sleeping::default()));
             }
         }
         if mouse.just_released(MouseButton::Left) {
             world.resource_mut::<PlayState>().held = None;
         }
         if world.resource::<PlayState>().physgun && mouse.just_pressed(MouseButton::Right) {
-            if let Some(e) = focus {
+            if let Some(e) = world.resource::<PlayState>().held {
+                remember(world);
                 world
                     .entity_mut(e)
                     .insert((RigidBody::Fixed, Velocity::zero()));
                 world.resource_mut::<PlayState>().held = None;
+                world.resource_mut::<physgun::State>().blocked_until_release = true;
+                audio::emit(world, "physgun.freeze", None, 1.);
             }
         }
         if world.resource::<PlayState>().physgun && keys.just_pressed(KeyCode::KeyR) {
-            if let Some(e) = focus {
-                remember(world);
-                world.entity_mut(e).insert(RigidBody::Dynamic);
-            }
+            physgun::reload(world, focus);
         }
         if let Some(e) = world.resource::<PlayState>().held {
             if let Some(cam) = camera(world) {
+                if keys.pressed(KeyCode::KeyE) {
+                    let direction = (keys.pressed(KeyCode::KeyW) as i32 - keys.pressed(KeyCode::KeyS) as i32) as f32;
+                    let change = direction * world.resource::<physgun::State>().config.distance_speed * world.resource::<Time>().delta_secs();
+                    let mut p = world.resource_mut::<PlayState>();
+                    p.distance = (p.distance + change).clamp(0.1,50.);
+                }
                 let (distance, gain, speed) = {
                     let s = world.resource::<PlayState>();
                     (s.distance, s.config.hold_gain, s.config.hold_max_speed)
@@ -853,12 +867,7 @@ pub fn update_play(world: &mut World) {
                             .get_resource::<crate::source_player::PlayerState>()
                             .map(|p| p.prop_rotation_delta)
                             .unwrap_or(Vec2::ZERO);
-                        let rotation = Quat::from_axis_angle(*cam.right(), -delta.y)
-                            * Quat::from_rotation_y(-delta.x);
-                        let mut transform = world.get_mut::<Transform>(e).unwrap();
-                        let pivot = transform.translation + transform.rotation * anchor;
-                        transform.rotation = (rotation * transform.rotation).normalize();
-                        transform.translation = pivot - transform.rotation * anchor;
+                        physgun::rotate(world, e, cam, delta, keys.pressed(KeyCode::ShiftLeft) || keys.pressed(KeyCode::ShiftRight));
                     }
                 } else {
                     world.resource_mut::<PlayState>().held = None;
@@ -866,14 +875,17 @@ pub fn update_play(world: &mut World) {
             }
         }
     }
+    let allowed = !npcs::dead(world) && !tools::devices::viewing(world)
+        && world.resource::<vehicles::Occupancy>().vehicle.is_none()
+        && !world.resource::<physgun::State>().blocked_until_release;
     {
         let mut s = world.resource_mut::<PlayState>();
-        s.beam_active = focused
+        s.beam_active = allowed && focused
             && !s.menu_open
             && s.physgun
             && mouse.pressed(MouseButton::Left)
             && !mouse.pressed(MouseButton::Right);
-        if !focused || s.menu_open || !s.physgun || !mouse.pressed(MouseButton::Left) {
+        if !allowed || !focused || s.menu_open || !s.physgun || !mouse.pressed(MouseButton::Left) {
             s.held = None;
         }
     }
@@ -903,7 +915,7 @@ pub fn update_play(world: &mut World) {
         let mode = if vehicle.vehicle.is_some() {
             "WASD: drive | Space: brake | E: exit | F4: view"
         } else if s.physgun {
-            "LMB: hold | E + mouse: rotate | RMB: freeze | R: unfreeze | Wheel: distance | Q: build"
+            "LMB: hold | E + Shift: snap rotation | RMB: freeze held | R: unfreeze | Double R: all | Wheel: distance"
         } else {
             "LMB: use | RMB: aim (guns) | R: reload | V: fly | Shift: boost | Alt: precision | Q: build"
         };
@@ -1053,6 +1065,11 @@ fn perform(world: &mut World, action: UiAction) {
             tools::constraints::clear(world);
         }
         UiAction::Setting(key, value) => {
+            if let Some(axis) = ["physgun_red", "physgun_green", "physgun_blue"].iter().position(|k| *k == key) {
+                physgun::color(world, axis, value);
+                world.resource_mut::<PlayState>().dirty = true;
+                return;
+            }
             if key == "audio_volume" || key == "audio_shake" {
                 audio::settings(world, value, key == "audio_shake");
                 world.resource_mut::<PlayState>().dirty = true;

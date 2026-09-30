@@ -10,6 +10,7 @@ struct Voice {
     range: f32,
     point: Option<Vec3>,
     weapon: Option<String>,
+    loop_id: Option<String>,
 }
 #[derive(Component)]
 struct Listener;
@@ -246,13 +247,36 @@ pub(crate) fn update(world: &mut World) {
     }
     let volume = world.resource::<Audio>().volume;
     let ttl = world.resource::<Audio>().catalog.config.voice_seconds;
+    let p = world.resource::<PlayState>();
+    let desired_loop = (p.physgun
+        && p.beam_active
+        && world.resource::<vehicles::Occupancy>().vehicle.is_none()
+        && !tools::devices::viewing(world))
+    .then_some(if p.held.is_some() {
+        "physgun.hold"
+    } else {
+        "physgun.scan"
+    });
     let voices: Vec<_> = world
         .query::<(Entity, &Voice)>()
         .iter(world)
-        .map(|(e, v)| (e, v.born, v.gain, v.range, v.point, v.weapon.clone()))
+        .map(|(e, v)| {
+            (
+                e,
+                v.born,
+                v.gain,
+                v.range,
+                v.point,
+                v.weapon.clone(),
+                v.loop_id.clone(),
+            )
+        })
         .collect();
-    for (e, born, gain, range, point, weapon) in voices {
-        if now - born > ttl
+    for (e, born, gain, range, point, weapon, loop_id) in voices {
+        if (loop_id.is_none() && now - born > ttl)
+            || loop_id
+                .as_deref()
+                .is_some_and(|id| Some(id) != desired_loop)
             || weapon
                 .as_ref()
                 .is_some_and(|id| id != &world.resource::<PlayState>().active_weapon)
@@ -271,6 +295,49 @@ pub(crate) fn update(world: &mut World) {
         }
         if let Some(mut sink) = world.get_mut::<SpatialAudioSink>(e) {
             sink.set_volume(v);
+        }
+    }
+    if let Some(id) = desired_loop {
+        let exists = world
+            .query::<&Voice>()
+            .iter(world)
+            .any(|v| v.loop_id.as_deref() == Some(id));
+        if !exists && volume > 0. {
+            if let Some(event) = world
+                .resource::<Audio>()
+                .catalog
+                .events
+                .iter()
+                .find(|e| e.id == id)
+                .cloned()
+            {
+                let handle = event
+                    .paths
+                    .split('|')
+                    .find_map(|p| world.resource::<Audio>().cache.get(p).cloned().flatten());
+                if let Some(handle) = handle {
+                    if world.query::<&Voice>().iter(world).count()
+                        < world.resource::<Audio>().catalog.config.max_voices
+                    {
+                        let weapon = Some(world.resource::<PlayState>().active_weapon.clone());
+                        world.spawn((
+                            Voice {
+                                born: now,
+                                gain: event.volume,
+                                range: event.range,
+                                point: None,
+                                weapon,
+                                loop_id: Some(id.into()),
+                            },
+                            AudioPlayer::new(handle),
+                            PlaybackSettings {
+                                volume: Volume::Linear(volume * event.volume),
+                                ..PlaybackSettings::LOOP
+                            },
+                        ));
+                    }
+                }
+            }
         }
     }
     let queue = std::mem::take(&mut world.resource_mut::<Audio>().queue);
@@ -330,6 +397,7 @@ pub(crate) fn update(world: &mut World) {
                 range: event.range,
                 point: req.point,
                 weapon,
+                loop_id: None,
             },
             AudioPlayer::new(handle),
             PlaybackSettings {

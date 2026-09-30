@@ -1,0 +1,15 @@
+id,scenario,expected,remaining,acceptance_owner,result
+acquire,Hold LMB on empty space then sweep onto a prop,Beam scans and acquires eligible prop without a new click,Native target classes permissions and ragdoll bones,Drew,not_run
+freeze,Hold prop with LMB then press RMB while keeping LMB down,Only held prop freezes and stays frozen until a fresh LMB gesture,Native freeze visual effect and exact ownership hooks,Drew,not_run
+freeze_miss,Aim at an unheld prop and press RMB,Unheld prop does not freeze,No native allow-freeze hook surface,Drew,not_run
+unfreeze,Aim at frozen prop and tap R once,Target wakes without altering map bodies or NPCs,Native ragdoll and persistent-prop policy,Drew,not_run
+all_unfreeze,Freeze several props then tap R twice within authored 0.3 seconds,All frozen spawned bodies except NPCs unfreeze in this single-player scene,Native engine threshold and multiplayer ownership tracking,Drew,not_run
+reload_reset,Tap R then open UI or switch weapons before returning and tapping R,A new isolated tap cannot reuse the previous double-tap window,Gameplay transition acceptance,Drew,not_run
+freeze_undo,Freeze or unfreeze then press Z,Existing snapshot undo restores prior physical state and clears transient physgun state,Native undo granularity remains different,Drew,not_run
+rotation,Grab off-center then hold E and move mouse with and without either Shift,Continuous raw rotation accumulates while visible orientation snaps at authored 45-degree intervals around grab pivot,Native Euler axis roll controls and collision-safe angular response,Drew,not_run
+distance,Hold E plus W or S while grabbing then release E and walk,Distance changes without adding forward walking input during E; ordinary walking returns on release,Native distance rate and existing momentum,Drew,not_run
+claws,Fire acquire release freeze and switch in first and third person,Original open and shut prong deltas blend without replacing hand or player pose,Original animation timing proximity triggers and decode acceptance,Drew,not_run
+color,Change Q Player physgun RGB then use toolgun and restart,Beam endpoint and glows use persisted RGB while tool tracer keeps its default color,Native RGB picker model material proxies and projected lights,Drew,not_run
+loops,Scan acquire release freeze and remove target repeatedly,At most one owned physgun loop switches or stops with current state,Whole-file looping rather than native cue markers pitch and mixer semantics,Drew,not_run
+loop_cleanup,Hold sound through Q F7 F8 pause focus loss death vehicle entry and scene load,Loops stop and fresh mouse-up is required before reacquiring,Device-loss recovery and transition acceptance,Drew,not_run
+loop_limits,Hold more than 30 seconds and change volume including mute,Current owned loop stays bounded and follows volume while one-shots retain TTL,Waveform seams no-device behavior and asset decoding,Drew,not_run

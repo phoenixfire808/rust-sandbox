@@ -1,5 +1,7 @@
 # Spreadsheet handoff for contributors
 
+The physgun snapshot adds 14 manual cases, two F7 cards (33 total), six sound rows (28 total), and authored snap/double-tap/claw/distance policy. Four missing root-gap rows move to partial, not verified. `source_effects.csv` and `source_audio_events.csv` remain authoritative. [The plan](../docs/PHYSGUN_CONTINUATION_PLAN.md) distinguishes original metadata from independent policy and sound substitutions.
+
 The audio snapshot adds 22 sound-event mappings, bounded audio configuration, 14 Drew-owned manual cases and two F7 cards (31 total). Edit `source_audio.csv` and `source_audio_events.csv`, not generated Rust. Audio and prop-impact follow-ups are partial, not accepted. All native loops, environmental/NPC/vehicle sounds and other exclusions remain explicit in [the audio implementation plan](../docs/AUDIO_IMPLEMENTATION_PLAN.md). CSV remains authoritative. Earlier snapshot descriptions below are historical.
 
 The latest poser snapshot contains 35 partial tool routes including custom Freeze, three reference-only entries, 178 authored options, 52 Drew-owned tool cases, 29 F7 cards and the 19-report review. CSV remains authoritative. Four poser subsets use original model deformation with version-6 persistence, not native ragdoll or facial-controller parity. Full limitations are in `source_tools.csv` and `parity_gaps.csv`. Older snapshot descriptions below are historical.
@@ -16,7 +18,7 @@ The What's New snapshot adds 13 in-game release cards and 14 manual acceptance c
 
 The NPC-lifecycle snapshot adds 85 explicit NPC runtime rows, shared actor/player rules, 21 acceptance cases and 85 additional per-registration coverage rows. Six ground actor routes are partial implementations and 79 are disabled. See [the remaining dependency plan](../docs/REMAINING_PARITY_PLAN.md). Edit `source_npcs.csv` and `source_npc_rules.csv`, regenerate coverage with the existing exporter, then validate and rebuild. All gameplay acceptance remains Drew-owned.
 
-Download [rust-sandbox-catalog-20260930-audio.xlsx](rust-sandbox-catalog-20260930-audio.xlsx) for the combined Excel/LibreOffice review workbook. GitHub does not render XLSX files inline, so use **Download raw file**. All source tables are also available as CSV for review and version control.
+Download [rust-sandbox-catalog-20260930-physgun.xlsx](rust-sandbox-catalog-20260930-physgun.xlsx) for the combined Excel/LibreOffice review workbook. GitHub does not render XLSX files inline, so use **Download raw file**. All source tables are also available as CSV for review and version control.
 
 The movement-repair snapshot exports **96,805 data rows**. It corrects generic SDK friction 4 to the installed GMod preset 8, separates persistent velocity from step/snap displacement, authors the low-speed stop/support/slope thresholds and expands the movement ledger to **20 rules and acceptance cases**. The [detailed drift investigation](../docs/MOVEMENT_REPAIR.md) records exact source functions, equations, native-engine uncertainty and unrun regression cases. The final executable compiled separately from the still-running prior game and has not been launched or gameplay-tested. All prior menu/tool/context inventories remain included. Acceptance remains Drew-owned and not_run.
 

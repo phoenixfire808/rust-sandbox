@@ -1,0 +1,22 @@
+# Physgun controls and presentation continuation
+
+## Research and implementation
+
+Reviewed all 19 preserved reports, including legacy multi-field reports. The [official player guide](https://wiki.facepunch.com/gmod/Using_your_Physgun) documents continuous LMB targeting, E rotation, Shift with `gm_snapangles` default 45 degrees, E+W/S distance, RMB freezing the held object, targeted R and rapid double-R unfreezing all player-spawned props. The [reload hook contract](https://wiki.facepunch.com/gmod/GM:OnPhysgunReload) and installed sandbox `init.lua` delegate to native `Player:PhysgunUnfreeze`. That native implementation was not available, so 0.3 seconds is authored independent timing, not a recovered engine constant.
+
+1. Reuse current prop selection, hold anchor, physics and snapshot undo. Acquire when a held LMB scan finds a valid prop. Freeze only the held prop, then require mouse-up before reacquisition. Targeted R only changes frozen spawned bodies. Double R selects all currently frozen spawned bodies excluding NPCs. This is single-player scope, not multiplayer ownership or persistent-prop permission parity.
+2. Keep an unsnapped rotation accumulator so sub-step mouse motion eventually crosses snap boundaries. Snap displayed world Euler angles to the authored default 45-degree grid while retaining the off-center anchor. E+W/S changes distance without also adding forward movement input. Existing momentum is not artificially zeroed. Collision-safe angular constraint solving and exact native axis handling remain open.
+3. Read original mounted `c_superphyscannon.mdl` and `w_physics.mdl` metadata. Both advertise one-frame `ProngsShut` and `ProngsOpen`. Load these through the existing bounded animation decoder, blend only differing bone transforms, and preserve the player's hand/bone merge. Missing clips log an explicit fallback rather than preventing all weapon rendering. Opening while the beam is active and the blend rate are independent policies, not proof of native proximity/timing equivalence.
+4. Persist three RGB values separately in ignored `local/physgun-color.json`. Q Player controls change the pooled beam, endpoint and glow materials, without modifying model cache materials or toolgun tracer color. Native material proxies, RGB picker layout, model tint and projected illumination remain open.
+5. Extend the existing audio voice lifecycle with at most one owned scan/hold loop, counted within the same voice cap. Unlike one-shots it persists while desired, then stops on release, freeze, weapon changes, menus, focus loss, death, vehicles, remote view and restore. No historical sound event is replayed after loading. Active loops can start once assets become available because their current state still requests playback. Device recovery and actual output are untested.
+
+## Sound evidence and explicit substitutions
+
+Original `game_sounds_weapons.txt` contains Weapon_Physgun On/Off/Scanning/LockedOn mappings, but inventory audit found `physgun_on.wav`, `physgun_loop1.wav` and `physgun_loop2.wav` absent from this mounted stock catalog. Do not claim those are usable merely because an old sound script names them. The sheet instead explicitly maps original installed PhysCannon pickup/charge/hold assets to independent activation/scan/hold events. Off uses the cataloged original physgun-off asset. Freeze/unfreeze use independently mapped original claw-close/open assets. Exact GMod freeze sound mappings are unresolved. Whole-file looping does not implement WAV loop markers, native pitch, crossfades, channel semantics or networked spatial playback.
+
+## Delivery and remaining gates
+
+- `source_effects.csv` authors timing, angle, distance rate, clip names and default color. `source_audio_events.csv` now has 28 entries including six physgun entries. Reuse build-time validation and the existing exporter.
+- `physgun_cases.csv` adds 14 manual cases, all Drew-owned and `not_run`. Two new F7 cards explain concrete actions and exclusions.
+- Compile the actual game, validate production sheets, export the workbook, then commit only reviewed paths. No automated tests, gameplay, screenshots or input are run under project instructions.
+- All four formerly missing physgun control/presentation rows become partial rather than falsely complete. Full target eligibility, ragdolls, native ownership, angular solver behavior, visual lighting and exact sound/animation fidelity remain open along with the larger game backlog.

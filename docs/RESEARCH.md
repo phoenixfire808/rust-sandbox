@@ -1,5 +1,12 @@
 # Research record
 
+## Physgun continuation, 2026-09-30
+
+- Re-reviewed 19 private reports, including four legacy multi-field notes. Read the [official physgun guide](https://wiki.facepunch.com/gmod/Using_your_Physgun), [OnPhysgunReload hook](https://wiki.facepunch.com/gmod/GM:OnPhysgunReload) and installed sandbox init.lua. Reused documented continuous acquisition, held-only freeze, default 45-degree snap and E+W/S controls. Rapid double-R is documented, but native timing/ownership implementation is unavailable. The authored 0.3-second window and single-player spawned-body scope are explicitly independent.
+- Read mounted view/world physgun metadata using the existing read-only source-inspect helper. Both original models contain ProngsShut and ProngsOpen single-frame animations. Reused existing clip decoding and skeleton/bone-merge paths, not copied Valve or Facepunch implementation. The active-beam blend policy remains an approximation requiring reference/user comparison.
+- Original Source sound scripts list physgun_on and loop1/loop2 assets absent from the existing installed stock inventory. Corrected proposed mappings before delivery to explicitly independent installed PhysCannon assets. Original script names alone do not prove usable payloads or native GMod behavior. Exact freeze/unfreeze sound mapping was not recovered. Audio ownership reuses the just-integrated Bevy backend, with whole-file looping rather than native WAV loop cues.
+- See [the detailed plan](PHYSGUN_CONTINUATION_PLAN.md) for every reuse, substitution, remaining boundary and manual case. No proprietary scripts, models, audio or private feedback are committed.
+
 ## Mounted sound and prop-impact continuation, 2026-09-30
 
 - Reviewed all 19 local feedback reports, existing gap/dependency sheets and audio availability before implementation. Reused the already selected Bevy 0.16.1 engine's `bevy_audio` integration after catalog discovery found no matching provider. No engine upgrade or second audio engine was introduced. [Bevy audio](https://docs.rs/bevy_audio/0.16.1/bevy_audio/) supplies AudioSource, AudioPlayer, playback settings and sink lifecycle, with rodio 0.20.1 and cpal 0.15.3 underneath. Source inspection found AudioSource's decoder construction unwraps unsupported data, motivating bounded background predecode with panic containment before immutable bytes enter playback.

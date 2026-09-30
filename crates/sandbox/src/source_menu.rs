@@ -964,6 +964,9 @@ pub(super) fn rebuild(world: &mut World) {
                 ("Noclip speed", "speed", s.speed, 1.),
                 ("Sensitivity", "sensitivity", s.sensitivity, 0.0005),
                 ("Audio volume", "audio_volume", world.resource::<audio::Audio>().volume, 0.05),
+                ("Physgun red", "physgun_red", world.resource::<physgun::State>().color[0], 0.05),
+                ("Physgun green", "physgun_green", world.resource::<physgun::State>().color[1], 0.05),
+                ("Physgun blue", "physgun_blue", world.resource::<physgun::State>().color[2], 0.05),
             ];
             let visible = s.weapon_visible;
             let shake = world.resource::<audio::Audio>().shake_enabled;

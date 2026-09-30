@@ -1,2 +1,2 @@
-glow_texture,beam_texture,red,green,blue,core_size,tip_size,endpoint_size,beam_width,beam_repeat,beam_scroll,pulse_hz,pulse_depth
-sprites/physgun_glow,sprites/physbeam_white,0.35,0.8,1.0,0.20,0.10,0.22,0.055,0.75,1.2,2.0,0.12
+glow_texture,beam_texture,red,green,blue,core_size,tip_size,endpoint_size,beam_width,beam_repeat,beam_scroll,pulse_hz,pulse_depth,reload_double_seconds,snap_degrees,claw_rate,distance_speed,prongs_shut,prongs_open
+sprites/physgun_glow,sprites/physbeam_white,0.35,0.8,1.0,0.20,0.10,0.22,0.055,0.75,1.2,2.0,0.12,0.3,45,8,5,ProngsShut,ProngsOpen
