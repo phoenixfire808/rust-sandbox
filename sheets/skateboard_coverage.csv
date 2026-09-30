@@ -1,0 +1,38 @@
+id,area,status,implemented,remaining,acceptance_owner,result
+presets,Options,partial,Four independently authored real-world oriented Skate-inspired Session-inspired and sandbox presets,Exact original physics and calibrated biomechanics,Drew,not_run
+spawning,Integration,partial,Q Vehicles buttons spawn boards and practice rail or bank,Original commercial models and addon spawn registrations,Drew,not_run
+mount,Integration,partial,E or controller Y uses existing occupancy with frozen and upside-down rejection,Native mount animation and foot placement,Drew,not_run
+wheel_support,Physics,partial,Four board-space suspension rays with load-limited spring and damping forces,Actual wheel contact patch and tire deformation,Drew,not_run
+truck_steering,Physics,partial,Opposite front and rear steering angles from smoothed analog lean command,Measured real truck bushing geometry and load-dependent curves,Drew,not_run
+friction,Physics,partial,Load-bounded lateral friction and authored rolling resistance,Surface-dependent urethane slip curves and moving-ground velocity,Drew,not_run
+push,Movement,partial,Discrete timed velocity increments capped at authored push speed,Animated front and back foot pushes with rider ground contact,Drew,not_run
+coast,Movement,partial,Unpowered rolling with physical slopes and gravity,Measured drag and bearing models,Drew,not_run
+brake,Movement,partial,Load-limited braking without forced reversal,Foot brake contact biomechanics,Drew,not_run
+powerslide,Movement,partial,Reduced lateral grip under slide input,Exact slide posture wheel scrub and surface sound,Drew,not_run
+ollie,Tricks,partial,Ground-gated charge/release pop impulse and pitch kick,Separate rider jump tail impact and front-foot drag,Drew,not_run
+nollie,Tricks,partial,Control modifier reverses pop pitch,Front-foot pressure and native nollie animations,Drew,not_run
+flip,Tricks,partial,Analog or keyboard airborne longitudinal rotation with catch state,Gesture-recognized full kickflip and heelflip catalog and foot IK,Drew,not_run
+shove_spin,Tricks,partial,Airborne spin-rate command and body steering,Separate board shove and rider rotation or full varial catalog,Drew,not_run
+catch,Tricks,partial,Explicit catch and bounded preset auto-catch with upright gate,Per-foot collision and exact timing windows,Drew,not_run
+landing,Physics,partial,Ground contact checks previous fall speed upright alignment and caught state,Full rider balance impulse distribution and impact animation,Drew,not_run
+manual,Tricks,partial,Truck balance torque with preset damping assistance,Measured rider center-of-mass control and native animations,Drew,not_run
+grind,Tricks,partial,Explicit practice-rail support with approach alignment and bounded friction,Arbitrary BSP rail recognition coping edge transitions boardslides and grind taxonomy,Drew,not_run
+bail,Lifecycle,partial,Failed landing releases occupancy through safe dismount or entry fallback,Physical ragdoll and board rider separation animation,Drew,not_run
+stance,Controls,partial,Regular or goofy changes sideways rider stance and flip handedness,Switch-specific foot assignment and stance persistence,Drew,not_run
+keyboard,Controls,partial,Full keyboard route for implemented actions with explicit dual-foot approximation,Remappable bindings and analog pressure without controller,Drew,not_run
+controller,Controls,partial,Read-only Windows XInput sticks triggers and buttons with keyboard fallback,Non-XInput and non-Windows controller adapters vibration and remapping,Drew,not_run
+flick,Controls,partial,Down-load then upward right-stick flick for Skate-inspired preset,Exact commercial curves gesture recognition and accessibility options,Drew,not_run
+dual_foot,Controls,partial,Right-stick load and left-stick flick with trigger steering for Session-inspired preset,Independent real-time foot IK pressure and native Session trick mapping,Drew,not_run
+focus,Lifecycle,partial,Blocked menus focus loss disconnection and ownership change clear inputs and require neutral rearming,User acceptance across all UI and hotplug transitions,Drew,not_run
+saves,Integration,partial,Existing versioned scene vehicle identity preserves per-board profile and procedural model,Dynamic rider state trick phase and stance settings persistence,Drew,not_run
+undo_duplicate,Integration,partial,Existing prop snapshot undo remover duplicator and constraint integration,Acceptance of tool modifiers on every procedural part,Drew,not_run
+wheels,Presentation,partial,Procedural four wheels and trucks rotate around axle pivots using actual board speed and steering,Real suspension articulation and deformation,Drew,not_run
+rider,Presentation,partial,Original generic crouched sideways pose and existing F4 camera,Skate-specific mocap push pop catch landing foot IK and camera system,Drew,not_run
+hud,Presentation,partial,Preset state speed controls and six menu choices plus stance and F7 guidance,Input visualizer replay overlays and customizable HUD,Drew,not_run
+skate_audio,Audio,missing,Existing generic prop impact route remains available,Dedicated rolling pop scrape grind landing surface loops and wind,Drew,not_run
+grabs,Tricks,missing,None,Indy melon nose tail and stance-aware grab controls with hand board contact,Drew,not_run
+pumping,Movement,missing,Passive gravity follows bank slopes,Timed rider center-of-mass pump and vert boost,Drew,not_run
+vert,Movement,missing,Generic ramp collision and contact support,Transitions coping stalls lip tricks transfers and wall riding,Drew,not_run
+trick_catalog,Tricks,missing,Generic flip and spin inputs only,Complete named tricks combos scoring challenges and trick recognition,Drew,not_run
+replay,Presentation,missing,None,Replay recording editor camera cuts and export,Drew,not_run
+calibration,Acceptance,missing,Authored units and explicit approximations documented,Measured comparison against real board data and each reference game,Drew,not_run

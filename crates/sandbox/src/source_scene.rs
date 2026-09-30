@@ -125,11 +125,12 @@ pub(super) fn validate_scene(world: &mut World, save: &SavedScene) -> Result<()>
         }
         if let Some(id) = &p.vehicle {
             let catalog = &world.resource::<PlayState>().spawn_catalog;
-            if !catalog.vehicles.iter().any(|v| &v.id == id)
+            let skateboard = skateboard::definition(world, id).is_some() && p.model == skateboard::model_id(id);
+            if !skateboard && (!catalog.vehicles.iter().any(|v| &v.id == id)
                 || !catalog
                     .entries
                     .iter()
-                    .any(|e| &e.id == id && e.model == p.model)
+                    .any(|e| &e.id == id && e.model == p.model))
             {
                 return Err("unknown or mismatched saved vehicle".into());
             }

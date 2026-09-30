@@ -1,5 +1,15 @@
 # Research record
 
+## Skateboarding options, 2026-09-30
+
+- Reviewed all 26 existing private feedback topics before this feature. No original feedback bodies are published. Reused the existing vehicle occupancy, prop/model cache, undo, duplication, scene persistence, Rapier contact query and F7 catalog instead of introducing parallel lifecycles.
+- Read https://session-skatesim.com/en: dual sticks represent feet. This supports a dual-input concept only. The prototype uses rear-stick loading and front-stick upward triggering, not Session's actual foot simulation or full trick mapping.
+- Read https://www.ea.com/able/resources/skate?isLocalized=true: the current skate accessibility/control material describes Flick-It and configurable assistance. This is a series-level reference, not a Skate 3 specification. A Skate 3 manual URL was located but its full contents were not inspected. No commercial physics constants were extracted.
+- Read https://annex.exploratorium.edu/skateboarding/trick02.html: ollies combine the rider's jump, tail-ground impact and front-foot leveling. Our combined rigid-body impulse, pitch kick and catch torque deliberately approximate those phases rather than solving articulated rider biomechanics.
+- No specific Garry's Mod skateboard addon was selected. The sandbox profile is independent. Deck, trucks, cylindrical wheels, box rail and bank are original procedural geometry, not copied game assets.
+- Selected Microsoft XInput through the integration registry and reused the existing windows-sys 0.59 bindings (`Win32_UI_Input_XboxController`). Read the installed binding signature for XInputGetState and poll successful results only. No new controller library, synthetic keyboard input or installation modification. Public API reference: https://learn.microsoft.com/en-us/windows/win32/xinput/getting-started-with-xinput. Windows XInput support is not a claim of all-controller support.
+- All gameplay dimensions, force coefficients, assist strengths and timing are authored in `source_skateboard.csv` and `source_skate_profiles.csv`. These are independently chosen tuning values, not measured real-world data. The 37-row coverage ledger leaves motion capture, foot IK, native gestures, calibrated material friction, arbitrary grind recognition, grabs, pumping, vert, skate-specific audio and replay open.
+
 ## Reference-backed feedback, 2026-09-30
 
 - Reviewed seven new private reports. Their bodies remain local. The public action plan is `docs/REFERENCE_FEEDBACK_PLAN.md` and `feedback_review.csv` rows review_20 through review_26.

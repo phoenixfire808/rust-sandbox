@@ -18,6 +18,7 @@ fn run() -> Result<()> {
             sandbox_catalog::gravity::load(Path::new(dir))?;
             sandbox_catalog::audio::load(Path::new(dir))?;
             sandbox_catalog::footsteps::load(Path::new(dir))?;
+            sandbox_catalog::skateboard::load(Path::new(dir))?;
             sandbox_catalog::presentation::load(Path::new(dir))?;
             sandbox_catalog::performance::load(Path::new(dir))?;
             sandbox_catalog::toolgun::load(Path::new(dir))?;
@@ -43,6 +44,7 @@ fn run() -> Result<()> {
             code.push_str(&sandbox_catalog::frontend::generate(&sandbox_catalog::frontend::load(Path::new(dir))?));
             code.push_str(&sandbox_catalog::audio::generate(&sandbox_catalog::audio::load(Path::new(dir))?));
             code.push_str(&sandbox_catalog::footsteps::generate(&sandbox_catalog::footsteps::load(Path::new(dir))?));
+            code.push_str(&sandbox_catalog::skateboard::generate(&sandbox_catalog::skateboard::load(Path::new(dir))?));
             let presentation=sandbox_catalog::presentation::load(Path::new(dir))?;
             code.push_str(&sandbox_catalog::spawn::generate(&sandbox_catalog::spawn::load(Path::new(dir))?));
             code.push_str(&sandbox_catalog::presentation::generate(&presentation.0,&presentation.1));

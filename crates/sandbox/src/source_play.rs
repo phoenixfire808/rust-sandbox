@@ -37,6 +37,8 @@ mod tool_screen;
 pub(crate) mod tools;
 #[path = "source_vehicles.rs"]
 pub(crate) mod vehicles;
+#[path = "source_skateboard.rs"]
+pub(crate) mod skateboard;
 #[path = "source_weapons.rs"]
 pub(crate) mod weapons;
 use scene::{
@@ -55,6 +57,8 @@ pub struct SpawnedProp {
 }
 #[derive(Component, Clone)]
 enum UiAction {
+    SkateSpawn(String),
+    SkateStance,
     ToggleFavorite(String),
     Favorites(bool),
     NpcSetting(&'static str),
@@ -234,6 +238,10 @@ impl Plugin for SourcePlayPlugin {
         .add_systems(Update, audio::update.after(tools::devices::view).after(tools::input).after(tools::devices::effects).after(weapons::simulate))
         .init_resource::<impacts::Impacts>()
         .init_resource::<vehicles::Occupancy>()
+        .insert_resource(skateboard::Catalog(crate::compiled_skate_catalog()))
+        .init_resource::<skateboard::Controls>()
+        .add_systems(FixedUpdate, skateboard::step.after(vehicles::drive).before(audio::record_motion).before(PhysicsSet::SyncBackend))
+        .add_systems(Update, skateboard::update.after(vehicles::update).before(tools::devices::input))
         .init_resource::<npcs::NpcSettings>()
         .add_systems(
             FixedUpdate,
@@ -326,6 +334,12 @@ pub(crate) fn gpu_model_skin(world: &mut World, path: &str, skin: i32) -> Result
     let cache_key = format!("{path}#{skin}");
     if let Some(model) = world.resource::<PlayState>().cache.get(&cache_key) {
         return Ok(model.clone());
+    }
+    if skateboard::is_model(path) {
+        if skin != 0 { return Err("procedural skateboard assets have only skin zero".into()); }
+        let model = skateboard::model(world, path)?;
+        world.resource_mut::<PlayState>().cache.insert(cache_key, model.clone());
+        return Ok(model);
     }
     let prepared = prepare_model(world.resource::<MountedSource>(), path, skin)?;
     Ok(install_model(world, cache_key, prepared))
@@ -918,7 +932,10 @@ pub fn update_play(world: &mut World) {
             .map(|e| e.label.as_str())
             .unwrap_or("Weapon");
         let vehicle = world.resource::<vehicles::Occupancy>();
-        let mode = if vehicle.vehicle.is_some() {
+        let skate_help = skateboard::hud(world);
+        let mode = if skateboard::riding(world) {
+            skate_help.as_str()
+        } else if vehicle.vehicle.is_some() {
             "WASD: drive | Space: brake | E: exit | F4: view"
         } else if s.active_weapon == "weapon_weapon_physcannon" {
             "LMB: punt / launch | RMB: pull / hold / drop | Q: build"
@@ -972,6 +989,12 @@ fn perform(world: &mut World, action: UiAction) {
         world.resource_mut::<PlayState>().search_focus = false;
     }
     match action {
+        UiAction::SkateSpawn(choice) => skateboard::spawn(world, &choice),
+        UiAction::SkateStance => {
+            let mut controls = world.resource_mut::<skateboard::Controls>();
+            controls.goofy = !controls.goofy;
+            world.resource_mut::<PlayState>().dirty = true;
+        }
         UiAction::NpcSetting(key) => {
             let mut settings = world.resource_mut::<npcs::NpcSettings>();
             match key {

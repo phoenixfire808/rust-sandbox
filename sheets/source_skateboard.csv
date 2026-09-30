@@ -1,0 +1,2 @@
+length,width,thickness,wheelbase,track,wheel_radius,mass,rider_mass,suspension,spring,damping,max_load,steering_angle,steering_response,rolling_resistance,brake_accel,max_speed,charge_seconds,pop_cooldown,deadzone,flick_threshold,manual_angle,balance_torque,balance_damping,rail_length,rail_width,rail_height,bank_length,bank_width,bank_angle,spawn_distance,enter_seconds,exit_seconds,exit_distance,eye_height
+0.81,0.21,0.015,0.51,0.18,0.028,3.2,75,0.07,14000,700,4,0.35,7,0.015,4,35,0.7,0.35,0.16,0.6,0.20,120,18,5,0.09,0.38,4,2,0.22,3,0.3,0.25,1.2,1.25

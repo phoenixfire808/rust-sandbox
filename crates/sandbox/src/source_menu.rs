@@ -128,6 +128,16 @@ fn catalog_browser(world: &mut World, body: Entity, tree_width: f32) {
         })
         .collect();
     let browser = column(world, body, Val::Px(tree_width));
+    if tab.kind == "vehicle" {
+        let profiles = world.resource::<skateboard::Catalog>().0.profiles.clone();
+        for profile in profiles {
+            action(world, browser, format!("Skate: {}", profile.label), UiAction::SkateSpawn(format!("skate_{}", profile.id)), false);
+        }
+        action(world, browser, "Skate: practice rail", UiAction::SkateSpawn("rail".into()), false);
+        action(world, browser, "Skate: practice bank", UiAction::SkateSpawn("bank".into()), false);
+        let goofy = world.resource::<skateboard::Controls>().goofy;
+        action(world, browser, if goofy { "Stance: goofy (change)" } else { "Stance: regular (change)" }, UiAction::SkateStance, goofy);
+    }
     action(
         world,
         browser,

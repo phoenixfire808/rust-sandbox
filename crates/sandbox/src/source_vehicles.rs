@@ -29,6 +29,7 @@ pub struct Occupancy {
     brake: bool,
 }
 pub fn definition(world: &World, id: &str) -> Option<Vehicle> {
+    if let Some(board) = skateboard::definition(world, id) { return Some(board); }
     world
         .resource::<PlayState>()
         .spawn_catalog
@@ -52,6 +53,7 @@ pub(super) fn effective_wheel_angle(
     steering * (low + (high - low) * speed_fraction)
 }
 pub fn attach(world: &mut World, entity: Entity, id: &str) -> Result<()> {
+    if skateboard::definition(world, id).is_some() { return skateboard::attach(world, entity, id); }
     let c = definition(world, id).ok_or("unknown vehicle identity")?;
     let tuning = world.resource::<PlayState>().spawn_catalog.runtime.clone();
     world.entity_mut(entity).insert((
@@ -185,7 +187,7 @@ pub(crate) fn clear_hull(world: &mut World, center: Vec3) -> bool {
     );
     !blocked
 }
-fn exit_position(world: &mut World, vehicle: Entity, c: &Vehicle) -> Option<Vec3> {
+pub(crate) fn exit_position(world: &mut World, vehicle: Entity, c: &Vehicle) -> Option<Vec3> {
     let transform = *world.get::<Transform>(vehicle)?;
     let player = world.resource::<PlayerState>();
     let half = player.config.height * 0.5;
@@ -259,9 +261,10 @@ pub fn update(world: &mut World) {
         || world.resource::<PlayState>().menu_open
         || !focused;
     let keys = world.resource::<ButtonInput<KeyCode>>().clone();
+    let use_pressed = keys.just_pressed(KeyCode::KeyE) || skateboard::use_pressed(world);
     if occupied.is_none()
         && !blocked
-        && keys.just_pressed(KeyCode::KeyE)
+        && use_pressed
         && world.resource::<PlayState>().held.is_none()
     {
         if let Some((vehicle, distance)) =
@@ -276,6 +279,11 @@ pub fn update(world: &mut World) {
             {
                 let id = world.get::<VehicleBody>(vehicle).unwrap().id.clone();
                 let c = definition(world, &id).unwrap();
+                if c.kind == "skateboard" && (world.get::<RigidBody>(vehicle) != Some(&RigidBody::Dynamic)
+                    || world.get::<Transform>(vehicle).is_some_and(|t| (t.rotation * Vec3::Y).y < 0.7)) {
+                    world.resource_mut::<PlayState>().status = "Unfreeze and set the skateboard wheels-down before riding".into();
+                    return;
+                }
                 let p = world.resource::<PlayerState>();
                 let center = world.get::<Transform>(player_id).unwrap().translation
                     + Vec3::Y
@@ -324,7 +332,7 @@ pub fn update(world: &mut World) {
     let exiting = world.resource::<Occupancy>().exit_to.is_some();
     if !blocked
         && !exiting
-        && keys.just_pressed(KeyCode::KeyE)
+        && use_pressed
         && occupied.is_some()
         && world.resource::<Occupancy>().weight >= 1.
     {
@@ -345,6 +353,7 @@ pub fn update(world: &mut World) {
     } else {
         0.
     };
+    let skate_goofy = world.resource::<skateboard::Controls>().goofy;
     let (center, finished, delta_yaw) = {
         let mut s = world.resource_mut::<Occupancy>();
         s.elapsed += now_dt;
@@ -353,6 +362,10 @@ pub fn update(world: &mut World) {
             - std::f32::consts::PI;
         s.previous_yaw = yaw;
         s.body_rotation = transform.rotation * Quat::from_rotation_y(c.seat_yaw);
+        if c.kind == "skateboard" {
+            // Rider stays upright during board flips. Native foot IK remains a separate gap.
+            s.body_rotation = Quat::from_rotation_y(yaw + if skate_goofy { -c.seat_yaw } else { c.seat_yaw });
+        }
         let seated_center = seat + Vec3::Y * (player_height * 0.5);
         if let Some(exit) = s.exit_to {
             let t = (s.elapsed / c.exit_seconds).clamp(0., 1.);
@@ -453,6 +466,7 @@ pub fn drive(world: &mut World) {
         let Some(c) = definition(world, &id) else {
             continue;
         };
+        if c.kind == "skateboard" { continue; }
         let steering_input = if c.kind == "wheels" || (occupied == Some(e) && !blocked) {
             steer
         } else {

@@ -15,6 +15,8 @@ fn main() {
         "source_audio.csv",
         "source_audio_events.csv",
         "source_footsteps.csv",
+        "source_skateboard.csv",
+        "source_skate_profiles.csv",
         "source_layout.csv",
         "source_animation_states.csv",
         "source_performance.csv",
@@ -58,6 +60,9 @@ fn main() {
         &presentation.1,
     ));
     let out = std::path::PathBuf::from(std::env::var_os("OUT_DIR").unwrap());
+    generated.push_str(&sandbox_catalog::skateboard::generate(
+        &sandbox_catalog::skateboard::load(&sheets).expect("invalid skateboard sheets"),
+    ));
     generated.push_str(&sandbox_catalog::spawn::generate(
         &sandbox_catalog::spawn::load(&sheets).expect("invalid spawn catalog spreadsheets"),
     ));

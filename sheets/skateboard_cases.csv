@@ -1,0 +1,37 @@
+id,feature,steps,expected,acceptance_owner,result
+skate_01,presets,Spawn each of four boards from Q Vehicles,Each board mounts and shows its own profile name,Drew,not_run
+skate_02,spawning,Spawn a board rail and bank on clear ground then aim into empty sky,Valid surfaces accept placement and invalid targets show an error,Drew,not_run
+skate_03,mount,Aim at upright board and press E then release commands,Mount transition completes before board controls arm,Drew,not_run
+skate_04,mount,Freeze or invert an unoccupied board then attempt entry,Entry is rejected until dynamic and wheels-down,Drew,not_run
+skate_05,wheel_support,Stand on board on flat concrete then roll across bank edge,Support is stable and contact loss does not create explosive forces,Drew,not_run
+skate_06,truck_steering,Carve left and right in both travel directions and observe F4,Visible front and rear trucks follow opposite steering and correct turning direction,Drew,not_run
+skate_07,friction,Coast across a slope with and without Shift,Slide input lowers lateral grip without an instant teleport,Drew,not_run
+skate_08,push,Hold W or gamepad A from rest on all profiles,Timed pushes accelerate only on supported ground up to profile push speed,Drew,not_run
+skate_09,coast,Release W on flat ground then on bank,Board coasts with resistance and gravity rather than forced constant speed,Drew,not_run
+skate_10,brake,Hold S while moving forward then at rest,Braking slows without automatically reversing,Drew,not_run
+skate_11,ollie,In Realism and Sandbox load Space briefly and fully then release,Charge changes pop magnitude and each release produces at most one pop,Drew,not_run
+skate_12,ollie,Keep load or pop controls held through a jump and landing,No midair extra jump or endlessly retriggered held pop,Drew,not_run
+skate_13,nollie,Compare Space release with and without Ctrl,Pop pitch reverses without claiming native front-foot motion,Drew,not_run
+skate_14,flip,Jump then hold J or L briefly and release,Board rotates longitudinally and requires a valid catch or assisted catch,Drew,not_run
+skate_15,shove_spin,Jump then hold I or K,Board rotates horizontally without changing to ground steering logic,Drew,not_run
+skate_16,catch,Try C or RB upright and upside down during a trick,Upright catch is accepted and inverted catch is not silently accepted,Drew,not_run
+skate_17,landing,Compare clean caught landing with uncaught trick and excessive fall,Valid landings continue riding and invalid landings release occupancy,Drew,not_run
+skate_18,bail,Land board inverted or on its side,Independent proximity check bails even when wheel rays reject contact,Drew,not_run
+skate_19,manual,Hold M then N on moving board and compare assists,Opposite support truck unloads and no ground push is added while balancing,Drew,not_run
+skate_20,grind,Approach authored rail aligned and hold G then pop,Explicit rail support engages only for acceptable alignment and pop leaves it,Drew,not_run
+skate_21,grind,Approach rail sideways then try a random world wall with G,Unsupported geometry does not pretend to be a recognized grind,Drew,not_run
+skate_22,stance,Change regular and goofy through Q and T with F4,Sideways rider orientation and flip handedness change,Drew,not_run
+skate_23,flick,Use Skate-inspired right stick down then up and compare keyboard Space,Load precedes pop and both available routes remain usable,Drew,not_run
+skate_24,dual_foot,Use Session-inspired right stick down plus left stick up or Space plus Up arrow,Front input triggers loaded pop and triggers steer independently,Drew,not_run
+skate_25,controller,Use XInput A B X Y RB LB and D-pad with all profiles,Documented actions match each selected control scheme,Drew,not_run
+skate_26,focus,Charge pop then open Q F7 F8 or pause and type spaces,Menus do not execute pending board tricks and return requires neutral controls,Drew,not_run
+skate_27,focus,Hold movement trick and manual inputs while changing focus,No stale input resumes until all action controls return neutral,Drew,not_run
+skate_28,focus,Disconnect controller during charge then reconnect,Pending command clears and keyboard remains available after neutral rearm,Drew,not_run
+skate_29,saves,Save four different preset boards with rail and bank then restore,Virtual geometry and each board profile persist without serializing live trick state,Drew,not_run
+skate_30,undo_duplicate,Duplicate a board and obstacles then undo and remove,Existing tool lifecycles retain expected geometry and profile identity,Drew,not_run
+skate_31,bail,Remove occupied board or restore a different scene,Player is released without stale board controls or references,Drew,not_run
+skate_32,wheels,Observe rolling and carving board in F4,Wheel and truck pivots stay attached while rotating,Drew,not_run
+skate_33,rider,Compare first and third person while popping flipping and exiting,Rider remains upright with documented generic pose and normal camera returns on exit,Drew,not_run
+skate_34,hud,Open F7 and compare its guide with mounted HUD at usual resolution,Four cards and preset stance speed controls are readable without claiming full parity,Drew,not_run
+skate_35,regression,After skating drive stock Jeep and Airboat and use weapons and tools,Existing systems retain their separate control and physics routes,Drew,not_run
+skate_36,calibration,Compare the same push slope pop and landing across all four profiles,Record subjective differences and failures without treating labels as real-world validation,Drew,not_run

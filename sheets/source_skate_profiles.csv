@@ -1,0 +1,5 @@
+id,label,controls,gravity,grip,slide_grip,push_delta,push_interval,push_limit,pop_min,pop_max,air_turn,flip_rate,catch_assist,landing_cos,landing_speed,manual_assist,grind_assist,scope,remaining
+realism,Real-world oriented,direct,9.81,0.85,0.22,0.8,0.65,7.5,1.8,3.2,1.0,8,0,0.88,5.0,0,0,SI gravity low assists manual catch and strict landing envelope,Aggregate rider mass and pop impulse are not calibrated real biomechanics
+skate,Skate-inspired flick,flick,9.81,1.0,0.25,1.1,0.48,10,2.4,4.3,3.0,10,0.6,0.65,8,0.55,0.6,Single-stick load and flick with forgiving control assists,Not Skate 3 code exact flick curves trick catalog animation or native physics
+session,Session-inspired dual-foot,dual,9.81,0.9,0.22,0.9,0.58,8,2.0,3.6,1.5,9,0.15,0.82,6,0.15,0.15,Rear-foot load front-foot flick and stricter manual catch controls,Not Session native per-foot animation pressure or board rider simulation
+sandbox,Sandbox assisted,direct,8.5,1.2,0.3,1.5,0.4,12,3,5,4.5,11,1,0.4,11,1,1,Accessible direct pop strong catch and balance assistance,Independent sandbox preset not a port of any specific GMod addon
