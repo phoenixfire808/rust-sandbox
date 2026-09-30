@@ -1,5 +1,5 @@
 //! Static Source MDL/VVD/VTX geometry. Animation and PHY hulls are separate work.
-use crate::source_assets::{source_position, Geometry, Mounts};
+use crate::source_assets::{Geometry, Mounts, source_position};
 use bevy::prelude::*;
 use sandbox_catalog::Result;
 use std::collections::BTreeMap;
@@ -105,6 +105,7 @@ pub fn model_parts(
                     geo.normals.push(normals[i].to_array());
                     geo.uv.push(uvs[i]);
                     geo.weights.push(weights[i]);
+                    geo.source_indices.push(triangle[i]);
                     geo.light_uv.push([0.5 / 4096.; 2]);
                 }
             }

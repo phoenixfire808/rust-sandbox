@@ -1,7 +1,9 @@
 //! Bounded Source skeletal sampling. No engine code or asset payloads are embedded.
-use crate::source_assets::{source_position, Mounts};
+use crate::source_assets::{Mounts, source_position};
 use bevy::prelude::*;
 use sandbox_catalog::Result;
+#[path = "source_pose_data.rs"]
+pub(crate) mod pose_data;
 
 fn bytes<const N: usize>(data: &[u8], at: usize) -> Result<[u8; N]> {
     Ok(data

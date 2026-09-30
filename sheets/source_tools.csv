@@ -12,12 +12,12 @@ editentity,Edit Entity,Construction,partial,Sample supported construction device
 elastic,Elastic,Constraints,partial,Select two spring anchors,No secondary action,Remove target elastic joints,Relative damping stretch-only native response and cable materials
 emitter,Emitter,Construction,partial,Create or update attached timed spark emitter,Create without weld,No reload action,Only existing bounded spark effect; native particle catalog scale audio and event fidelity remain
 example,Example,Internal,reference_only,Research only,Research only,Research only,Not advertised as stock playable functionality
-eyeposer,Eye Poser,Poser,missing,Set eye target,Sample target,Reset eyes,Model eye shader and look-target support
-faceposer,Face Poser,Poser,missing,Apply expression,Select face,Reset expression,Flex decoding sliders expressions and persistence
-finger,Finger Poser,Poser,missing,Apply hand pose,Select hand,Reset pose,Ragdoll skeleton posing finger axes and presets
+eyeposer,Eye Poser,Poser,partial,Select model then target point; E aims at player,Aim original eye iris projection at player,Restore original eye UVs and material,Supported explicit iris materials on model props only; native cornea lighting eyelids strabismus and NPC integration remain
+faceposer,Face Poser,Poser,partial,Apply selected raw flex descriptor weight,Sample selected descriptor weight,Reset all stored flex weights,Original delta deformation on model props; native controller rule VM presets dynamic named sliders wrinkle shader and NPC integration remain
+finger,Finger Poser,Poser,partial,Apply authored hand finger joint curl and splay,Sample selected finger rotation,Reset selected finger joint,ValveBiped model props only; alternate skeleton mappings native axis calibration presets and animated NPC integration remain
 hoverball,Hoverball,Construction,partial,Create or update altitude-controlled hoverball,Create or update unattached hoverball,No reload action,Native controller tuning drag behavior audio and target-height acceptance
 hydraulic,Hydraulic,Constraints,partial,Select two anchors for keyed length servo,Select two anchors using alternate staged mode,Remove hydraulic constraints,Native fixed slider mode surface-normal shortcut cable materials and solver tuning
-inflator,Inflator,Poser,missing,Inflate bone,Deflate bone,Reset scale,Ragdoll bone selection nonuniform scale and reset
+inflator,Inflator,Poser,partial,Increase hit-weighted bone group scale,Decrease hit-weighted bone group scale,Reset all bone scales,Real skinned deformation with rebuilt convex prop hull; native physics-bone trace articulated ragdolls and NPC integration remain
 lamp,Lamps,Construction,partial,Create or update attached key-controlled spotlight,Create without weld,No reload action,Projected flashlight texture shadows and lighting of unlit model materials remain
 leafblower,Leaf Blower,Internal,reference_only,Research only,Research only,Research only,Legacy availability and actual semantics remain unresolved
 light,Lights,Construction,partial,Create or update keyed point light with rope,Create light without rope,No reload action,Native attenuation shadows and lighting of unlit model materials remain

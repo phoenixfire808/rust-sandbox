@@ -1,5 +1,15 @@
 # Validation record
 
+## Original-data poser integration, 2026-09-30 05:02 UTC
+
+- Reviewed all 19 private reports. Added four partial poser routes with nine authored settings, per-instance meshes/materials and version-6 scene state. Current inventory is 35 partial tool entries including custom Freeze and three reference-only entries. The 178 options, 52 tool cases and 29 F7 cards were counted from the production CSV files. All manual results remain `not_run`.
+- The first actual executable build rejected an invalid option kind (`toggle`). Corrected it to the catalog's supported `bool` type. The repaired game compiled in 58.53 seconds. Final review added active-flex accumulation, supported-descriptor/eye validation, aggregate mesh bounds, iris metadata panic containment, pose hull preflight, material modifier preservation and cancellation on weapon switching. These are code-inspection findings, not exercised gameplay cases.
+- Final actual executable compilation succeeded in **53.20 seconds** using private `CARGO_TARGET_DIR=D:\jcode-build\rust-sandbox-20260929` and `cargo rustc --offline --locked -p rust-sandbox --bin source-map -- -o D:\jcode-build\rust-sandbox-20260929\source-map-posers.exe -C link-arg=/DEBUG:NONE -C link-arg=/INCREMENTAL:NO`. Read `local/posers-build.log`: only the output-name/out-dir warnings and existing binrw future-compatibility notice remain. The resulting executable is 72,082,432 bytes. Subsequent Rust edit only restored unrelated formatting in a pre-existing cfg(test) block.
+- Production catalog validation succeeded: 197 spawn references, eight creation tabs, 56 capabilities, player/sandbox configuration, two map references, four prop definitions, five scene instances and 101 behavior specifications. Production workbook export wrote **107,693 data rows** to `spreadsheets/rust-sandbox-catalog-20260930-posers.xlsx`. CSV is the authoring source and XLSX is a review snapshot. Workbook application acceptance was not run.
+- No tests, test compilation, Clippy, benchmarks, screenshots, automated input, model compatibility execution or gameplay acceptance were run. No game was terminated or save overwritten. Process inspection at 05:02 UTC found no active source-map process. The new executable has not been launched in this pass.
+- Unverified boundaries include raw MDL compatibility, eye texture projection, finger-axis calibration, grouped scale inheritance, collision hull behavior, supported-material restoration, scene undo/duplication and legacy loads. Native ragdolls, facial controller rules, automatic facial animation, alternate skeleton maps, eye shaders, animated NPC posing, sounds and the full parity backlog remain incomplete. A successful build does not establish any of those behaviors.
+
+
 ## Construction tools integration, 2026-09-30 04:42 UTC
 
 - Reviewed all 38 tool rows and 18 private reports. Added 18 independent runtime subsets, leaving 31 partial rows including custom Freeze, four missing posers and three reference-only entries. Added 21 manual cases for a total of 45, and four F7 cards for a total of 26. All gameplay acceptance remains Drew-owned and not run.

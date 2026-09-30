@@ -121,6 +121,8 @@ pub(crate) struct GpuModel {
 #[derive(Clone, serde::Serialize, serde::Deserialize)]
 struct SavedModel {
     #[serde(default)]
+    pose: Option<tools::posers::State>,
+    #[serde(default)]
     device: Option<tools::devices::Device>,
     #[serde(default)]
     vehicle: Option<String>,
@@ -215,6 +217,7 @@ impl Plugin for SourcePlayPlugin {
         .init_resource::<tools::devices::Controls>()
         .init_resource::<tools::devices::Remote>()
         .init_resource::<tools::pulley::Stage>()
+        .init_resource::<tools::posers::Selection>()
         .init_resource::<impacts::Impacts>()
         .init_resource::<vehicles::Occupancy>()
         .init_resource::<npcs::NpcSettings>()
@@ -268,6 +271,7 @@ impl Plugin for SourcePlayPlugin {
                 tools::devices::input,
                 tools::constraints::input,
                 tools::pulley::clear_stage,
+                tools::posers::cancel,
                 weapons::input,
                 weapons::simulate,
                 tools::input,

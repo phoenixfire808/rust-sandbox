@@ -6,6 +6,8 @@ use serde::{Deserialize, Serialize};
 pub(crate) mod constraints;
 #[path = "source_devices.rs"]
 pub(crate) mod devices;
+#[path = "source_posers.rs"]
+pub(crate) mod posers;
 #[path = "source_pulley.rs"]
 pub(crate) mod pulley;
 #[path = "source_render_tools.rs"]
@@ -276,6 +278,10 @@ pub(crate) fn apply_visual_properties(
         Some(material(world, &p.material)?)
     };
     for (child, (_, original)) in children.into_iter().zip(&model.parts) {
+        let original = world
+            .get::<posers::EyeMaterial>(child)
+            .map(|m| &m.0)
+            .unwrap_or(original);
         let mut mat = override_material
             .clone()
             .or_else(|| {
@@ -396,6 +402,7 @@ pub(crate) fn input(world: &mut World) {
     let Some(eye) = camera(world) else { return };
     let Some(hit) = trace(world, eye, None) else {
         if action == 3 {
+            world.resource_mut::<posers::Selection>().0 = None;
             world.resource_mut::<pulley::Stage>().0.clear();
             let mut p = world.resource_mut::<PlayState>();
             p.tools.stage = None;
@@ -420,6 +427,9 @@ pub(crate) fn input(world: &mut World) {
     }
 }
 fn operate(world: &mut World, tool: &str, action: u8, hit: Target) -> Result<bool> {
+    if posers::supported(tool) {
+        return posers::operate(world, tool, action, hit);
+    }
     if matches!(tool, "paint" | "trails") {
         return render_tools::operate(world, tool, action, hit);
     }

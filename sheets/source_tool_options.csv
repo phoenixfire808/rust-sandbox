@@ -1,4 +1,13 @@
 tool,key,label,kind,default,min,max,step,choices,enabled
+finger,hand,Hand,choice,L,0,0,1,L|R,true
+finger,finger,Finger index 0 thumb to 4 pinky,number,1,0,4,1,,true
+finger,joint,Finger joint index,number,0,0,2,1,,true
+finger,curl,Local curl degrees,number,0,-90,90,5,,true
+finger,splay,Local splay degrees,number,0,-45,45,5,,true
+inflator,step,Scale change per click,number,0.05,0.01,0.25,0.01,,true
+inflator,preserve_length,Preserve arm and leg local length,bool,1,0,1,1,,true
+faceposer,descriptor,Raw model flex descriptor index,number,0,0,1023,1,,true
+faceposer,weight,Raw flex weight,number,1,0,1,0.05,,true
 colour,r,Red,number,255,0,255,1,,true
 colour,g,Green,number,255,0,255,1,,true
 colour,b,Blue,number,255,0,255,1,,true

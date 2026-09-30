@@ -6,7 +6,7 @@ use bevy::{
     prelude::*,
     render::render_resource::{Extent3d, PrimitiveTopology, TextureDimension, TextureFormat},
 };
-use sandbox_catalog::{source_maps::SourceMapDef, Result};
+use sandbox_catalog::{Result, source_maps::SourceMapDef};
 use std::{
     collections::BTreeMap,
     path::{Path, PathBuf},
@@ -227,6 +227,7 @@ pub struct Geometry {
     pub uv: Vec<[f32; 2]>,
     pub light_uv: Vec<[f32; 2]>,
     pub weights: Vec<[(u8, f32); 3]>,
+    pub source_indices: Vec<usize>,
 }
 impl Geometry {
     pub fn mesh(self) -> Mesh {

@@ -1,5 +1,7 @@
 # Spreadsheet handoff for contributors
 
+The latest poser snapshot contains 35 partial tool routes including custom Freeze, three reference-only entries, 178 authored options, 52 Drew-owned tool cases, 29 F7 cards and the 19-report review. CSV remains authoritative. Four poser subsets use original model deformation with version-6 persistence, not native ragdoll or facial-controller parity. Full limitations are in `source_tools.csv` and `parity_gaps.csv`. Older snapshot descriptions below are historical.
+
 The latest flight-aim snapshot includes the complete 18-report review, eight required per-gun handling rows, 20 manual cases and 22 total F7 cards. Edit `source_player.csv` for flight multipliers and `source_weapon_handling.csv` for gun FOV/sensitivity/offsets and recoil. Build-time validation rejects missing enabled-gun rows, duplicate or unknown IDs and invalid numeric ranges. Exact sights and gameplay acceptance remain Drew-owned. Older snapshot descriptions below are historical.
 
 The feedback-repairs snapshot adds ten follow-up rows covering every new note, three new F7 cards (20 total), revised crouch/wheel check revisions and updated root gaps. It accompanies fixes to wheel basis conversion, crouch friction lock, E + mouse rotation, held-weapon bone merging and spread sampling. Audio, universal ADS, general prop-impact shake, articulated ragdolls and 22 missing tool routes remain unfinished. See [the current follow-up sheet](../sheets/feedback_followup.csv).
@@ -12,7 +14,7 @@ The What's New snapshot adds 13 in-game release cards and 14 manual acceptance c
 
 The NPC-lifecycle snapshot adds 85 explicit NPC runtime rows, shared actor/player rules, 21 acceptance cases and 85 additional per-registration coverage rows. Six ground actor routes are partial implementations and 79 are disabled. See [the remaining dependency plan](../docs/REMAINING_PARITY_PLAN.md). Edit `source_npcs.csv` and `source_npc_rules.csv`, regenerate coverage with the existing exporter, then validate and rebuild. All gameplay acceptance remains Drew-owned.
 
-Download [rust-sandbox-catalog-20260930-flight-aim.xlsx](rust-sandbox-catalog-20260930-flight-aim.xlsx) for the combined Excel/LibreOffice review workbook. GitHub does not render XLSX files inline, so use **Download raw file**. All source tables are also available as CSV for review and version control.
+Download [rust-sandbox-catalog-20260930-posers.xlsx](rust-sandbox-catalog-20260930-posers.xlsx) for the combined Excel/LibreOffice review workbook. GitHub does not render XLSX files inline, so use **Download raw file**. All source tables are also available as CSV for review and version control.
 
 The movement-repair snapshot exports **96,805 data rows**. It corrects generic SDK friction 4 to the installed GMod preset 8, separates persistent velocity from step/snap displacement, authors the low-speed stop/support/slope thresholds and expands the movement ledger to **20 rules and acceptance cases**. The [detailed drift investigation](../docs/MOVEMENT_REPAIR.md) records exact source functions, equations, native-engine uncertainty and unrun regression cases. The final executable compiled separately from the still-running prior game and has not been launched or gameplay-tested. All prior menu/tool/context inventories remain included. Acceptance remains Drew-owned and not_run.
 

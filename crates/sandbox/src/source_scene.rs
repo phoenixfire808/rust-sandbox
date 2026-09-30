@@ -44,6 +44,7 @@ pub(super) fn snapshot_selection(world: &mut World, ids: &[Entity]) -> SavedScen
             let t = world.get::<Transform>(*e)?;
             let b = world.get::<RigidBody>(*e)?;
             Some(SavedModel {
+                pose: world.get::<tools::posers::State>(*e).cloned(),
                 device: world.get::<tools::devices::Device>(*e).cloned(),
                 vehicle: world.get::<vehicles::VehicleBody>(*e).map(|v| v.id.clone()),
                 npc: world.get::<npcs::NpcBody>(*e).map(|n| n.id.clone()),
@@ -60,7 +61,7 @@ pub(super) fn snapshot_selection(world: &mut World, ids: &[Entity]) -> SavedScen
         })
         .collect();
     SavedScene {
-        version: 5,
+        version: 6,
         props,
         links: constraints::snapshot(world, ids),
         paint: tools::render_tools::snapshot(world, ids, false),
@@ -76,7 +77,7 @@ pub(super) fn remember(world: &mut World) {
 }
 pub(super) fn validate_scene(world: &mut World, save: &SavedScene) -> Result<()> {
     let p = world.resource::<PlayState>();
-    if ![2, 3, 4, 5].contains(&save.version)
+    if ![2, 3, 4, 5, 6].contains(&save.version)
         || save.props.iter().filter(|p| p.device.is_some()).count()
             > p.tools.catalog.gun.max_devices
         || save.props.iter().filter(|p| p.npc.is_some()).count() > p.spawn_catalog.npc_rules.limit
@@ -100,6 +101,12 @@ pub(super) fn validate_scene(world: &mut World, save: &SavedScene) -> Result<()>
         }
     }
     for p in &save.props {
+        if let Some(pose) = &p.pose {
+            if p.npc.is_some() || p.vehicle.is_some() || p.device.is_some() {
+                return Err("posed typed actors are not supported".into());
+            }
+            tools::posers::prepare(world, &p.model, pose)?;
+        }
         if let Some(d) = &p.device {
             if p.npc.is_some() || p.vehicle.is_some() {
                 return Err("conflicting construction entity state".into());
@@ -184,6 +191,9 @@ pub(super) fn spawn_scene(world: &mut World, scene: SavedScene, offset: Vec3) ->
             Quat::from_array(p.rotation),
             p.frozen,
         )?;
+        if let Some(pose) = p.pose {
+            tools::posers::apply(world, id, pose)?;
+        }
         tools::apply_properties(world, id, p.properties)?;
         if let Some(mut device) = p.device {
             device.height += offset.y;
@@ -236,6 +246,7 @@ pub(super) fn restore(world: &mut World, save: SavedScene) -> Result<()> {
     validate_scene(world, &save)?;
     tools::render_tools::clear(world);
     world.resource_mut::<tools::devices::Remote>().0 = None;
+    world.resource_mut::<tools::posers::Selection>().0 = None;
     vehicles::release(world, None);
     weapons::clear_transients(world);
     spawn::clear(world);
