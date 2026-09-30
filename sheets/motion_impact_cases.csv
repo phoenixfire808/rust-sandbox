@@ -1,0 +1,20 @@
+id,area,scenario,expected,acceptance_owner,result
+crouch_ground,movement,Hold and release left and right Ctrl while stationary and moving,Grounded feet remain planted and camera transitions without a movement impulse,Drew,not_run
+crouch_clearance,movement,Release Ctrl under a ceiling then move into standing clearance,Standing is blocked until the full standing capsule fits,Drew,not_run
+crouch_air,movement,Jump then press Ctrl in midair and release before and after landing,Air duck raises feet without lowering the eye and expansion obeys clearance,Drew,not_run
+crouch_same_tick,movement,Press Jump and Ctrl together then compare with sequential jump-crouch,Record differences from native command ordering rather than treating compilation as equivalence,Drew,not_run
+crouch_pose,animation,Use F4 and move in eight directions with physgun and pistol while crouched,Original crouch idle and directional clips load without bind-pose fallback,Drew,not_run
+crouch_lifecycle,movement,Enter and exit a vehicle from crouch then die and respawn,Standing hull and eye reset without retaining crouch offsets,Drew,not_run
+crouch_focus,input,Open F8 while crouched and type including Ctrl shortcuts then switch apps,Text editing does not leak duck or movement controls into the scene,Drew,not_run
+impact_wall,weapons,Fire pistol and .357 into horizontal vertical and sloping surfaces,Marks align with actual hit normals and short bursts appear at hits,Drew,not_run
+impact_prop,weapons,Shoot a movable prop and move rotate remove and undo it,Marks follow the struck prop and removed parents do not leave floating marks,Drew,not_run
+impact_material,tools,Shoot then recolor and change material on a prop and vehicle,Appearance tools modify original model parts rather than impact quads,Drew,not_run
+impact_budget,effects,Create more than the authored mark limit and wait past the lifetime,Old marks retire at the cap and expiry without unbounded scene growth,Drew,not_run
+impact_explosion,effects,Use RPG grenade and crossbow then shoot an NPC,Explosions request transient bursts and NPCs do not receive generic concrete decals,Drew,not_run
+wheel_models,vehicles,Drive Jeep Jalopy and APC forward and backward then steer and inspect with F4,Four wheels rotate about their researched attachment axes and only front wheels steer,Drew,not_run
+wheel_restore,vehicles,Recolor a car and save then load it,Animated replacement geometry retains saved color and material without changing physical properties,Drew,not_run
+wheel_scope,vehicles,Spawn Airboat and passive seats and inspect nearby and distant cars,No invented wheel motion on non-wheeled vehicles and distance-culling transitions remain acceptable,Drew,not_run
+crash_feedback,vehicles,Drive into a wall and prop at different speeds then rest against the wall,Strong contact forces request bounded cooldown-limited bursts without continuous stationary spam,Drew,not_run
+hud_values,UI,Fire reload switch weapons use a tool and receive NPC damage,Health and loaded-reserve ammo track runtime values and tools hide ammo,Drew,not_run
+hud_layout,UI,Open menus pause and resize at small large and high-DPI dimensions,FPS and frame time remain readable while combat panels hide in frontend screens,Drew,not_run
+news_motion,UI,Open F7 and report from each of the four new cards,Latest guidance is readable and F8 preserves the selected card context,Drew,not_run

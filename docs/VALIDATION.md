@@ -1,5 +1,17 @@
 # Validation record
 
+## Motion and impact feedback integration, 2026-09-30 02:22 UTC
+
+- Reviewed four additional private reports and original crouch/wheel/material metadata. Public source findings are in RESEARCH.md. Reports and original asset payloads remain private/read-only.
+- The first actual executable compilation failed with E0603 because the shared standing-hull clearance helper was private. Exposed it crate-locally and rebuilt successfully. Reviewed appearance restoration and excluded impact meshes from prop material tools before the final build.
+- Final `cargo rustc --offline --locked -p rust-sandbox --bin source-map -- -o D:\jcode-build\rust-sandbox-20260929\source-map-impact-crouch.exe -C link-arg=/DEBUG:NONE -C link-arg=/INCREMENTAL:NO` succeeded in **46.31 seconds**, using the private D: target. Remaining warnings concern the explicit output filename/out-dir combination and existing `binrw 0.14.2` future compatibility. No tests or test compilation were run.
+- Production `cargo run --offline --locked -p sandbox-catalog --features workbook -- validate sheets` succeeded: 197 spawn references, 8 creation tabs, 56 capabilities, player/sandbox configuration, 2 map references and the base 101 behavior specifications.
+- Regenerated 134 per-registration coverage rows through `scripts/export-gameplay-coverage.ps1`. Production workbook export succeeded with **107,457 data rows** to `spreadsheets/rust-sandbox-catalog-20260930-impact-crouch.xlsx`. Earlier workbooks were preserved. Export is not independent Excel acceptance or gameplay testing.
+- New workbook content includes 12 wheel rows, 19 manual scenarios, 15 total feedback priorities and 17 F7 cards. All manual results remain Drew-owned `not_run`. Root gaps stay partial/missing as appropriate, not verified.
+- Normal no-argument frontend launch was requested only after finding no active game. PID 36456 was observed responding and the log reported 13 original menu images mounted read-only. No input, screenshot, test harness, benchmark or gameplay automation was performed. No game was terminated. Startup does not establish crouch, wheel animation, marks, collision effects or HUD visual correctness.
+- `git diff --check` passed. Live gameplay, actual clip decoding, low-ceiling/jump timing, wheel axes, decal rendering, contact thresholds, saved appearance, DPI/focus and performance still need the [19 manual cases](../sheets/motion_impact_cases.csv). Native Source/GMod equivalence remains unproven.
+
+
 ## Single-note feedback and presentation review, 2026-09-30 01:55 UTC
 
 - Reviewed all four private feedback reports without modifying or publishing them. Added nine prioritized public engineering rows and twenty Drew-owned manual cases. All new acceptance results remain `not_run`. F7 cards now describe the single-note editor, weapon clip revisions and categorized mounted icons.

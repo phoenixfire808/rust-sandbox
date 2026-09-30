@@ -1,0 +1,13 @@
+vehicle,attachment,radius,steer_angle
+vehicle_jeep,wheel_fl,0.3429,0.8726646
+vehicle_jeep,wheel_fr,0.3429,0.8726646
+vehicle_jeep,wheel_rl,0.4191,0
+vehicle_jeep,wheel_rr,0.4191,0
+vehicle_jalopy,wheel_fl,0.3429,0.8726646
+vehicle_jalopy,wheel_fr,0.3429,0.8726646
+vehicle_jalopy,wheel_rl,0.371475,0
+vehicle_jalopy,wheel_rr,0.371475,0
+vehicle_prop_vehicle_apc,wheel_fl,0.5334,0.6283185
+vehicle_prop_vehicle_apc,wheel_fr,0.5334,0.6283185
+vehicle_prop_vehicle_apc,wheel_rl,0.5334,0
+vehicle_prop_vehicle_apc,wheel_rr,0.5334,0

@@ -1,12 +1,12 @@
 id,area,scenario,expected,acceptance_owner,result
-feedback_space,feedback,Type one and repeated spaces in all four feedback fields,Spaces appear once per press and survive close reopen and saved report,Drew,not_run
+feedback_space,feedback,Type one and repeated spaces in the single feedback note,Spaces appear once per press and survive close reopen and saved report,Drew,not_run
 feedback_edit,feedback,Combine Space Backspace Enter Tab and Unicode characters within the byte limit,Existing text editing remains intact without splitting UTF-8 or exceeding the limit,Drew,not_run
 feedback_isolation,feedback,Type Space Q WASD digits and E while on foot and seated,No jump brake movement equip vehicle use or menu action leaks into gameplay,Drew,not_run
 feedback_focus,feedback,Switch away from the window and return while editing,Unfocused keyboard events do not edit the draft,Drew,not_run
 search_space,search,Enter a multi-word phrase in map and Q browser search then delete spaces,Named Space is retained in each search field and filtering updates normally,Drew,not_run
 news_discovery,news,Open startup menu pause menu and gameplay HUD,Prominent What's New button and F7 open the same sheet-authored guide,Drew,not_run
 news_return,news,Open with F7 from gameplay Q menu map browser and options then close with F7 Esc or return button,Prior screen and Q-menu state restore with one-frame input isolation,Drew,not_run
-news_scroll,news,Scroll all 13 cards at small and large window sizes including high DPI,Headings steps expectations limits and buttons stay readable and reachable,Drew,not_run
+news_scroll,news,Scroll all 17 cards at small and large window sizes including high DPI,Headings steps expectations limits and buttons stay readable and reachable,Drew,not_run
 news_check,news,Check and uncheck an item then restart normally,Private personal progress is restored but no acceptance sheet changes,Drew,not_run
 news_revision,news,Use a later build with an incremented item revision,Changed items no longer inherit an old revision's personal checkmark,Drew,not_run
 news_report,news,Report an issue from a card then return from feedback,Context includes item ID revision steps expected behavior and limits and return goes to checklist,Drew,not_run

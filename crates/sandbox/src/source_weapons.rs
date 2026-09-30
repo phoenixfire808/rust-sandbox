@@ -127,6 +127,8 @@ pub fn input(world: &mut World) {
                 ammo.reserve -= amount;
             }
             s.reload = None;
+            world.resource_mut::<PlayState>().status =
+                "Reload complete | LMB fire | R reload".into();
         } else {
             return;
         }
@@ -202,9 +204,13 @@ pub fn input(world: &mut World) {
                 + *eye.up() * angle.sin() * radius)
                 .normalize();
             let aim = Transform::from_translation(eye.translation).looking_to(direction, Vec3::Y);
-            let hit = world_ray(world, aim, w.range);
-            let end = eye.translation + direction * hit.map(|(_, d)| d).unwrap_or(w.range);
-            if let Some((target, _)) = hit {
+            let hit = world_hit(world, aim, w.range);
+            let end = hit
+                .as_ref()
+                .map(|(_, hit)| hit.point)
+                .unwrap_or(eye.translation + direction * w.range);
+            if let Some((target, hit)) = hit {
+                impacts::mark(world, target, hit.point, hit.normal);
                 damage(world, target, w.damage, direction);
             }
             world.resource_mut::<WeaponState>().traces.push((
@@ -253,6 +259,7 @@ pub fn damage(world: &mut World, target: Entity, amount: f32, direction: Vec3) {
     }
 }
 fn explode(world: &mut World, point: Vec3, radius: f32, amount: f32) {
+    impacts::burst(world, point, Vec3::Y);
     let targets: Vec<_> = world
         .query::<(Entity, &Transform, &SpawnedProp)>()
         .iter(world)
@@ -301,8 +308,8 @@ pub fn simulate(world: &mut World) {
         }
         let direction = step.normalize();
         let aim = Transform::from_translation(p.point).looking_to(direction, Vec3::Y);
-        if let Some((target, d)) = world_ray(world, aim, step.length()) {
-            let contact = p.point + direction * d;
+        if let Some((target, hit)) = world_hit(world, aim, step.length()) {
+            let contact = hit.point;
             if p.grenade {
                 p.point = contact - direction * 0.03;
                 p.gravity = 0.; // This prototype rests at contact until its fuse, rather than creeping through geometry.
@@ -311,6 +318,7 @@ pub fn simulate(world: &mut World) {
                 if p.blast > 0. {
                     explode(world, contact - direction * 0.03, p.blast, p.damage);
                 } else {
+                    impacts::mark(world, target, hit.point, hit.normal);
                     damage(world, target, p.damage, direction);
                 }
                 return false;
@@ -337,6 +345,7 @@ pub fn draw(mut gizmos: Gizmos, state: Res<WeaponState>) {
     }
 }
 pub fn clear_transients(world: &mut World) {
+    impacts::clear(world);
     let mut s = world.resource_mut::<WeaponState>();
     s.projectiles.clear();
     s.traces.clear();

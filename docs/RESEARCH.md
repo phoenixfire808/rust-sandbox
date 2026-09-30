@@ -1,5 +1,17 @@
 # Research record
 
+## 2026-09-30 crouch, impact and wheel review
+
+- Reviewed [Source SDK movement](https://github.com/ValveSoftware/source-sdk-2013/blob/master/src/game/shared/gamemovement.cpp), especially `CanUnduck`, `FinishDuck`, `FinishUnDuck` and duck timing. Grounded origin adjustment preserves feet, airborne adjustment raises feet, and unduck must trace the standing hull. This independent Rapier capsule implementation retains those broad rules but not Source box-hull or complete command/duck-jump semantics. The authored 36-unit duck height and 28-unit eye offset are prototype reference dimensions, not measured GMod acceptance. Conversion is 0.01905 m per Source unit.
+- Read the installed `garrysmod/gamemodes/base/gamemode/player_class/player_default.lua`: crouched speed fraction 0.3 and duck/unduck timing 0.3. Original `models/m_anm.mdl` metadata provides `@cidle_physgun`, `@cidle_pistol` and `a_CrouchWalking_cwalk_{hold}_{direction}` for eight directions. Metadata existence is not successful clip decoding or visual acceptance.
+- Read original `models/buggy.mdl`, `models/vehicle.mdl` and `models/combine_apc.mdl` wheel attachment metadata. Reused `wheel_fl/fr/rl/rr` bone pivots with the project's original skeletal decoder and CPU skinning. Native spin/turn/suspension clips were discovered but are not evaluated by this subset.
+- Read mounted `scripts/vehicles/jeep_test.txt`, `jalopy.txt` and `apc_gmod.txt`: Jeep front/rear radii 18/22 units, Jalopy 18/19.5 and APC 28/28. Authored front steer uses slow-speed 50 degrees for Jeep/Jalopy and 36 for APC. Native fast/boost steering, suspension and full script parsing are not implemented. No original payload is redistributed.
+- Read mounted `materials/decals/concrete/shot1.vmt`: original base texture `Decals/concrete/SHOT1`, DecalModulate and scale 0.10. An earlier guessed `decals/shot1.vmt` lookup failed and was corrected. Runtime reuses the mounted texture on an independently sized 0.08 m multiply-blended quad, not equivalent DecalModulate projection, size or shader behavior. Bursts are short line effects, not native particles or sound.
+- Reused installed Rapier 0.30 `CONTACT_FORCE_EVENTS`, `ContactForceEventThreshold`, `ContactForceEvent` and solver-contact world points. Crash visuals respond to physical contacts rather than guessed deceleration. Threshold/cooldown are authored prototype tuning and do not implement vehicle damage.
+- HUD is explicitly Source-inspired placement using existing Bevy text/layout, not a measured or reconstructed native HUD resource. FPS averages actual real-time frame durations rather than displaying a configured target.
+- Original metadata outputs and all private feedback remain ignored under `local/`. No gameplay input, screenshots, benchmarks or tests were run for this research. See [feedback plan](FEEDBACK_REVIEW_PLAN.md) and [manual cases](../sheets/motion_impact_cases.csv).
+
+
 ## 2026-09-30 single-note Windows editing and presentation review
 
 - Reviewed all four private reports locally. Public engineering scope is in FEEDBACK_REVIEW_PLAN.md and feedback_review_plan.csv, not copies of private notes.

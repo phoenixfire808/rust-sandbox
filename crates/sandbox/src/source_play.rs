@@ -17,6 +17,8 @@ use bevy::{
 use bevy_rapier3d::prelude::*;
 use sandbox_catalog::{play::PlayConfig, Result};
 use std::collections::BTreeMap;
+#[path = "source_impacts.rs"]
+pub(crate) mod impacts;
 #[path = "source_menu.rs"]
 mod menu;
 #[path = "source_npcs.rs"]
@@ -208,6 +210,7 @@ impl Plugin for SourcePlayPlugin {
         .add_plugins(RapierPhysicsPlugin::<NoUserData>::default().in_fixed_schedule())
         .init_resource::<spawn::PendingSpawns>()
         .init_resource::<weapons::WeaponState>()
+        .init_resource::<impacts::Impacts>()
         .init_resource::<vehicles::Occupancy>()
         .init_resource::<npcs::NpcSettings>()
         .add_systems(
@@ -218,8 +221,19 @@ impl Plugin for SourcePlayPlugin {
                 .before(PhysicsSet::SyncBackend),
         )
         .add_systems(Update, npcs::animate.after(spawn::complete))
+        .add_systems(Update, vehicles::visuals::animate.after(spawn::complete))
+        .add_systems(
+            FixedUpdate,
+            vehicles::visuals::crashes.after(PhysicsSet::Writeback),
+        )
         .add_systems(FixedUpdate, vehicles::drive.before(PhysicsSet::SyncBackend))
         .add_systems(Update, weapons::draw.after(weapons::simulate))
+        .add_systems(
+            Update,
+            (impacts::expire, impacts::draw)
+                .chain()
+                .after(weapons::simulate),
+        )
         .add_systems(
             Update,
             (
@@ -467,6 +481,13 @@ pub(crate) fn world_ray(
     eye: Transform,
     max_distance: f32,
 ) -> Option<(Entity, f32)> {
+    world_hit(world, eye, max_distance).map(|(entity, hit)| (entity, hit.time_of_impact))
+}
+pub(crate) fn world_hit(
+    world: &mut World,
+    eye: Transform,
+    max_distance: f32,
+) -> Option<(Entity, RayIntersection)> {
     let player = world
         .get_resource::<crate::source_player::PlayerState>()
         .map(|p| p.entity);
@@ -489,7 +510,13 @@ pub(crate) fn world_ray(
     if let Some(entity) = player {
         filter = filter.exclude_collider(entity);
     }
-    context.cast_ray(eye.translation, *eye.forward(), max_distance, true, filter)
+    context.cast_ray_and_get_normal(
+        eye.translation,
+        *eye.forward(),
+        max_distance,
+        true,
+        filter.exclude_sensors(),
+    )
 }
 pub(crate) fn beam_target(world: &mut World) -> Option<Vec3> {
     let state = world.resource::<PlayState>();

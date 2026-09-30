@@ -1,5 +1,6 @@
 //! Local startup/pause navigation and a private, persistent player feedback inbox.
 pub(crate) mod feedback;
+mod hud;
 #[cfg(windows)]
 mod native_edit;
 mod news;
@@ -160,6 +161,7 @@ impl Plugin for FrontendPlugin {
     fn build(&self, app: &mut App) {
         #[cfg(windows)]
         native_edit::install(app);
+        hud::install(app);
         app.init_resource::<Actions>()
             .init_resource::<feedback::Request>()
             .add_systems(Startup, view::load_assets)

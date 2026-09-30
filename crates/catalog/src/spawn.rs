@@ -51,6 +51,7 @@ pub struct SpawnCatalog {
     pub weapons: Vec<Weapon>,
     pub vehicles: Vec<Vehicle>,
     pub runtime: Runtime,
+    pub wheels: Vec<Wheel>,
     pub model_categories: Vec<ModelCategory>,
     pub water: Water,
     pub npcs: Vec<Npc>,
@@ -105,7 +106,25 @@ pub struct ModelCategory {
     pub line: usize,
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct Wheel {
+    pub vehicle: String,
+    pub attachment: String,
+    pub radius: f32,
+    pub steer_angle: f32,
+}
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Runtime {
+    pub impact_limit: usize,
+    pub impact_seconds: f32,
+    pub impact_size: f32,
+    pub impact_offset: f32,
+    pub impact_texture: String,
+    pub spark_seconds: f32,
+    pub spark_speed: f32,
+    pub crash_force_per_mass: f32,
+    pub crash_cooldown: f32,
+    pub wheel_visual_distance: f32,
+    pub fps_interval: f32,
     pub projectile_limit: usize,
     pub grenade_fuse: f32,
     pub projectile_lifetime: f32,
@@ -197,9 +216,22 @@ pub fn load(dir: &Path) -> Result<SpawnCatalog> {
         return Err("source_gameplay must have one row".into());
     }
     let runtime = runtime.remove(0);
-    if runtime.projectile_limit == 0
+    if runtime.impact_limit == 0
+        || runtime.impact_limit > 2048
+        || !runtime.impact_texture.starts_with("decals/")
+        || runtime.impact_texture.contains("..")
+        || runtime.projectile_limit == 0
         || runtime.projectile_limit > 1024
         || ![
+            runtime.impact_seconds,
+            runtime.impact_size,
+            runtime.impact_offset,
+            runtime.spark_seconds,
+            runtime.spark_speed,
+            runtime.crash_force_per_mass,
+            runtime.crash_cooldown,
+            runtime.wheel_visual_distance,
+            runtime.fps_interval,
             runtime.grenade_fuse,
             runtime.projectile_lifetime,
             runtime.trace_seconds,
@@ -269,6 +301,7 @@ pub fn load(dir: &Path) -> Result<SpawnCatalog> {
         return Err("invalid NPC runtime rules".into());
     }
     let mut c = SpawnCatalog {
+        wheels: rows(dir, "source_vehicle_wheels.csv")?,
         npcs: rows(dir, "source_npcs.csv")?,
         npc_rules,
         water,
@@ -288,6 +321,22 @@ pub fn load(dir: &Path) -> Result<SpawnCatalog> {
         .into_iter()
         .map(|g| g.id)
         .collect();
+    let mut wheel_keys = BTreeSet::new();
+    for w in &c.wheels {
+        if !c
+            .vehicles
+            .iter()
+            .any(|v| v.id == w.vehicle && v.kind == "wheels")
+            || !["wheel_fl", "wheel_fr", "wheel_rl", "wheel_rr"].contains(&w.attachment.as_str())
+            || !wheel_keys.insert((&w.vehicle, &w.attachment))
+            || !w.radius.is_finite()
+            || !(0.05..=2.).contains(&w.radius)
+            || !w.steer_angle.is_finite()
+            || !(0.0..=1.5).contains(&w.steer_angle)
+        {
+            return Err("invalid vehicle wheel mapping".into());
+        }
+    }
     let mut memberships = BTreeSet::new();
     for row in &c.model_categories {
         if !row.model.starts_with("models/")

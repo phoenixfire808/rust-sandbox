@@ -233,8 +233,12 @@ pub(crate) fn prepare_properties(world: &mut World, p: &Properties) -> Result<()
     }
     Ok(())
 }
-pub(crate) fn apply_properties(world: &mut World, entity: Entity, p: Properties) -> Result<()> {
-    prepare_properties(world, &p)?;
+pub(crate) fn apply_visual_properties(
+    world: &mut World,
+    entity: Entity,
+    p: &Properties,
+) -> Result<()> {
+    prepare_properties(world, p)?;
     let path = world
         .get::<SpawnedProp>(entity)
         .ok_or("target is no longer a prop")?
@@ -245,7 +249,10 @@ pub(crate) fn apply_properties(world: &mut World, entity: Entity, p: Properties)
         .get::<Children>(entity)
         .map(|c| {
             c.iter()
-                .filter(|e| world.get::<Mesh3d>(*e).is_some())
+                .filter(|e| {
+                    world.get::<Mesh3d>(*e).is_some()
+                        && world.get::<super::impacts::ImpactMark>(*e).is_none()
+                })
                 .collect()
         })
         .unwrap_or_default();
@@ -271,6 +278,10 @@ pub(crate) fn apply_properties(world: &mut World, entity: Entity, p: Properties)
         let handle = world.resource_mut::<Assets<StandardMaterial>>().add(mat);
         world.entity_mut(child).insert(MeshMaterial3d(handle));
     }
+    Ok(())
+}
+pub(crate) fn apply_properties(world: &mut World, entity: Entity, p: Properties) -> Result<()> {
+    apply_visual_properties(world, entity, &p)?;
     let physical = world
         .resource::<PlayState>()
         .tools

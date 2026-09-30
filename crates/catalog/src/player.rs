@@ -16,6 +16,10 @@ pub struct PlayerConfig {
     pub run_speed: f32,
     pub jump_speed: f32,
     pub height: f32,
+    pub crouch_height: f32,
+    pub crouch_eye: f32,
+    pub crouch_speed: f32,
+    pub duck_seconds: f32,
     pub radius: f32,
     pub eye_height: f32,
     pub step_height: f32,
@@ -60,6 +64,10 @@ pub fn load(path: &Path) -> Result<PlayerConfig> {
         (c.run_speed, 0.1, 30.),
         (c.jump_speed, 0.1, 20.),
         (c.height, 0.5, 3.),
+        (c.crouch_height, 0.5, 3.),
+        (c.crouch_eye, 0.1, 3.),
+        (c.crouch_speed, 0.01, 1.),
+        (c.duck_seconds, 0.01, 2.),
         (c.radius, 0.05, 0.6),
         (c.eye_height, 0.3, 3.),
         (c.step_height, 0.01, 0.6),
@@ -82,7 +90,12 @@ pub fn load(path: &Path) -> Result<PlayerConfig> {
     if !(0..=255).contains(&c.world_physgun_skin) {
         return Err("invalid world weapon skin".into());
     }
-    if c.radius * 2. >= c.height || c.eye_height > c.height || c.run_speed < c.walk_speed {
+    if c.radius * 2. >= c.crouch_height
+        || c.crouch_height >= c.height
+        || c.crouch_eye > c.crouch_height
+        || c.eye_height > c.height
+        || c.run_speed < c.walk_speed
+    {
         return Err("inconsistent player dimensions/speeds".into());
     }
     Ok(c)

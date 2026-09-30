@@ -1,5 +1,16 @@
 # Spreadsheet and generated-struct contract
 
+## Motion and impact feedback configuration
+
+`source_player.csv` adds `crouch_height` and `crouch_eye` in metres, `crouch_speed` as a walk-speed fraction, and `duck_seconds` for the eye transition. Loader checks finite ranges, radius versus crouch height, crouch versus standing height and eye placement. `source_animation_states.csv` adds `crouch_idle` and the `{direction}` template `crouch_walk` for each existing hold type.
+
+`source_vehicle_wheels.csv` maps each wheeled vehicle ID to unique `wheel_fl/fr/rl/rr` attachments, `radius` in metres and `steer_angle` in radians. Rear steer is zero. IDs must reference a `wheels` vehicle, radius must be 0.05 to 2 m and steering 0 to 1.5 radians. These are presentation mappings, not complete native vehicle scripts or a suspension solver. Build.rs tracks the sheet and the generated spawn catalog includes it.
+
+`source_gameplay.csv` adds `impact_limit` (1 to 2048 marks/bursts), `impact_seconds`, `impact_size` and `impact_offset` (metres), mounted `impact_texture` under `decals/`, `spark_seconds`, `spark_speed` (m/s), `crash_force_per_mass` (contact force threshold divided by configured vehicle mass), `crash_cooldown`, `wheel_visual_distance` (metres) and `fps_interval` (seconds). All scalar additions must be finite and positive. These prototype effect settings are not native shader or physical constants. Mark entities are transient and not saved.
+
+`motion_impact_cases.csv` and the extended `feedback_review_plan.csv` separate implementation from remaining work and Drew-owned `not_run` acceptance. The workbook exports them without claiming that export executes gameplay checks.
+
+
 ## Release checklist
 
 `source_release_notes.csv` authors ordered in-game cards: unique safe `id`, safe `revision`, `title`, `change`, `steps`, `expected`, `limits`, and `status` (`needs_check`, `partial`, `missing`). Required text is nonempty and bounded to 4096 bytes. The frontend loader rejects malformed entries and an empty checklist. `compiled_release_notes()` is generated from these rows; build.rs watches the sheet. Increment a card's revision whenever its testing expectations change so old personal checks do not imply the revised item was checked.

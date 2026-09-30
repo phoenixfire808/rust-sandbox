@@ -25,7 +25,7 @@ vehicle_wheels,vehicle,vehicle_runtime,Wheel contact suspension and chassis,part
 vehicle_drive,vehicle,vehicle_runtime,Throttle torque gearing steering brake and reverse,partial,P0,vehicle_wheels|vehicle_occupancy,Jeep accelerates steers brakes and reverses under driver input,lua/autorun/base_vehicles.lua,not_run
 vehicle_airboat,vehicle,vehicle_runtime,Airboat water contact and propulsion,partial,P1,vehicle_drive,Airboat floats moves and transitions between shore and water,lua/autorun/base_vehicles.lua,not_run
 vehicle_apc,vehicle,vehicle_runtime,APC special behavior and indestructible health override,partial,P1,vehicle_drive,APC-specific behavior is not inherited from a cosmetic car body,lua/autorun/base_vehicles.lua,not_run
-vehicle_audio,vehicle,vehicle_runtime,Engine wheel effects and vehicle animation,missing,P1,vehicle_drive,Audio and wheel pose track engine and contact state,lua/autorun/base_vehicles.lua,not_run
+vehicle_audio,vehicle,vehicle_runtime,Engine wheel effects and vehicle animation,partial,P1,vehicle_drive,Three car wheel presentations and contact bursts exist; native audio pose parameters and suspension remain open,lua/autorun/base_vehicles.lua,not_run
 vehicle_damage,vehicle,vehicle_runtime,Vehicle damage destruction and occupant safety,missing,P1,vehicle_occupancy,Destroying occupied vehicle leaves valid player state,lua/autorun/base_vehicles.lua,not_run
 entity_pickups,entity,entity_callbacks,Ammo health suit and battery pickups,missing,P1,entity_factory,Pickup changes player resources and removes or respawns correctly,lua/autorun/game_hl2.lua,not_run
 entity_chargers,entity,entity_callbacks,Health and suit chargers,missing,P1,entity_pickups,Use consumes charge with correct resource cap,lua/autorun/game_hl2.lua,not_run

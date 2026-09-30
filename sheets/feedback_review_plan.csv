@@ -1,4 +1,10 @@
 id,priority,area,implementation,remaining,acceptance,result
+crouch_runtime,P0,Movement,Ctrl crouch hull and eye transition with blocked standing and original directional clips,Native command ordering crouch boost and box-hull equivalence,Run motion_impact_cases crouch rows,not_run
+surface_impacts,P0,Weapons,Actual hit normal marks with original generic concrete texture and bounded bursts,Material-specific native projected decals particles sounds and save behavior,Run motion_impact_cases impact rows,not_run
+wheel_visuals,P0,Vehicles,Jeep Jalopy APC attachment pivot roll and front steer with researched radii,Native pose parameters suspension and speed-dependent steering,Run motion_impact_cases wheel rows,not_run
+crash_visuals,P1,Vehicles,Physical contact-force events request cooldown-limited bursts,Native damage deformation audio and material-specific effects,Run motion_impact_cases crash row,not_run
+hud_readouts,P1,UI,Live FPS frame time health and clip-reserve panels,Native fonts armor crosshair selection notifications and exact layout,Run motion_impact_cases HUD rows,not_run
+broader_remaining,P1,Parity inventory,Existing 169-root-gap backlog and per-registration coverage remain authoritative,Missing and partial systems are not complete or accepted,Continue dependency work_queue without treating this feedback slice as full parity,not_run
 feedback_single,P0,Feedback,One multiline body replaces four fields and preserves legacy draft content,User acceptance of save and migration,Open F8 and enter one note then save and reopen,not_run
 feedback_windows,P0,Windows text input,Embedded Rich Edit 4.1 child enables TSF with no game speech engine,Windows dictation focus and compositor acceptance,Click the field and use existing Win+H then edit and save,not_run
 feedback_safety,P0,Input isolation,Native child owns editing and forwards only editor exit hotkeys,Focus and held-input regression acceptance,Dictate and switch apps then return without firing jumping or losing text,not_run

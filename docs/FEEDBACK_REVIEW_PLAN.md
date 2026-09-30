@@ -1,5 +1,26 @@
 # Feedback usability and visual-note review
 
+## Latest motion and impact feedback, 2026-09-30
+
+Four additional local reports were reviewed after the single-note release. The priority sheet now has 15 rows. The new [19 manual cases](../sheets/motion_impact_cases.csv) and four F7 cards cover crouch, bullet impacts, vehicle wheel/crash presentation and live HUD readouts. Every acceptance result remains `not_run`, owned by Drew. Private report text and filenames are not published.
+
+```mermaid
+flowchart TD
+    A[Private feedback review] --> B[Original metadata and public movement research]
+    B --> C[Author hull wheel and impact sheets]
+    C --> D[Integrate runtime and presentation]
+    D --> E[Compile actual game and export workbook]
+    E --> F[Drew checks F7 guidance and reports through F8]
+    F --> G[Continue explicit missing and partial parity backlog]
+```
+
+1. Movement: use Ctrl for a shorter capsule, slower speed and eye transition. Ground duck preserves feet. Air duck preserves the top and raises feet. Expansion checks the full standing hull. Original physgun/pistol crouch idle and eight directional walk clips are authored. Vehicle entry and respawn restore canonical standing geometry. Native box-hull collision, exact simultaneous jump/duck ordering, crouch boost and specialized duck-jump interpolation remain open.
+2. Impacts: reuse actual ray-hit normals and mounted original concrete impact texture. Bounded child quads follow struck props, expire and clean up with parents. Short bursts are shared with explosions and vehicle contact events. Material tools explicitly exclude mark meshes. This is not material-specific projected Source decal or particle parity. Quad clipping, blood/dust/audio, BSP overlays and persistence remain open.
+3. Vehicles: reuse the existing original-model skeleton and CPU skinning, with 12 authored attachment/radius/front-steer records across Jeep, Jalopy and APC. Signed forward speed drives roll. Visible-distance culling bounds skinning scope. Replacing static parts preserves saved color/material without changing physics. Actual Rapier contact-force events trigger cooldown-limited bursts. Native suspension pose parameters, speed-dependent steering, engine/crash audio, deformation and crash damage remain open. Airboat and passive seats receive no invented wheels.
+4. HUD: measured real-frame FPS and milliseconds remain visible during pause, with gameplay health and clip/reserve panels in lower corners. Existing layout sheets own spacing and gameplay tuning owns the refresh interval. Native fonts, armor, weapon selection, notifications and exact stock layout remain open.
+5. Delivery: compile the real executable, validate the production sheet loader, regenerate 134 coverage rows and export a new workbook. Do not run tests or automate gameplay. This slice does not complete all 169 root parity gaps, remaining NPCs, weapons, tools, menus or native vehicle simulation.
+
+
 ## Scope and priorities
 
 All four saved reports were reviewed locally. Their contents and filenames remain private. The engineering priorities and acceptance boundaries are authored in [feedback_review_plan.csv](../sheets/feedback_review_plan.csv). The 20 [manual cases](../sheets/feedback_editor_cases.csv) are Drew-owned and remain `not_run`.

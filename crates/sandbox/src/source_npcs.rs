@@ -282,6 +282,7 @@ pub fn think(world: &mut World) {
                 vehicles::release(world, None);
                 weapons::clear_transients(world);
                 world.entity_mut(player_id).insert(transform);
+                source_player::reset_crouch(world);
                 if let Some(mut controller) =
                     world.get_mut::<KinematicCharacterController>(player_id)
                 {

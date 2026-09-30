@@ -37,6 +37,8 @@ pub struct AnimationState {
     pub walk: String,
     pub run: String,
     pub jump: String,
+    pub crouch_idle: String,
+    pub crouch_walk: String,
     pub walk_speed: f32,
     pub run_speed: f32,
 }
@@ -96,9 +98,17 @@ pub fn load(path: &Path) -> Result<(LayoutConfig, Vec<AnimationState>)> {
             || !["physgun", "pistol"].contains(&s.hold.as_str())
             || !s.walk.contains("{direction}")
             || !s.run.contains("{direction}")
-            || [&s.idle, &s.walk, &s.run, &s.jump]
-                .iter()
-                .any(|s| s.is_empty() || s.len() > 200)
+            || !s.crouch_walk.contains("{direction}")
+            || [
+                &s.idle,
+                &s.walk,
+                &s.run,
+                &s.jump,
+                &s.crouch_idle,
+                &s.crouch_walk,
+            ]
+            .iter()
+            .any(|s| s.is_empty() || s.len() > 200)
             || !s.walk_speed.is_finite()
             || !s.run_speed.is_finite()
             || s.walk_speed <= 0.

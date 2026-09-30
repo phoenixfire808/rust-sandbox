@@ -2,6 +2,9 @@
 use super::*;
 use crate::source_player::PlayerState;
 use sandbox_catalog::spawn::Vehicle;
+#[path = "source_vehicle_visuals.rs"]
+pub(super) mod visuals;
+use visuals::CrashCooldown;
 
 #[derive(Component, Clone)]
 pub struct VehicleBody {
@@ -38,6 +41,9 @@ pub fn attach(world: &mut World, entity: Entity, id: &str) -> Result<()> {
         VehicleBody { id: id.into() },
         ColliderMassProperties::Mass(c.mass),
         ExternalForce::default(),
+        ActiveEvents::CONTACT_FORCE_EVENTS,
+        ContactForceEventThreshold(c.mass * tuning.crash_force_per_mass),
+        CrashCooldown::default(),
         Damping {
             linear_damping: tuning.vehicle_linear_damping,
             angular_damping: tuning.vehicle_angular_damping,
@@ -120,7 +126,7 @@ fn ray(
         )
         .map(|(_, d)| d)
 }
-pub(super) fn clear_hull(world: &mut World, center: Vec3) -> bool {
+pub(crate) fn clear_hull(world: &mut World, center: Vec3) -> bool {
     let Some(player) = world.get_resource::<PlayerState>() else {
         return false;
     };
@@ -250,7 +256,14 @@ pub fn update(world: &mut World) {
             {
                 let id = world.get::<VehicleBody>(vehicle).unwrap().id.clone();
                 let c = definition(world, &id).unwrap();
-                let center = world.get::<Transform>(player_id).unwrap().translation;
+                let p = world.resource::<PlayerState>();
+                let center = world.get::<Transform>(player_id).unwrap().translation
+                    + Vec3::Y
+                        * if p.crouched {
+                            (p.config.height - p.config.crouch_height) * 0.5
+                        } else {
+                            0.
+                        };
                 let yaw = world
                     .get::<Transform>(vehicle)
                     .unwrap()
@@ -265,6 +278,7 @@ pub fn update(world: &mut World) {
                     previous_yaw: yaw,
                     ..default()
                 };
+                crate::source_player::reset_crouch(world);
                 world.entity_mut(player_id).insert(ColliderDisabled);
                 let mut player = world.resource_mut::<PlayerState>();
                 player.vehicle = Some(vehicle);

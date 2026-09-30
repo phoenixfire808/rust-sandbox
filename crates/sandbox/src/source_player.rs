@@ -39,6 +39,9 @@ pub struct PlayerState {
     pub jump: bool,
     pub vertical: f32,
     pub running: bool,
+    pub crouched: bool,
+    pub duck_fraction: f32,
+    wants_crouch: bool,
     pub horizontal_velocity: Vec3,
     pub vehicle: Option<Entity>,
     jumped: bool,
@@ -50,6 +53,7 @@ impl Plugin for SourcePlayerPlugin {
         app.add_plugins(crate::source_effects::SourceEffectsPlugin);
         app.add_systems(Update, input.before(source_play::update_play))
             .add_systems(Update, sync_cursor.after(source_play::update_play))
+            .add_systems(FixedUpdate, crouch.before(walk))
             .add_systems(FixedUpdate, walk.before(PhysicsSet::SyncBackend))
             .add_systems(FixedUpdate, finish_walk.after(PhysicsSet::Writeback))
             .add_systems(Update, visuals.after(source_play::tools::input));
@@ -100,6 +104,9 @@ pub fn spawn(commands: &mut Commands, eye: Vec3, forward: Vec3) {
         jump: false,
         vertical: 0.,
         running: false,
+        crouched: false,
+        duck_fraction: 0.,
+        wants_crouch: false,
         horizontal_velocity: Vec3::ZERO,
         vehicle: None,
         jumped: false,
@@ -127,6 +134,7 @@ pub fn input(
     }
     s.direction = Vec3::ZERO;
     s.running = false;
+    s.wants_crouch = false;
     if !w.focused || play.menu_open || life.is_some_and(|l| l.health <= 0.) {
         s.jump = false;
         return;
@@ -161,7 +169,9 @@ pub fn input(
         },
         axis(KeyCode::KeyS, KeyCode::KeyW),
     );
-    s.running = keys.pressed(KeyCode::ShiftLeft);
+    s.wants_crouch =
+        !s.noclip && (keys.pressed(KeyCode::ControlLeft) || keys.pressed(KeyCode::ControlRight));
+    s.running = keys.pressed(KeyCode::ShiftLeft) && !s.wants_crouch;
     s.jump |= keys.just_pressed(KeyCode::Space);
 }
 fn sync_cursor(world: &mut World) {
@@ -181,6 +191,63 @@ fn sync_cursor(world: &mut World) {
             window.cursor_options.visible = !captured;
         }
     }
+}
+pub(crate) fn reset_crouch(world: &mut World) {
+    let Some(s) = world.get_resource::<PlayerState>() else {
+        return;
+    };
+    let (entity, c) = (s.entity, s.config.clone());
+    world
+        .entity_mut(entity)
+        .insert(Collider::capsule_y(c.height * 0.5 - c.radius, c.radius));
+    let mut s = world.resource_mut::<PlayerState>();
+    s.crouched = false;
+    s.wants_crouch = false;
+    s.duck_fraction = 0.;
+}
+fn crouch(world: &mut World) {
+    let Some(s) = world.get_resource::<PlayerState>() else {
+        return;
+    };
+    if s.vehicle.is_some()
+        || source_play::npcs::dead(world)
+        || crate::source_frontend::active(world)
+        || world.resource::<PlayState>().menu_open
+    {
+        return;
+    }
+    let (entity, c, was, wanted, grounded) = (
+        s.entity,
+        s.config.clone(),
+        s.crouched,
+        s.wants_crouch && !s.noclip,
+        s.grounded,
+    );
+    if !world.query::<&Window>().iter(world).any(|w| w.focused) {
+        return;
+    }
+    if was != wanted {
+        let old_height = if was { c.crouch_height } else { c.height };
+        let new_height = if wanted { c.crouch_height } else { c.height };
+        // Grounded: preserve feet. Airborne: preserve top, lifting feet for jump-crouch.
+        let shift = (new_height - old_height) * if grounded { 0.5 } else { -0.5 };
+        let center = world.get::<Transform>(entity).unwrap().translation + Vec3::Y * shift;
+        if wanted || source_play::vehicles::clear_hull(world, center) {
+            world.get_mut::<Transform>(entity).unwrap().translation = center;
+            world
+                .entity_mut(entity)
+                .insert(Collider::capsule_y(new_height * 0.5 - c.radius, c.radius));
+            let mut s = world.resource_mut::<PlayerState>();
+            s.crouched = wanted;
+            if !grounded {
+                s.duck_fraction = if wanted { 1. } else { 0. };
+            }
+        }
+    }
+    let step = world.resource::<Time<Fixed>>().delta_secs() / c.duck_seconds;
+    let mut s = world.resource_mut::<PlayerState>();
+    let target = if s.crouched { 1. } else { 0. };
+    s.duck_fraction += (target - s.duck_fraction).clamp(-step, step);
 }
 pub(crate) fn walk(
     time: Res<Time<Fixed>>,
@@ -209,6 +276,8 @@ pub(crate) fn walk(
     let direction = (rotation * s.direction).normalize_or_zero();
     let speed = if s.noclip {
         play.speed
+    } else if s.crouched {
+        s.config.walk_speed * s.config.crouch_speed
     } else if s.running {
         s.config.run_speed
     } else {
@@ -495,8 +564,9 @@ fn create_scene(world: &mut World) -> Result<Scene> {
     for mapping in &animation_states {
         add_clip(world, &mut body, &c.animations, &mapping.idle)?;
         add_clip(world, &mut body, &c.animations, &mapping.jump)?;
+        add_clip(world, &mut body, &c.animations, &mapping.crouch_idle)?;
         for direction in crate::source_pose::DIRECTIONS {
-            for template in [&mapping.walk, &mapping.run] {
+            for template in [&mapping.walk, &mapping.run, &mapping.crouch_walk] {
                 add_clip(
                     world,
                     &mut body,
@@ -706,7 +776,13 @@ pub(crate) fn visuals(world: &mut World) {
         let occupied_vehicle = s.vehicle;
         let c = s.config.clone();
         let center = world.get::<Transform>(s.entity).unwrap().translation;
-        let feet = center - Vec3::Y * c.height * 0.5;
+        let hull_height = if s.crouched {
+            c.crouch_height
+        } else {
+            c.height
+        };
+        let feet = center - Vec3::Y * hull_height * 0.5;
+        let crouched = s.crouched;
         let tuning = world.resource::<PlayState>().spawn_catalog.runtime.clone();
         let eye_height = if occupied {
             let seat = world.resource::<source_play::vehicles::Occupancy>();
@@ -714,7 +790,7 @@ pub(crate) fn visuals(world: &mut World) {
                 .map(|v| v.eye_height)
                 .unwrap_or(tuning.seat_eye_height)
         } else {
-            c.eye_height
+            c.eye_height + (c.crouch_eye - c.eye_height) * s.duck_fraction
         };
         let eye = Transform::from_translation(feet + Vec3::Y * eye_height)
             .with_rotation(Quat::from_euler(EulerRot::YXZ, s.yaw, s.pitch, 0.));
@@ -810,6 +886,8 @@ pub(crate) fn visuals(world: &mut World) {
                 local_velocity,
                 airborne,
                 noclip,
+                crouched,
+                c.crouch_speed,
                 dt,
             )
         };

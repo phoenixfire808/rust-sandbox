@@ -24,6 +24,8 @@ impl PosePlayback {
         velocity: Vec3,
         airborne: bool,
         noclip: bool,
+        crouched: bool,
+        crouch_speed: f32,
         dt: f32,
     ) -> Vec<Transform> {
         let speed = Vec2::new(velocity.x, velocity.z).length();
@@ -32,7 +34,13 @@ impl PosePlayback {
         let sector = (velocity.x.atan2(-velocity.z) / std::f32::consts::FRAC_PI_4).round() as i32;
         let direction = DIRECTIONS[sector.rem_euclid(8) as usize];
         let jumping = airborne && !noclip;
-        let name = if jumping {
+        let name = if crouched {
+            if moving && !jumping {
+                mapping.crouch_walk.replace("{direction}", direction)
+            } else {
+                mapping.crouch_idle.clone()
+            }
+        } else if jumping {
             mapping.jump.clone()
         } else if moving {
             (if running { &mapping.run } else { &mapping.walk }).replace("{direction}", direction)
@@ -49,7 +57,9 @@ impl PosePlayback {
         self.elapsed += dt;
         self.transition += dt;
         let seconds = if moving && !jumping {
-            let nominal = if running {
+            let nominal = if crouched {
+                mapping.walk_speed * crouch_speed
+            } else if running {
                 mapping.run_speed
             } else {
                 mapping.walk_speed

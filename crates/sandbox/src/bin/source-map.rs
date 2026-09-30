@@ -297,7 +297,7 @@ fn setup(
         Node {
             position_type: PositionType::Absolute,
             left: Val::Px(16.),
-            bottom: Val::Px(16.),
+            bottom: Val::Px(64.),
             padding: UiRect::all(Val::Px(8.)),
             ..default()
         },
