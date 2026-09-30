@@ -132,6 +132,31 @@ fn catalog_browser(world: &mut World, body: Entity, tree_width: f32) {
         UiAction::Search,
         focused,
     );
+    if tab.kind == "npc" {
+        let settings = world.resource::<npcs::NpcSettings>();
+        let disabled = settings.disabled;
+        let ignore = settings.ignore_players;
+        action(
+            world,
+            browser,
+            format!("[{}] Disable thinking", if disabled { "x" } else { " " }),
+            UiAction::NpcSetting("disabled"),
+            disabled,
+        );
+        action(
+            world,
+            browser,
+            format!("[{}] Ignore players", if ignore { "x" } else { " " }),
+            UiAction::NpcSetting("ignore_players"),
+            ignore,
+        );
+        text(
+            world,
+            browser,
+            "Equipment / corpses / squads: pending",
+            c.font_size,
+        );
+    }
     let tree = scroll_panel(world, browser, 0);
     action(
         world,
@@ -199,6 +224,14 @@ fn catalog_browser(world: &mut World, body: Entity, tree_width: f32) {
                 c.font_size,
             );
         }
+        if let Some(n) = catalog.npcs.iter().find(|n| n.id == e.id) {
+            text(
+                world,
+                viewport,
+                format!("Scope: {}\nRemaining: {}", n.scope, n.remaining),
+                c.font_size,
+            );
+        }
         if let Some(v) = catalog.vehicles.iter().find(|v| v.id == e.id) {
             text(
                 world,
@@ -239,10 +272,15 @@ fn catalog_browser(world: &mut World, body: Entity, tree_width: f32) {
     for e in results.iter().skip(page * page_size).take(page_size) {
         let weapon = catalog.weapons.iter().find(|w| w.id == e.id);
         let vehicle = catalog.vehicles.iter().find(|v| v.id == e.id);
-        let usable = weapon.is_some_and(|w| w.kind != "disabled") || vehicle.is_some();
+        let npc = catalog
+            .npcs
+            .iter()
+            .find(|n| n.id == e.id && n.kind != "disabled");
+        let usable =
+            weapon.is_some_and(|w| w.kind != "disabled") || vehicle.is_some() || npc.is_some();
         let label = if weapon.is_some_and(|w| w.kind != "disabled") {
             "Equip"
-        } else if vehicle.is_some() {
+        } else if vehicle.is_some() || npc.is_some() {
             "Spawn"
         } else {
             "Pending"

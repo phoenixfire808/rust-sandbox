@@ -53,6 +53,37 @@ pub struct SpawnCatalog {
     pub runtime: Runtime,
     pub model_categories: Vec<ModelCategory>,
     pub water: Water,
+    pub npcs: Vec<Npc>,
+    pub npc_rules: NpcRules,
+}
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct Npc {
+    pub id: String,
+    pub kind: String,
+    pub model: String,
+    pub faction: String,
+    pub health: f32,
+    pub speed: f32,
+    pub range: f32,
+    pub damage: f32,
+    pub interval: f32,
+    pub sight: f32,
+    pub height: f32,
+    pub radius: f32,
+    pub forward_yaw: f32,
+    pub idle: String,
+    pub walk: String,
+    pub attack: String,
+    pub scope: String,
+    pub remaining: String,
+}
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct NpcRules {
+    pub limit: usize,
+    pub gravity: f32,
+    pub player_health: f32,
+    pub respawn_seconds: f32,
+    pub step_height: f32,
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Water {
@@ -218,7 +249,27 @@ pub fn load(dir: &Path) -> Result<SpawnCatalog> {
     {
         return Err("invalid water tuning".into());
     }
+    let mut rules = rows::<NpcRules>(dir, "source_npc_rules.csv")?;
+    if rules.len() != 1 {
+        return Err("source_npc_rules requires one row".into());
+    }
+    let npc_rules = rules.remove(0);
+    if npc_rules.limit == 0
+        || npc_rules.limit > 128
+        || ![
+            npc_rules.gravity,
+            npc_rules.player_health,
+            npc_rules.respawn_seconds,
+            npc_rules.step_height,
+        ]
+        .iter()
+        .all(|v| v.is_finite() && *v > 0. && *v <= 1000.)
+    {
+        return Err("invalid NPC runtime rules".into());
+    }
     let mut c = SpawnCatalog {
+        npcs: rows(dir, "source_npcs.csv")?,
+        npc_rules,
         water,
         runtime,
         model_categories: rows(dir, "source_model_categories.csv")?,
@@ -248,6 +299,60 @@ pub fn load(dir: &Path) -> Result<SpawnCatalog> {
             || !memberships.insert((&row.model, &row.category))
         {
             return Err("invalid or duplicate model category membership".into());
+        }
+    }
+    unique(c.npcs.iter().map(|e| e.id.as_str()))?;
+    for entry in c.entries.iter().filter(|e| e.kind == "npc") {
+        if !c.npcs.iter().any(|n| n.id == entry.id) {
+            return Err(format!("missing NPC coverage: {}", entry.id).into());
+        }
+    }
+    for n in &c.npcs {
+        if !c.entries.iter().any(|e| e.id == n.id && e.kind == "npc")
+            || !["disabled", "melee", "ranged", "passive"].contains(&n.kind.as_str())
+            || !["combine", "resistance", "zombie", "neutral"].contains(&n.faction.as_str())
+            || ![
+                n.health,
+                n.speed,
+                n.range,
+                n.damage,
+                n.interval,
+                n.sight,
+                n.height,
+                n.radius,
+                n.forward_yaw,
+            ]
+            .iter()
+            .all(|v| v.is_finite())
+            || n.scope.is_empty()
+            || n.remaining.is_empty()
+        {
+            return Err(format!("invalid NPC definition: {}", n.id).into());
+        }
+        if n.kind != "disabled"
+            && (!n.model.starts_with("models/")
+                || !n.model.ends_with(".mdl")
+                || n.model.contains("..")
+                || n.model.contains('\\')
+                || n.health <= 0.
+                || n.health > 10000.
+                || n.speed < 0.
+                || n.speed > 30.
+                || n.range <= 0.
+                || n.range > n.sight
+                || n.sight > 200.
+                || n.damage < 0.
+                || n.damage > 1000.
+                || n.interval < 0.1
+                || n.interval > 60.
+                || n.radius <= 0.
+                || n.height < 2. * n.radius
+                || n.height > 10.
+                || n.idle.is_empty()
+                || n.walk.is_empty()
+                || n.attack.is_empty())
+        {
+            return Err(format!("invalid enabled NPC tuning: {}", n.id).into());
         }
     }
     unique(c.entries.iter().map(|e| e.id.as_str()))?;

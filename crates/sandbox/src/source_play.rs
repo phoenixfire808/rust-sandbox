@@ -19,6 +19,8 @@ use sandbox_catalog::{play::PlayConfig, Result};
 use std::collections::BTreeMap;
 #[path = "source_menu.rs"]
 mod menu;
+#[path = "source_npcs.rs"]
+pub(crate) mod npcs;
 #[path = "source_scene.rs"]
 mod scene;
 #[path = "source_spawn.rs"]
@@ -27,10 +29,10 @@ mod spawn;
 mod tool_screen;
 #[path = "source_tools.rs"]
 pub(crate) mod tools;
-#[path = "source_weapons.rs"]
-pub(crate) mod weapons;
 #[path = "source_vehicles.rs"]
 pub(crate) mod vehicles;
+#[path = "source_weapons.rs"]
+pub(crate) mod weapons;
 use scene::{
     remember, restore, snapshot, snapshot_selection, spawn_scene, validate_scene, SavedScene,
 };
@@ -47,6 +49,7 @@ pub struct SpawnedProp {
 }
 #[derive(Component, Clone)]
 enum UiAction {
+    NpcSetting(&'static str),
     UseEntry(String),
     CreationTab(String),
     InspectEntry(String),
@@ -117,6 +120,8 @@ pub(crate) struct GpuModel {
 struct SavedModel {
     #[serde(default)]
     vehicle: Option<String>,
+    #[serde(default)]
+    npc: Option<String>,
     #[serde(default)]
     health: Option<weapons::Health>,
     model: String,
@@ -204,6 +209,15 @@ impl Plugin for SourcePlayPlugin {
         .init_resource::<spawn::PendingSpawns>()
         .init_resource::<weapons::WeaponState>()
         .init_resource::<vehicles::Occupancy>()
+        .init_resource::<npcs::NpcSettings>()
+        .add_systems(
+            FixedUpdate,
+            npcs::think
+                .before(crate::source_player::walk)
+                .before(vehicles::drive)
+                .before(PhysicsSet::SyncBackend),
+        )
+        .add_systems(Update, npcs::animate.after(spawn::complete))
         .add_systems(FixedUpdate, vehicles::drive.before(PhysicsSet::SyncBackend))
         .add_systems(Update, weapons::draw.after(weapons::simulate))
         .add_systems(
@@ -479,7 +493,9 @@ pub(crate) fn world_ray(
 }
 pub(crate) fn beam_target(world: &mut World) -> Option<Vec3> {
     let state = world.resource::<PlayState>();
-    if state.active_weapon != "weapon_weapon_physgun" && state.active_weapon != "weapon_gmod_tool" { return None; }
+    if state.active_weapon != "weapon_weapon_physgun" && state.active_weapon != "weapon_gmod_tool" {
+        return None;
+    }
     if !state.physgun {
         return state
             .tools
@@ -650,14 +666,25 @@ pub fn update_play(world: &mut World) {
     }
     for (key, physgun) in [(KeyCode::Digit1, true), (KeyCode::Digit2, false)] {
         if keys.just_pressed(key) && !world.resource::<PlayState>().menu_open {
-            weapons::equip(world, if physgun { "weapon_weapon_physgun" } else { "weapon_gmod_tool" });
+            weapons::equip(
+                world,
+                if physgun {
+                    "weapon_weapon_physgun"
+                } else {
+                    "weapon_gmod_tool"
+                },
+            );
             world.resource_mut::<PlayState>().tools.stage = None;
             world.resource_mut::<PlayState>().tools.shot = None;
             world.resource_mut::<PlayState>().held = None;
             set_weapon(world);
         }
     }
-    if !world.resource::<PlayState>().menu_open && focused && world.resource::<vehicles::Occupancy>().vehicle.is_none() {
+    if !npcs::dead(world)
+        && !world.resource::<PlayState>().menu_open
+        && focused
+        && world.resource::<vehicles::Occupancy>().vehicle.is_none()
+    {
         if keys.just_pressed(KeyCode::Enter) {
             actions.push(UiAction::Spawn(
                 world.resource::<PlayState>().selected.clone(),
@@ -687,12 +714,16 @@ pub fn update_play(world: &mut World) {
             && (mouse.just_pressed(MouseButton::Left)
                 || mouse.just_pressed(MouseButton::Right)
                 || keys.just_pressed(KeyCode::KeyR));
-        let focus = world.resource::<PlayState>().held.or_else(|| {
-            needs_target
-                .then(|| aimed_prop(world))
-                .flatten()
-                .map(|p| p.0)
-        });
+        let focus = world
+            .resource::<PlayState>()
+            .held
+            .or_else(|| {
+                needs_target
+                    .then(|| aimed_prop(world))
+                    .flatten()
+                    .map(|p| p.0)
+            })
+            .filter(|e| world.get::<npcs::NpcBody>(*e).is_none());
         if world.resource::<PlayState>().physgun && mouse.just_pressed(MouseButton::Left) {
             if let Some(e) = focus {
                 remember(world);
@@ -786,10 +817,27 @@ pub fn update_play(world: &mut World) {
     let count = world.query::<&SpawnedProp>().iter(world).count();
     let text = {
         let s = world.resource::<PlayState>();
-        let label = s.spawn_catalog.entries.iter().find(|e| e.id == s.active_weapon).map(|e|e.label.as_str()).unwrap_or("Weapon");
+        let label = s
+            .spawn_catalog
+            .entries
+            .iter()
+            .find(|e| e.id == s.active_weapon)
+            .map(|e| e.label.as_str())
+            .unwrap_or("Weapon");
         let vehicle = world.resource::<vehicles::Occupancy>();
-        let mode = if vehicle.vehicle.is_some() { "WASD: drive | Space: brake | E: exit | F4: view" } else { "LMB: use | R: reload | E: enter vehicle | Q: build | 1/2: physgun/toolgun" };
-        format!("{label} | {count} objects | {mode}\n{}",s.status)
+        let mode = if vehicle.vehicle.is_some() {
+            "WASD: drive | Space: brake | E: exit | F4: view"
+        } else {
+            "LMB: use | R: reload | E: enter vehicle | Q: build | 1/2: physgun/toolgun"
+        };
+        let health = world
+            .get_resource::<npcs::PlayerLife>()
+            .map(|l| l.health)
+            .unwrap_or(s.spawn_catalog.npc_rules.player_health);
+        format!(
+            "Health {health:.0} | {label} | {count} objects | {mode}\n{}",
+            s.status
+        )
     };
     for mut hud in world
         .query_filtered::<&mut Text, With<SourceHud>>()
@@ -814,20 +862,42 @@ pub fn menu_setting(world: &mut World, key: &'static str, delta: f32) {
     perform(world, UiAction::Setting(key, delta));
 }
 fn perform(world: &mut World, action: UiAction) {
-    if matches!(action, UiAction::CreationTab(_) | UiAction::InspectEntry(_) | UiAction::Category(_) | UiAction::Page(_)) {
+    if matches!(
+        action,
+        UiAction::CreationTab(_)
+            | UiAction::InspectEntry(_)
+            | UiAction::Category(_)
+            | UiAction::Page(_)
+    ) {
         menu::reset_creation_scroll(world, matches!(action, UiAction::CreationTab(_)));
     }
     if !matches!(action, UiAction::Search) {
         world.resource_mut::<PlayState>().search_focus = false;
     }
     match action {
+        UiAction::NpcSetting(key) => {
+            let mut settings = world.resource_mut::<npcs::NpcSettings>();
+            match key {
+                "disabled" => settings.disabled = !settings.disabled,
+                "ignore_players" => settings.ignore_players = !settings.ignore_players,
+                _ => {}
+            }
+            world.resource_mut::<PlayState>().dirty = true;
+        }
         UiAction::UseEntry(id) => {
             world.resource_mut::<PlayState>().catalog_selected = id.clone();
-            let kind = world.resource::<PlayState>().spawn_catalog.entries.iter().find(|e| e.id == id).map(|e| e.kind.clone());
+            let kind = world
+                .resource::<PlayState>()
+                .spawn_catalog
+                .entries
+                .iter()
+                .find(|e| e.id == id)
+                .map(|e| e.kind.clone());
             match kind.as_deref() {
                 Some("weapon") => weapons::equip(world, &id),
                 Some("vehicle") => vehicles::spawn(world, &id),
-                _ => {},
+                Some("npc") => npcs::spawn(world, &id),
+                _ => {}
             }
         }
         UiAction::CreationTab(id) => {

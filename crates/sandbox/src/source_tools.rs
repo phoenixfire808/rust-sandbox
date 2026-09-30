@@ -331,9 +331,13 @@ pub(crate) fn trace(world: &mut World, eye: Transform, exclude: Option<Entity>) 
 }
 pub(crate) fn input(world: &mut World) {
     let p = world.resource::<PlayState>();
-    if p.active_weapon != "weapon_gmod_tool" || p.menu_open || p.tools.input_blocked
+    if npcs::dead(world)
+        || p.active_weapon != "weapon_gmod_tool"
+        || p.menu_open
+        || p.tools.input_blocked
         || world.resource::<vehicles::Occupancy>().vehicle.is_some()
-        || world.resource::<weapons::WeaponState>().equip_blocked {
+        || world.resource::<weapons::WeaponState>().equip_blocked
+    {
         return;
     }
     if !world
@@ -382,6 +386,11 @@ pub(crate) fn input(world: &mut World) {
     }
 }
 fn operate(world: &mut World, tool: &str, action: u8, hit: Target) -> Result<bool> {
+    if world.get::<npcs::NpcBody>(hit.entity).is_some() && tool != "remover" {
+        return Err(
+            "This tool does not yet support live NPCs; use Remover or scene save/load".into(),
+        );
+    }
     if constraints::supported(tool) {
         return constraints::operate(world, tool, action, hit);
     }

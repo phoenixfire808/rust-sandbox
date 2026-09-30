@@ -66,6 +66,8 @@ pub fn spawn(commands: &mut Commands, eye: Vec3, forward: Vec3) {
             CollisionGroups::new(Group::GROUP_3, Group::ALL),
             Transform::from_translation(eye + Vec3::Y * (c.height * 0.5 - c.eye_height)),
             KinematicCharacterController {
+                // Character sweeps do not inherit the body's collision groups in Rapier.
+                filter_groups: Some(CollisionGroups::new(Group::GROUP_3, Group::ALL)),
                 offset: CharacterLength::Absolute(0.005),
                 autostep: Some(CharacterAutostep {
                     max_height: CharacterLength::Absolute(c.step_height),
@@ -112,6 +114,7 @@ pub fn input(
     state: Option<ResMut<PlayerState>>,
     window: Query<&Window, With<PrimaryWindow>>,
     frontend: Option<Res<crate::source_frontend::Frontend>>,
+    life: Option<Res<source_play::npcs::PlayerLife>>,
     mut exit: EventWriter<AppExit>,
 ) {
     let delta = motion.read().fold(Vec2::ZERO, |a, e| a + e.delta);
@@ -124,7 +127,7 @@ pub fn input(
     }
     s.direction = Vec3::ZERO;
     s.running = false;
-    if !w.focused || play.menu_open {
+    if !w.focused || play.menu_open || life.is_some_and(|l| l.health <= 0.) {
         s.jump = false;
         return;
     }
@@ -179,8 +182,9 @@ fn sync_cursor(world: &mut World) {
         }
     }
 }
-fn walk(
+pub(crate) fn walk(
     time: Res<Time<Fixed>>,
+    life: Option<Res<source_play::npcs::PlayerLife>>,
     play: Res<PlayState>,
     state: Option<ResMut<PlayerState>>,
     mut q: Query<(&mut Transform, &mut KinematicCharacterController), With<PlayerBody>>,
@@ -192,7 +196,7 @@ fn walk(
     let dt = time.delta_secs();
     s.movement_submitted = false;
     s.jumped = false;
-    if s.vehicle.is_some() {
+    if s.vehicle.is_some() || life.is_some_and(|l| l.health <= 0.) {
         controller.translation = None;
         return;
     }
@@ -370,13 +374,18 @@ fn clip_movement_velocity(velocity: Vec3, planes: &[Vec3]) -> Vec3 {
     }
     Vec3::ZERO
 }
-struct Actor {
-    root: Entity,
-    skeleton: Skeleton,
+pub(crate) struct Actor {
+    pub(crate) root: Entity,
+    pub(crate) skeleton: Skeleton,
     parts: Vec<(Handle<Mesh>, Geometry)>,
-    clips: BTreeMap<String, Clip>,
+    pub(crate) clips: BTreeMap<String, Clip>,
 }
-fn actor(world: &mut World, path: &str, layer: usize, parent: Option<Entity>) -> Result<Actor> {
+pub(crate) fn actor(
+    world: &mut World,
+    path: &str,
+    layer: usize,
+    parent: Option<Entity>,
+) -> Result<Actor> {
     let config = &world.resource::<PlayerState>().config;
     let skin = if path == config.world_physgun {
         config.world_physgun_skin
@@ -416,14 +425,14 @@ fn actor(world: &mut World, path: &str, layer: usize, parent: Option<Entity>) ->
         clips: BTreeMap::new(),
     })
 }
-fn add_clip(world: &World, actor: &mut Actor, path: &str, name: &str) -> Result<()> {
+pub(crate) fn add_clip(world: &World, actor: &mut Actor, path: &str, name: &str) -> Result<()> {
     let s = world.resource::<MountedSource>();
     let clip = source_animation::load_clip(&s.mounts, &s.bsp, path, name, &actor.skeleton)?;
     println!("PLAYER_CLIP_OK {name}: {} frames", clip.frames.len());
     actor.clips.insert(name.into(), clip);
     Ok(())
 }
-fn skin(world: &mut World, actor: &Actor, globals: &[Mat4]) {
+pub(crate) fn skin(world: &mut World, actor: &Actor, globals: &[Mat4]) {
     let matrices: Vec<_> = actor
         .skeleton
         .bones

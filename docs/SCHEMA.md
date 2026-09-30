@@ -1,5 +1,12 @@
 # Spreadsheet and generated-struct contract
 
+## Typed NPC lifecycle
+
+- `source_npcs.csv` has one explicit row per NPC reference, including disabled definitions. Enabled kinds are melee, ranged and passive. Faction, model, health, locomotion, attack range/damage/cooldown, sight range, hull dimensions and facing yaw are authored here. Numeric values are prototype parameters, not native-equivalence claims.
+- Idle/walk/attack contain candidate names separated by `|`. A candidate may be `models/path.mdl::clip_name` to select a researched included animation library. Required clip failures reject spawning. The one-time initialization script refuses to overwrite an existing CSV; subsequent authorship stays in CSV.
+- `source_npc_rules.csv` contains a single validated row for actor limit, gravity, local player maximum health, respawn delay and step height. Build generation watches both sheets. `npc_cases.csv` records acceptance without feeding gameplay tuning.
+- Version-4 local scenes add optional NPC identity alongside existing vehicle identity and health. An entity cannot be both, live NPC constraints and frozen state are rejected, and enabled ID/model/health/count checks plus required asset preparation precede replacement. Legacy arrays and versions 2 and 3 remain accepted. Native AI task stacks and player lifecycle persistence are not included.
+
 ## Vehicle frames, stock categories and water
 
 source_vehicles.csv adds forward_yaw in radians and eye_height in meters. Forward yaw maps Bevy local -Z to the original converted model nose. New spawn rotation is player_yaw - forward_yaw. Existing saved rotations remain unchanged. Propulsion/grip/ray placement use the same frame; seat_yaw sets body heading. Seat coordinates are model-local imported meters from original feet attachments, not normalized chassis coordinates. Pod feet remain estimated.

@@ -46,6 +46,7 @@ pub(super) fn report(
 
 struct Request {
     vehicle: Option<String>,
+    npc: Option<String>,
     rotation: Quat,
     path: String,
     position: Vec3,
@@ -68,7 +69,7 @@ impl Default for PendingSpawns {
     }
 }
 pub(super) fn enqueue(world: &mut World, path: String, position: Vec3, normal: Vec3) {
-    enqueue_typed(world, path, position, normal, Quat::IDENTITY, None);
+    enqueue_typed(world, path, position, normal, Quat::IDENTITY, None, None);
 }
 pub(super) fn enqueue_vehicle(
     world: &mut World,
@@ -78,7 +79,16 @@ pub(super) fn enqueue_vehicle(
     rotation: Quat,
     id: String,
 ) {
-    enqueue_typed(world, path, position, normal, rotation, Some(id));
+    enqueue_typed(world, path, position, normal, rotation, Some(id), None);
+}
+pub(super) fn enqueue_npc(
+    world: &mut World,
+    path: String,
+    position: Vec3,
+    rotation: Quat,
+    id: String,
+) {
+    enqueue_typed(world, path, position, Vec3::Y, rotation, None, Some(id));
 }
 fn enqueue_typed(
     world: &mut World,
@@ -87,9 +97,18 @@ fn enqueue_typed(
     normal: Vec3,
     rotation: Quat,
     vehicle: Option<String>,
+    npc: Option<String>,
 ) {
     let count = world.query::<&SpawnedProp>().iter(world).count();
+    let npcs = world.query::<&npcs::NpcBody>().iter(world).count();
     let queue = world.resource::<PendingSpawns>();
+    if npc.is_some()
+        && npcs + queue.requests.iter().filter(|r| r.npc.is_some()).count()
+            >= world.resource::<PlayState>().spawn_catalog.npc_rules.limit
+    {
+        world.resource_mut::<PlayState>().status = "NPC limit reached".into();
+        return;
+    }
     if queue.requests.len() >= queue.limit
         || count + queue.requests.len() >= world.resource::<PlayState>().config.max_props
     {
@@ -101,7 +120,7 @@ fn enqueue_typed(
         return;
     }
     world.resource_mut::<PlayState>().status = format!("Loading {path} (Z cancels pending spawn)");
-    if vehicle.is_none() {
+    if vehicle.is_none() && npc.is_none() {
         world.resource_mut::<PlayState>().selected = path.clone();
     }
     world
@@ -109,6 +128,7 @@ fn enqueue_typed(
         .requests
         .push_back(Request {
             vehicle,
+            npc,
             rotation,
             path,
             position,
@@ -195,7 +215,6 @@ pub(super) fn complete(world: &mut World) {
             world.resource_mut::<PlayState>().status = "Prop limit reached".into();
             return;
         }
-        remember(world);
         // Place the lowest support point outside the hit plane, not the model origin.
         // Source models frequently have off-centre origins or extend below local zero.
         let model = &world.resource::<PlayState>().cache[&format!("{}#0", request.path)];
@@ -206,7 +225,20 @@ pub(super) fn complete(world: &mut World) {
             .map(|p| (request.rotation * Vec3::from_array(*p)).dot(request.normal))
             .fold(f32::INFINITY, f32::min);
         let position = request.position
-            + request.normal * (crate::compiled_frontend_config().spawn_clearance - support);
+            + request.normal
+                * (crate::compiled_frontend_config().spawn_clearance
+                    - if request.npc.is_some() { 0. } else { support });
+        if let Some(id) = &request.npc {
+            if !npcs::clear_at(world, id, position) {
+                world.resource_mut::<PlayState>().status = "NPC spawn is blocked".into();
+                return;
+            }
+            if let Err(error) = npcs::prepare(world, id) {
+                world.resource_mut::<PlayState>().status = format!("NPC assets failed: {error}");
+                return;
+            }
+        }
+        remember(world);
         match spawn_model(world, &request.path, position, request.rotation, false) {
             Ok(entity) => {
                 if let Some(id) = &request.vehicle {
@@ -215,6 +247,14 @@ pub(super) fn complete(world: &mut World) {
                         world.resource_mut::<PlayState>().undo.pop();
                         world.resource_mut::<PlayState>().status =
                             format!("Vehicle failed: {error}");
+                        return;
+                    }
+                }
+                if let Some(id) = &request.npc {
+                    if let Err(error) = npcs::attach(world, entity, id) {
+                        world.despawn(entity);
+                        world.resource_mut::<PlayState>().undo.pop();
+                        world.resource_mut::<PlayState>().status = format!("NPC failed: {error}");
                         return;
                     }
                 }

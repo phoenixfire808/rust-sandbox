@@ -1,6 +1,6 @@
 param([string]$Sheets = (Join-Path $PSScriptRoot '..\sheets'))
 $ErrorActionPreference = 'Stop'
-# Derived review view. Edit source_weapons/source_vehicles, not this generated coverage table.
+# Derived review view. Edit source_weapons/source_vehicles/source_npcs, not this generated coverage table.
 $references = @{}
 Import-Csv (Join-Path $Sheets 'spawn_reference.csv') | ForEach-Object { $references[$_.id] = $_ }
 $rows = @()
@@ -18,6 +18,15 @@ foreach ($v in Import-Csv (Join-Path $Sheets 'source_vehicles.csv')) {
         id=$v.id; kind='vehicle'; route=$v.kind; implementation='partial'; scope=$v.scope; remaining=$v.remaining
         acceptance=$(if ($v.kind -eq 'seat') {'Click spawns correct seat; E enters and exits; seated pose blends; no invented engine; blocked exits reject; removal undo duplication and save/load preserve identity'} else {'Click spawns correct vehicle; E enters; verify seated transition; WASD accelerates reverses and steers; Space brakes; E exits safely; F4 camera; removal undo duplication save/load preserve identity; airboat supports mapped water'})
         result='not_run'; owner='Drew'; reference=$references[$v.id].source; authored_sheet='source_vehicles'
+    }
+}
+foreach ($n in Import-Csv (Join-Path $Sheets 'source_npcs.csv')) {
+    $rows += [pscustomobject][ordered]@{
+        id=$n.id; kind='npc'; route=$n.kind
+        implementation=$(if ($n.kind -eq 'disabled') {'missing'} else {'partial'})
+        scope=$n.scope; remaining=$n.remaining
+        acceptance=$(if ($n.kind -eq 'disabled') {'Pending explains unsupported class and does not spawn a cosmetic prop substitute'} else {'Click spawns original animated actor on clear floor; verify facing and collision; hostile actors pursue visible opponents; walls block damage; toggles gate thinking and player targeting; weapon damage removes actors; scene save/load and undo preserve identity and health'})
+        result='not_run'; owner='Drew'; reference=$references[$n.id].source; authored_sheet='source_npcs'
     }
 }
 $rows | Export-Csv (Join-Path $Sheets 'playable_coverage.csv') -NoTypeInformation -Encoding UTF8

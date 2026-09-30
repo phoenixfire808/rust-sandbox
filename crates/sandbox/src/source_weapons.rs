@@ -88,6 +88,7 @@ pub fn input(world: &mut World) {
     }
     let p = world.resource::<PlayState>();
     if crate::source_frontend::active(world)
+        || npcs::dead(world)
         || p.menu_open
         || p.tools.input_blocked
         || world.resource::<vehicles::Occupancy>().vehicle.is_some()

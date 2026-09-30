@@ -40,6 +40,7 @@ pub(super) fn snapshot_selection(world: &mut World, ids: &[Entity]) -> SavedScen
             let b = world.get::<RigidBody>(*e)?;
             Some(SavedModel {
                 vehicle: world.get::<vehicles::VehicleBody>(*e).map(|v| v.id.clone()),
+                npc: world.get::<npcs::NpcBody>(*e).map(|n| n.id.clone()),
                 health: world.get::<weapons::Health>(*e).copied(),
                 model: p.model.clone(),
                 position: t.translation.to_array(),
@@ -53,7 +54,7 @@ pub(super) fn snapshot_selection(world: &mut World, ids: &[Entity]) -> SavedScen
         })
         .collect();
     SavedScene {
-        version: 3,
+        version: 4,
         props,
         links: constraints::snapshot(world, ids),
     }
@@ -68,7 +69,8 @@ pub(super) fn remember(world: &mut World) {
 }
 pub(super) fn validate_scene(world: &mut World, save: &SavedScene) -> Result<()> {
     let p = world.resource::<PlayState>();
-    if ![2, 3].contains(&save.version)
+    if ![2, 3, 4].contains(&save.version)
+        || save.props.iter().filter(|p| p.npc.is_some()).count() > p.spawn_catalog.npc_rules.limit
         || save.props.len() > p.config.max_props
         || save.links.len() > p.tools.catalog.gun.max_constraints
     {
@@ -76,8 +78,25 @@ pub(super) fn validate_scene(world: &mut World, save: &SavedScene) -> Result<()>
     }
     for l in &save.links {
         constraints::validate(l, save.props.len())?;
+        if [l.a, l.b]
+            .into_iter()
+            .flatten()
+            .any(|i| save.props[i].npc.is_some())
+        {
+            return Err("constraints on live NPCs are not supported".into());
+        }
     }
     for p in &save.props {
+        if p.npc.is_some() && (p.vehicle.is_some() || p.frozen) {
+            return Err("conflicting NPC scene state".into());
+        }
+        if let Some(id) = &p.npc {
+            let n = npcs::definition(world, id).ok_or("unknown saved NPC")?;
+            if n.model != p.model {
+                return Err("mismatched saved NPC model".into());
+            }
+            npcs::prepare(world, id)?;
+        }
         if let Some(id) = &p.vehicle {
             let catalog = &world.resource::<PlayState>().spawn_catalog;
             if !catalog.vehicles.iter().any(|v| &v.id == id)
@@ -93,11 +112,17 @@ pub(super) fn validate_scene(world: &mut World, save: &SavedScene) -> Result<()>
             !h.0.is_finite()
                 || h.0 <= 0.
                 || h.0
-                    > world
-                        .resource::<PlayState>()
-                        .spawn_catalog
-                        .runtime
-                        .prop_health
+                    > p.npc
+                        .as_ref()
+                        .and_then(|id| npcs::definition(world, id))
+                        .map(|n| n.health)
+                        .unwrap_or(
+                            world
+                                .resource::<PlayState>()
+                                .spawn_catalog
+                                .runtime
+                                .prop_health,
+                        )
         }) {
             return Err("invalid prop health".into());
         }
@@ -113,6 +138,12 @@ pub(super) fn validate_scene(world: &mut World, save: &SavedScene) -> Result<()>
     Ok(())
 }
 pub(super) fn spawn_scene(world: &mut World, scene: SavedScene, offset: Vec3) -> Result<()> {
+    if world.query::<&npcs::NpcBody>().iter(world).count()
+        + scene.props.iter().filter(|p| p.npc.is_some()).count()
+        > world.resource::<PlayState>().spawn_catalog.npc_rules.limit
+    {
+        return Err("NPC limit reached".into());
+    }
     let mut ids = Vec::new();
     // All fallible asset preparation and limit checks precede changes to the world.
     for p in scene.props {
@@ -126,6 +157,9 @@ pub(super) fn spawn_scene(world: &mut World, scene: SavedScene, offset: Vec3) ->
         tools::apply_properties(world, id, p.properties)?;
         if let Some(vehicle) = p.vehicle {
             vehicles::attach(world, id, &vehicle)?;
+        }
+        if let Some(npc) = p.npc {
+            npcs::attach(world, id, &npc)?;
         }
         if let Some(health) = p.health {
             world.entity_mut(id).insert(health);

@@ -120,7 +120,7 @@ fn ray(
         )
         .map(|(_, d)| d)
 }
-fn clear_hull(world: &mut World, center: Vec3) -> bool {
+pub(super) fn clear_hull(world: &mut World, center: Vec3) -> bool {
     let Some(player) = world.get_resource::<PlayerState>() else {
         return false;
     };
@@ -152,6 +152,7 @@ fn clear_hull(world: &mut World, center: Vec3) -> bool {
         Quat::IDENTITY,
         &shape,
         QueryFilter::default()
+            .groups(CollisionGroups::new(Group::GROUP_3, Group::ALL))
             .exclude_collider(entity)
             .exclude_sensors(),
         |_| {
@@ -227,7 +228,8 @@ pub fn update(world: &mut World) {
         .query_filtered::<&Window, With<PrimaryWindow>>()
         .iter(world)
         .any(|w| w.focused);
-    let blocked = crate::source_frontend::active(world)
+    let blocked = npcs::dead(world)
+        || crate::source_frontend::active(world)
         || world.resource::<PlayState>().menu_open
         || !focused;
     let keys = world.resource::<ButtonInput<KeyCode>>().clone();
@@ -368,7 +370,8 @@ pub fn drive(world: &mut World) {
         .query_filtered::<&Window, With<PrimaryWindow>>()
         .iter(world)
         .any(|w| w.focused);
-    let blocked = crate::source_frontend::active(world)
+    let blocked = npcs::dead(world)
+        || crate::source_frontend::active(world)
         || world.resource::<PlayState>().menu_open
         || !focused;
     let (throttle, steer, brake) = {

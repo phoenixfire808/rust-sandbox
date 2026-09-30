@@ -28,6 +28,8 @@ fn main() {
         "source_gameplay.csv",
         "source_model_categories.csv",
         "source_water.csv",
+        "source_npcs.csv",
+        "source_npc_rules.csv",
         "parity_gaps.csv",
     ] {
         println!("cargo:rerun-if-changed={}", sheets.join(name).display());

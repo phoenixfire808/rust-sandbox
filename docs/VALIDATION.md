@@ -1,5 +1,15 @@
 # Validation record
 
+## Typed NPC lifecycle and NoCollide filtering, 2026-09-30 00:49 UTC
+
+- Final actual executable build succeeded in 1m07s: `cargo rustc --locked -p rust-sandbox --bin source-map -- -o D:\jcode-build\rust-sandbox-20260929\source-map-npc-lifecycle.exe`. Log: local/npc-lifecycle-final-build.log. The preceding integrated build also passed. Only the two deliberate explicit-output-path warnings and existing binrw future-incompatibility notice were reported.
+- Production `sandbox-catalog validate sheets` passed, reporting 197 spawn references, eight creation tabs, 56 capabilities and 101 behavior specifications. New NPC definitions and rules pass the actual catalog loading/generation path. Log: local/npc-lifecycle-sheets.log.
+- Workbook export succeeded with **107,360 data rows** at `spreadsheets/rust-sandbox-catalog-20260930-npc-lifecycle.xlsx`. Log: local/npc-lifecycle-workbook.log. Derived registration coverage contains 134 rows, including all 85 NPC registrations. CSV remains authoritative and earlier workbooks are preserved. Export success is not independent workbook acceptance.
+- Read-only original model metadata research initially failed in vmdl external animation-block parsing. The metadata inspector was corrected to bypass animation decoding, matching the existing runtime metadata approach, and subsequent extraction succeeded. Names and included libraries were observed, but actual runtime clip decoding, posing and visual alignment were not exercised. See RESEARCH.md.
+- Static review covered sheet validation, six typed actor routes, required-clip rejection, blocked placement, collision/controller masks, AI toggles, damage/death, paused or blocked respawn, scene version 4 preflight, undo ordering and unsupported-tool rejection. Player NoCollide repair follows the original tool behavior and Rapier controller query semantics, not an instrumented gameplay reproduction.
+- This is a partial integration, not closure of the full parity backlog. Six NPC registrations have prototype routes and 79 remain disabled. Native schedules/navigation, equipment, sounds, hitgroups, ragdolls and class-specific behaviors remain open. Player health/respawn is local and incomplete relative to native player lifecycle. All 21 new gameplay cases and all registration acceptance rows remain not_run and Drew-owned.
+- No tests or test compilation, Clippy, benchmarks, screenshots or gameplay/input automation were performed. No game was launched or terminated in this pass. Saves, private feedback, Steam content and earlier executables were preserved. Compilation is not gameplay acceptance.
+
 ## Vehicle orientation, model categories and water, 2026-09-29 23:19 UTC
 
 - Read-only installed-content research extracted attachment frames for all 15 registered vehicles, 8,390 model/category memberships from 43 stock spawn lists, and original above/below-water material parameters. Metadata extraction is not gameplay acceptance. Research sources and approximation boundaries are recorded in RESEARCH.md and VEHICLE_WATER_CATEGORY_PLAN.md.

@@ -1,0 +1,22 @@
+id,area,scenario,expected,result,owner
+npc_ground,NPC,Spawn each enabled registration on open floor,Original actor and required clips load; feet align with floor; no prop substitution,not_run,Drew
+npc_blocked,NPC,Spawn on wall or under low ceiling or inside another body,Request fails visibly before allocating actor and preserves scene,not_run,Drew
+npc_queue,NPC,Queue repeated NPCs then cancel with Z,Bounded FIFO respects NPC and global limits and cancellation,not_run,Drew
+npc_disabled,NPC,Click each unsupported registration,Pending details explain missing functionality without fake spawn,not_run,Drew
+npc_clip_failure,NPC,Required original animation unavailable,Visible asset error with no orphan actor or consumed undo entry,not_run,Drew
+npc_collision,NPC,Place pursuing actors behind physical obstacles,Actors collide instead of crossing geometry; lack of navigation is explicit,not_run,Drew
+npc_sight,NPC,Put a wall between hostile actors or player,No attack through occlusion and nearest visible opposing faction selected,not_run,Drew
+npc_faction,NPC,Spawn same-faction soldiers plus zombie and passive Odessa,Soldiers do not target each other; opposing factions can fight; Odessa remains unarmed,not_run,Drew
+npc_thinking,NPC,Toggle Disable Thinking during movement and attack,AI motion attack timers and animation remain stopped until enabled,not_run,Drew
+npc_ignore,NPC,Toggle Ignore Players during combat,Player ceases to be an AI target while opposing NPC combat can continue,not_run,Drew
+npc_weapons,NPC,Damage each enabled actor with hitscan melee bolt and blast,Health decreases and lethal damage removes actor controller and visual children,not_run,Drew
+npc_remove,NPC,Remove NPC with remover then undo,No orphan controller; restored identity and health remain typed,not_run,Drew
+npc_tools,NPC,Try physgun freeze and construction tools on live actor,Unsupported manipulations reject without turning NPC into a dynamic prop,not_run,Drew
+npc_save,NPC,Save injured mixed NPC prop vehicle scene and reload,Version4 preserves typed identities and health; older saves still load,not_run,Drew
+npc_invalid_save,NPC,Load unknown NPC model mismatch excessive count or NPC constraint,Validation rejects before live scene replacement,not_run,Drew
+npc_focus,NPC,Open pause or feedback editor and switch window focus,No unseen AI attacks or stale movement while paused or unfocused,not_run,Drew
+player_npc_death,Player,Take lethal NPC damage while walking or seated,Health reaches zero and movement tool fire vehicle input stop; safe respawn restores health,not_run,Drew
+player_respawn_blocked,Player,Obstruct original spawn before death,No respawn inside solid geometry; recovery communicates blockage,not_run,Drew
+nocollide_world,Tools,Right-click prop with No Collide then walk through it,Player passes through while prop still collides with map; second right click restores blocking,not_run,Drew
+nocollide_pair,Tools,Left-click two props then walk against them,Only chosen prop pair ignores contact; player and unrelated props still collide,not_run,Drew
+nocollide_restore,Tools,Save and reload world-only prop then use undo,Movement filter follows restored collision policy without losing map support,not_run,Drew

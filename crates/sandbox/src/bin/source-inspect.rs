@@ -63,7 +63,15 @@ fn main() -> Result<()> {
         println!("MODEL {path}");
         let bytes = mounts.read(&bsp, &path)?;
         if metadata {
-            let mdl = vmdl::Mdl::read(&bytes)?;
+            // Metadata must not invoke vmdl's unsupported external animation decoder.
+            // Match the production geometry loader; keep original bytes for raw clip names below.
+            let mut header = bytes.clone();
+            if header.len() < 192 {
+                return Err("truncated MDL header".into());
+            }
+            header[180..184].copy_from_slice(&0i32.to_le_bytes());
+            header[188..192].copy_from_slice(&0i32.to_le_bytes());
+            let mdl = vmdl::Mdl::read(&header)?;
             let skeleton = rust_sandbox::source_animation::Skeleton::read(&bytes)?;
             let globals = skeleton.globals(&skeleton.bind_pose());
             for (name, bone, local) in &skeleton.attachments {
@@ -103,7 +111,6 @@ fn main() -> Result<()> {
                     );
                 }
             }
-            continue;
         }
         let int = |o: usize| i32::from_le_bytes(bytes[o..o + 4].try_into().unwrap()) as usize;
         let text = |o: usize| {
@@ -127,7 +134,7 @@ fn main() -> Result<()> {
                 int(o + 84)
             );
         }
-        if path.contains("_anm") {
+        if metadata || path.contains("_anm") {
             continue;
         }
         let skeleton = rust_sandbox::source_animation::Skeleton::read(&bytes)?;
